@@ -1,39 +1,11 @@
 import { useState } from 'react'
-import { X, CreditCard, Smartphone, Wallet } from 'lucide-react'
+import { X } from 'lucide-react'
 import clsx from 'clsx'
-
-const PAYMENT_METHODS = [
-  {
-    id: 'stripe',
-    label: 'Carta di credito/debito',
-    icon: CreditCard,
-    description: 'Visa, Mastercard, Amex — pagamento sicuro con Stripe',
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-  },
-  {
-    id: 'paypal',
-    label: 'PayPal',
-    icon: Wallet,
-    description: 'Paga con il tuo account PayPal',
-    color: 'text-blue-800',
-    bg: 'bg-blue-50',
-  },
-  {
-    id: 'satispay',
-    label: 'Satispay',
-    icon: Smartphone,
-    description: 'Paga con Satispay dal tuo smartphone',
-    color: 'text-red-600',
-    bg: 'bg-red-50',
-  },
-]
 
 const QUICK_AMOUNTS = [10, 20, 30, 50]
 
 export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit }) {
   const remaining = Math.max(0, goal - collected)
-  const [method, setMethod] = useState('stripe')
   const [amount, setAmount] = useState('')
   const [customAmount, setCustomAmount] = useState(false)
   const [name, setName] = useState('')
@@ -54,10 +26,10 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
     setError('')
     setLoading(true)
     try {
-      await onSubmit({ method, amount: numAmount, name: name.trim() })
+      await onSubmit({ method: 'contanti', amount: numAmount, name: name.trim() })
       onClose()
     } catch (e) {
-      setError(e.message || 'Errore nel pagamento. Riprova.')
+      setError(e.message || 'Errore. Riprova.')
     } finally {
       setLoading(false)
     }
@@ -75,8 +47,8 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
       <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-display text-xl font-bold">Contribuisci</h2>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-display text-xl font-bold">Prenota la tua quota</h2>
             <button
               onClick={onClose}
               className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -84,6 +56,10 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          <p className="text-sm text-gray-500 mb-5">
+            Indica il tuo nome e la quota che vuoi contribuire. Porterai i contanti il giorno della festa.
+          </p>
 
           {/* Name */}
           <div className="mb-4">
@@ -98,7 +74,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
           </div>
 
           {/* Amount */}
-          <div className="mb-5">
+          <div className="mb-6">
             <label className="label">Importo (min €10, max €{remaining.toFixed(0)})</label>
 
             {/* Quick amounts */}
@@ -158,44 +134,6 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
             </div>
           </div>
 
-          {/* Payment method */}
-          <div className="mb-6">
-            <label className="label">Metodo di pagamento</label>
-            <div className="space-y-2">
-              {PAYMENT_METHODS.map((pm) => (
-                <button
-                  key={pm.id}
-                  type="button"
-                  onClick={() => setMethod(pm.id)}
-                  className={clsx(
-                    'w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all',
-                    method === pm.id
-                      ? 'border-salvia bg-salvia/5'
-                      : 'border-gray-200 hover:border-gray-300'
-                  )}
-                >
-                  <div className={clsx('p-2 rounded-lg', pm.bg)}>
-                    <pm.icon className={clsx('w-4 h-4', pm.color)} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">{pm.label}</p>
-                    <p className="text-xs text-gray-500">{pm.description}</p>
-                  </div>
-                  <div
-                    className={clsx(
-                      'ml-auto w-5 h-5 rounded-full border-2 flex items-center justify-center',
-                      method === pm.id ? 'border-salvia' : 'border-gray-300'
-                    )}
-                  >
-                    {method === pm.id && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-salvia" />
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {error && (
             <p className="text-sm text-red-500 mb-4 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
           )}
@@ -206,14 +144,14 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
             className="btn-primary w-full py-3.5 text-base"
           >
             {loading
-              ? 'Elaborazione...'
+              ? 'Salvataggio...'
               : isValid
-              ? `Contribuisci €${numAmount.toFixed(2)}`
+              ? `Prenota €${numAmount.toFixed(2)}`
               : 'Inserisci nome e importo'}
           </button>
 
           <p className="text-xs text-center text-gray-400 mt-3">
-            Pagamento sicuro e cifrato. Non condividiamo i tuoi dati.
+            Nessun pagamento online — porterai i contanti il giorno della festa.
           </p>
         </div>
       </div>

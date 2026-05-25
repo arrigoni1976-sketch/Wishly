@@ -39,7 +39,7 @@ export default function CollectiveGiftPage() {
     // In a real app, redirect to payment provider here
     // For now simulate success
     await fetchEvent()
-    setSuccessMsg(`Grazie ${name}! Il tuo contributo di €${amount.toFixed(2)} è stato registrato.`)
+    setSuccessMsg(`Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa! 🎉`)
     setTimeout(() => setSuccessMsg(''), 6000)
   }
 
@@ -171,15 +171,11 @@ export default function CollectiveGiftPage() {
           </div>
         )}
 
-        {/* ── Info metodi pagamento ────────────────────────────────────── */}
+        {/* ── Info raccolta contanti ───────────────────────────────────── */}
         {!isComplete && (
           <div className="rounded-2xl border border-avorio-dark bg-avorio p-4 text-sm text-gray-500 text-center">
-            <p className="font-medium text-gray-700 mb-1">Metodi di pagamento accettati</p>
-            <div className="flex justify-center gap-4 mt-2 text-base">
-              <span title="Stripe">💳 Carta</span>
-              <span title="PayPal">🔵 PayPal</span>
-              <span title="Satispay">🔴 Satispay</span>
-            </div>
+            <p className="font-medium text-gray-700 mb-1">💵 Raccolta in contanti</p>
+            <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza.</p>
           </div>
         )}
       </div>
