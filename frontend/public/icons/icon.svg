@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="#4A7A50"/>
+
+  <!-- Ribbon horizontal -->
+  <rect x="96" y="220" width="320" height="56" rx="8" fill="#FAF7F2"/>
+
+  <!-- Ribbon vertical -->
+  <rect x="228" y="180" width="56" height="220" rx="8" fill="#FAF7F2"/>
+
+  <!-- Box body -->
+  <rect x="96" y="276" width="320" height="176" rx="12" fill="#E8C4B8"/>
+
+  <!-- Box lid -->
+  <rect x="80" y="200" width="352" height="80" rx="12" fill="#D4A090"/>
+
+  <!-- Ribbon overlay on lid -->
+  <rect x="228" y="200" width="56" height="80" rx="0" fill="#FAF7F2" opacity="0.9"/>
+
+  <!-- Bow left loop -->
+  <ellipse cx="196" cy="196" rx="52" ry="32" fill="#FAF7F2" transform="rotate(-20 196 196)"/>
+
+  <!-- Bow right loop -->
+  <ellipse cx="316" cy="196" rx="52" ry="32" fill="#FAF7F2" transform="rotate(20 316 196)"/>
+
+  <!-- Bow center knot -->
+  <circle cx="256" cy="200" r="22" fill="#FAF7F2"/>
+
+  <!-- Small star accents -->
+  <circle cx="160" cy="340" r="6" fill="#FAF7F2" opacity="0.4"/>
+  <circle cx="352" cy="380" r="5" fill="#FAF7F2" opacity="0.4"/>
+  <circle cx="380" cy="320" r="4" fill="#FAF7F2" opacity="0.3"/>
+</svg>
