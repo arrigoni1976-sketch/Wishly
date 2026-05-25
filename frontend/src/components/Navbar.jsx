@@ -8,7 +8,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-avorio/90 backdrop-blur-sm border-b border-avorio-dark">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="text-2xl">🎁</span>
+          <img src="/icons/icon-72x72.png" alt="Wishly" className="w-8 h-8 rounded-xl" />
           <span className="font-display text-xl font-bold text-salvia group-hover:text-salvia-dark transition-colors">
             Wishly
           </span>
