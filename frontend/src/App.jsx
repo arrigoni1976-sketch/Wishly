@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { useEffect } from 'react'
 import { registerSW } from 'virtual:pwa-register'
+import { Analytics } from '@vercel/analytics/react'
 import HomePage from './pages/HomePage'
 import CreateEventPage from './pages/CreateEventPage'
 import ParentDashboardPage from './pages/ParentDashboardPage'
@@ -34,6 +35,7 @@ export default function App() {
 
       {/* Banner installazione PWA — visibile su mobile */}
       <InstallPrompt />
+      <Analytics />
     </Router>
   )
 }
