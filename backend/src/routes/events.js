@@ -63,8 +63,8 @@ router.post('/', async (req, res, next) => {
       if (giftsError) throw giftsError
     }
 
-    // Send confirmation email
-    await sendEventCreatedEmail({
+    // Send confirmation email (non-blocking — don't fail if email fails)
+    sendEventCreatedEmail({
       to: parentEmail,
       childName,
       partyDate,
@@ -73,7 +73,7 @@ router.post('/', async (req, res, next) => {
       parentToken,
       guestToken,
       collectiveToken: collectiveEnabled ? collectiveToken : null,
-    })
+    }).catch((err) => console.error('[email] failed to send event created email:', err.message))
 
     res.status(201).json({
       id: event.id,
