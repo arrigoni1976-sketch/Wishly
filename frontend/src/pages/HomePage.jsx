@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { Gift, Users, Heart, Shield, Bell, Star } from 'lucide-react'
+import { format } from 'date-fns'
+import { it } from 'date-fns/locale'
 
 const FEATURES = [
   {
@@ -75,6 +78,13 @@ const STEPS = [
 ]
 
 export default function HomePage() {
+  const [myEvents, setMyEvents] = useState([])
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('wishly_events') || '[]')
+    setMyEvents(saved)
+  }, [])
+
   return (
     <Layout>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
@@ -185,6 +195,37 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── Le tue liste ────────────────────────────────────────────────── */}
+      {myEvents.length > 0 && (
+        <section className="py-10 px-4 bg-white border-b border-avorio-dark">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="font-display text-2xl font-bold text-gray-900 mb-4">Le tue liste</h2>
+            <div className="space-y-3">
+              {myEvents.map((ev) => (
+                <Link
+                  key={ev.parentToken}
+                  to={`/dashboard/${ev.parentToken}`}
+                  className="flex items-center justify-between bg-avorio rounded-2xl px-5 py-4 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
+                >
+                  <div>
+                    <p className="font-semibold text-gray-800">{ev.childName}</p>
+                    <p className="text-sm text-gray-400">
+                      {ev.partyDate
+                        ? format(new Date(ev.partyDate), "d MMMM yyyy", { locale: it })
+                        : ''}
+                    </p>
+                  </div>
+                  <span className="text-salvia font-medium text-sm">Apri →</span>
+                </Link>
+              ))}
+            </div>
+            <Link to="/crea" className="mt-4 inline-flex items-center gap-1 text-sm text-salvia font-medium hover:underline">
+              + Crea una nuova lista
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ─── Features ─────────────────────────────────────────────────────── */}
       <section className="py-24 px-4 bg-white">
