@@ -155,7 +155,7 @@ function StepCollective({ register, watch, setValue }) {
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
           Regalo collettivo
         </h2>
-        <p className="text-gray-500 text-sm">Opzionale — raccolta fondi con contributi online</p>
+        <p className="text-gray-500 text-sm">Opzionale — gli invitati prenotano una quota e portano i contanti alla festa</p>
       </div>
 
       <div
@@ -165,7 +165,7 @@ function StepCollective({ register, watch, setValue }) {
         <div>
           <p className="font-medium text-gray-800">Attiva il regalo collettivo</p>
           <p className="text-sm text-gray-500">
-            Gli invitati potranno contribuire con PayPal, Satispay o carta
+            Gli invitati prenotano la loro quota e portano i contanti il giorno della festa
           </p>
         </div>
         <div
