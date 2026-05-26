@@ -211,6 +211,19 @@ function StepCollective({ register, watch, setValue }) {
             />
           </div>
 
+          <div>
+            <label className="label">Email PayPal (opzionale)</label>
+            <input
+              {...register('paypalEmail')}
+              type="email"
+              placeholder="Es. nome@email.com"
+              className="input"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Se la inserisci, gli invitati potranno versare la quota direttamente sul tuo PayPal.
+            </p>
+          </div>
+
           <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm">
             <p className="font-medium text-salvia mb-2">💡 Come funziona:</p>
             <ul className="space-y-1 text-gray-600">
@@ -436,6 +449,7 @@ export default function CreateEventPage() {
       collectiveEnabled: false,
       collectiveGoal: '',
       collectiveDescription: '',
+      paypalEmail: '',
       gifts: [],
     },
   })
