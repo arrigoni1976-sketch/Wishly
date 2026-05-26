@@ -79,16 +79,25 @@ const STEPS = [
 
 export default function HomePage() {
   const [myEvents, setMyEvents] = useState([])
+  const [myInvites, setMyInvites] = useState([])
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('wishly_events') || '[]')
     setMyEvents(saved)
+    const invites = JSON.parse(localStorage.getItem('wishly_invites') || '[]')
+    setMyInvites(invites)
   }, [])
 
   const removeEvent = (parentToken) => {
     const updated = myEvents.filter((ev) => ev.parentToken !== parentToken)
     setMyEvents(updated)
     localStorage.setItem('wishly_events', JSON.stringify(updated))
+  }
+
+  const removeInvite = (guestToken) => {
+    const updated = myInvites.filter((ev) => ev.guestToken !== guestToken)
+    setMyInvites(updated)
+    localStorage.setItem('wishly_invites', JSON.stringify(updated))
   }
 
   return (
@@ -237,6 +246,42 @@ export default function HomePage() {
             <Link to="/crea" className="mt-4 inline-flex items-center gap-1 text-sm text-salvia font-medium hover:underline">
               + Crea una nuova lista
             </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ─── Inviti ricevuti ─────────────────────────────────────────────── */}
+      {myInvites.length > 0 && (
+        <section className="py-10 px-4 bg-white border-b border-avorio-dark">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="font-display text-2xl font-bold text-gray-900 mb-4">Inviti ricevuti</h2>
+            <div className="space-y-3">
+              {myInvites.map((ev) => (
+                <div key={ev.guestToken} className="flex items-center gap-2">
+                  <Link
+                    to={`/lista/${ev.guestToken}`}
+                    className="flex-1 flex items-center justify-between bg-avorio rounded-2xl px-5 py-4 border border-avorio-dark hover:border-cipria hover:shadow-sm transition-all"
+                  >
+                    <div>
+                      <p className="font-semibold text-gray-800">🎈 Compleanno di {ev.childName}</p>
+                      <p className="text-sm text-gray-400">
+                        {ev.partyDate
+                          ? format(new Date(ev.partyDate), "d MMMM yyyy", { locale: it })
+                          : ''}
+                      </p>
+                    </div>
+                    <span className="text-cipria-dark font-medium text-sm">Apri →</span>
+                  </Link>
+                  <button
+                    onClick={() => removeInvite(ev.guestToken)}
+                    className="p-2 text-gray-300 hover:text-red-400 transition-colors"
+                    title="Rimuovi"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}

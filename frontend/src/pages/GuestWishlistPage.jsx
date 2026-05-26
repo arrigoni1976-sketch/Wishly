@@ -188,6 +188,18 @@ export default function GuestWishlistPage() {
     try {
       const res = await getEventByGuestToken(guestToken)
       setEvent(res.data)
+      // Salva l'invito nel localStorage per ritrovarlo dalla homepage
+      const saved = JSON.parse(localStorage.getItem('wishly_invites') || '[]')
+      const alreadySaved = saved.find((e) => e.guestToken === guestToken)
+      if (!alreadySaved) {
+        saved.unshift({
+          childName: res.data.child_name,
+          partyDate: res.data.party_date,
+          guestToken,
+          visitedAt: new Date().toISOString(),
+        })
+        localStorage.setItem('wishly_invites', JSON.stringify(saved.slice(0, 20)))
+      }
     } catch {
       setError('Lista non trovata o link non valido.')
     } finally {
