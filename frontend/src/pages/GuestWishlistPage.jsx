@@ -176,8 +176,6 @@ export default function GuestWishlistPage() {
   const [myRsvp, setMyRsvp] = useState(null)
   const [myReservations, setMyReservations] = useState([]) // gift IDs
   const [viewTracked, setViewTracked] = useState(false)
-  const [viewName, setViewName] = useState('')
-  const [showViewPrompt, setShowViewPrompt] = useState(false)
 
   const baseUrl = window.location.origin
 
@@ -194,18 +192,15 @@ export default function GuestWishlistPage() {
 
   useEffect(() => { fetchEvent() }, [guestToken])
 
-  // Track view after 2s
+  // Track view silently after 2s
   useEffect(() => {
     if (!event || viewTracked) return
-    const timer = setTimeout(() => setShowViewPrompt(true), 2000)
+    const timer = setTimeout(() => {
+      trackLinkView(guestToken, {}).catch(() => {})
+      setViewTracked(true)
+    }, 2000)
     return () => clearTimeout(timer)
   }, [event, viewTracked])
-
-  const handleTrackView = async () => {
-    await trackLinkView(guestToken, { guestName: viewName.trim() || undefined })
-    setViewTracked(true)
-    setShowViewPrompt(false)
-  }
 
   const handleReserve = async ({ giftId, guestName, partnerName, purchasedOffline }) => {
     await reserveGift(giftId, { guestName, partnerName, purchasedOffline })
@@ -254,22 +249,6 @@ export default function GuestWishlistPage() {
   return (
     <Layout>
       {/* View name prompt */}
-      {showViewPrompt && (
-        <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
-          <div className="bg-white border border-avorio-dark rounded-2xl shadow-xl p-4 flex items-center gap-3 w-full max-w-sm animate-slide-up">
-            <input
-              value={viewName}
-              onChange={(e) => setViewName(e.target.value)}
-              placeholder="Il tuo nome (opzionale)"
-              className="input flex-1 text-sm py-2"
-              onKeyDown={(e) => e.key === 'Enter' && handleTrackView()}
-            />
-            <button onClick={handleTrackView} className="btn-primary text-sm py-2 px-4 whitespace-nowrap">
-              Sono qui!
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-6">
 
