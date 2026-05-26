@@ -111,7 +111,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
-            Crea la lista dei desideri del tuo bambino, condividila con gli invitati e lascia che
+            Crea la lista dei desideri del tuo bambino (o la tua!), condividila con gli invitati e lascia che
             si coordinino da soli. Semplice per te, perfetto per tutti.
           </p>
 
