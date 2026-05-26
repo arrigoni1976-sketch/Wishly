@@ -31,7 +31,7 @@ export default async function middleware(request) {
 
   const url = new URL(request.url)
   const { pathname } = url
-  const baseUrl = 'https://wishly-blue.vercel.app'
+  const baseUrl = 'https://www.pikyapp.it'
   const imageUrl = `${baseUrl}/icons/icon-512x512.png`
 
   try {
