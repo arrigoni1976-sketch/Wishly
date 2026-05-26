@@ -144,6 +144,10 @@ export default function HomePage() {
 
         {/* Mock preview card */}
         <div className="relative max-w-lg mx-auto mt-16 px-4">
+          {/* Example badge */}
+          <div className="absolute -top-3 left-8 z-10 bg-salvia text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+            Esempio
+          </div>
           <div className="bg-white rounded-3xl shadow-2xl shadow-cipria/20 p-6 border border-avorio-dark">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-12 h-12 bg-cipria rounded-2xl flex items-center justify-center text-2xl">
