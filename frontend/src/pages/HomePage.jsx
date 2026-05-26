@@ -388,12 +388,12 @@ export default function HomePage() {
                 const shareData = {
                   title: 'Piky — Lista desideri per compleanni',
                   text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
-                  url: 'https://www.pikyapp.it',
+                  url: window.location.origin,
                 }
                 if (navigator.share) {
                   await navigator.share(shareData)
                 } else {
-                  await navigator.clipboard.writeText('https://www.pikyapp.it')
+                  await navigator.clipboard.writeText(window.location.origin)
                   alert('Link copiato!')
                 }
               }}
