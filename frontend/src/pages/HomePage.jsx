@@ -25,7 +25,7 @@ const FEATURES = [
     emoji: '💝',
     title: 'Regalo collettivo',
     description:
-      'Gli invitati prenotano la loro quota e portano i contanti il giorno della festa. Barra di progresso in tempo reale.',
+      'Gli invitati prenotano la loro quota e portano i contanti il giorno della festa, oppure pagano direttamente tramite PayPal. Barra di progresso in tempo reale.',
   },
   {
     icon: Shield,
@@ -61,7 +61,7 @@ const STEPS = [
     number: '02',
     title: 'Condividi i link',
     description:
-      'Ricevi due link privati: uno per gli invitati, uno per chi vuole contribuire al regalo collettivo.',
+      'Ricevi due link privati: uno per gli invitati, uno per chi vuole contribuire al regalo collettivo in contanti o tramite PayPal.',
   },
   {
     number: '03',
