@@ -1,5 +1,5 @@
 /**
- * Custom gift box icon in the Wishly palette (cipria + salvia).
+ * Custom gift box icon in the Piky palette (cipria + salvia).
  * Replaces the default 🎁 emoji throughout the app.
  *
  * Props:

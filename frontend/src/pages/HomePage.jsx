@@ -93,22 +93,22 @@ export default function HomePage() {
   const [myInvites, setMyInvites] = useState([])
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('wishly_events') || '[]')
+    const saved = JSON.parse(localStorage.getItem('piky_events') || '[]')
     setMyEvents(saved)
-    const invites = JSON.parse(localStorage.getItem('wishly_invites') || '[]')
+    const invites = JSON.parse(localStorage.getItem('piky_invites') || '[]')
     setMyInvites(invites)
   }, [])
 
   const removeEvent = (parentToken) => {
     const updated = myEvents.filter((ev) => ev.parentToken !== parentToken)
     setMyEvents(updated)
-    localStorage.setItem('wishly_events', JSON.stringify(updated))
+    localStorage.setItem('piky_events', JSON.stringify(updated))
   }
 
   const removeInvite = (guestToken) => {
     const updated = myInvites.filter((ev) => ev.guestToken !== guestToken)
     setMyInvites(updated)
-    localStorage.setItem('wishly_invites', JSON.stringify(updated))
+    localStorage.setItem('piky_invites', JSON.stringify(updated))
   }
 
   return (

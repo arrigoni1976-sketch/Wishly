@@ -17,7 +17,7 @@ const updateSW = registerSW({
     updateSW(true)
   },
   onOfflineReady() {
-    console.log('Wishly è pronta per l\'uso offline!')
+    console.log('Piky è pronta per l\'uso offline!')
   },
 })
 

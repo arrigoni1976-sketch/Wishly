@@ -39,7 +39,7 @@ export default function InstallPrompt() {
     if (isInStandaloneMode()) return
 
     // Non mostrare se l'utente ha già rifiutato
-    if (localStorage.getItem('wishly-pwa-dismissed')) return
+    if (localStorage.getItem('piky-pwa-dismissed')) return
 
     // Android/Chrome
     const handler = (e) => {
@@ -76,7 +76,7 @@ export default function InstallPrompt() {
   const handleDismiss = () => {
     setShowAndroid(false)
     setShowIos(false)
-    localStorage.setItem('wishly-pwa-dismissed', '1')
+    localStorage.setItem('piky-pwa-dismissed', '1')
   }
 
   // ── Android banner ──────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ export default function InstallPrompt() {
             </div>
             <div>
               <p className="font-display font-bold text-gray-900 text-base leading-tight">
-                Installa Wishly
+                Installa Piky
               </p>
               <p className="text-sm text-gray-500 mt-0.5">
                 Aggiungila alla schermata home — si apre come un'app
@@ -143,7 +143,7 @@ export default function InstallPrompt() {
               <GiftIcon size={28} />
             </div>
             <div>
-              <p className="font-display font-bold text-gray-900">Installa Wishly</p>
+              <p className="font-display font-bold text-gray-900">Installa Piky</p>
               <p className="text-xs text-gray-500">Aggiungila alla schermata Home</p>
             </div>
           </div>

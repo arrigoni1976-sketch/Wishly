@@ -479,14 +479,14 @@ export default function CreateEventPage() {
     try {
       const res = await createEvent(data)
       // Salva in localStorage per recupero futuro
-      const saved = JSON.parse(localStorage.getItem('wishly_events') || '[]')
+      const saved = JSON.parse(localStorage.getItem('piky_events') || '[]')
       saved.unshift({
         childName: data.childName,
         partyDate: data.partyDate,
         parentToken: res.data.parentToken,
         createdAt: new Date().toISOString(),
       })
-      localStorage.setItem('wishly_events', JSON.stringify(saved.slice(0, 10)))
+      localStorage.setItem('piky_events', JSON.stringify(saved.slice(0, 10)))
       navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
     } catch (e) {
       setError(e?.response?.data?.message || 'Errore nella creazione. Riprova.')

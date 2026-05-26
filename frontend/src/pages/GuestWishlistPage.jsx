@@ -197,7 +197,7 @@ export default function GuestWishlistPage() {
       const res = await getEventByGuestToken(guestToken)
       setEvent(res.data)
       // Salva l'invito nel localStorage per ritrovarlo dalla homepage
-      const saved = JSON.parse(localStorage.getItem('wishly_invites') || '[]')
+      const saved = JSON.parse(localStorage.getItem('piky_invites') || '[]')
       const alreadySaved = saved.find((e) => e.guestToken === guestToken)
       if (!alreadySaved) {
         saved.unshift({
@@ -206,7 +206,7 @@ export default function GuestWishlistPage() {
           guestToken,
           visitedAt: new Date().toISOString(),
         })
-        localStorage.setItem('wishly_invites', JSON.stringify(saved.slice(0, 20)))
+        localStorage.setItem('piky_invites', JSON.stringify(saved.slice(0, 20)))
       }
     } catch {
       setError('Lista non trovata o link non valido.')
@@ -441,9 +441,9 @@ export default function GuestWishlistPage() {
         {/* ── Installa app ─────────────────────────────────────────────── */}
         {showInstallBanner && (
           <div className="bg-white rounded-3xl border border-avorio-dark p-5 flex items-center gap-4">
-            <img src="/icons/icon-72x72.png" alt="Wishly" className="w-12 h-12 rounded-2xl flex-shrink-0" />
+            <img src="/icons/icon-72x72.png" alt="Piky" className="w-12 h-12 rounded-2xl flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-gray-800 text-sm">Aggiungi Wishly al telefono</p>
+              <p className="font-semibold text-gray-800 text-sm">Aggiungi Piky al telefono</p>
               <p className="text-xs text-gray-400 mt-0.5">Accedi velocemente alle liste anche offline</p>
             </div>
             <button onClick={handleInstall} className="btn-primary text-sm py-2 px-4 whitespace-nowrap flex-shrink-0">
@@ -465,7 +465,7 @@ export default function GuestWishlistPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center">
-              <img src="/icons/icon-72x72.png" alt="Wishly" className="w-16 h-16 rounded-2xl mx-auto mb-3" />
+              <img src="/icons/icon-72x72.png" alt="Piky" className="w-16 h-16 rounded-2xl mx-auto mb-3" />
               <h3 className="font-display font-bold text-gray-900 text-xl mb-1">Aggiungi a schermata Home</h3>
               <p className="text-sm text-gray-500">Segui questi passi in Safari:</p>
             </div>
