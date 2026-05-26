@@ -1,24 +1,25 @@
 import clsx from 'clsx'
+import { PartyPopper, HelpCircle, Frown } from 'lucide-react'
 
 const OPTIONS = [
   {
     value: 'yes',
     label: 'Ci sarò!',
-    emoji: '🎉',
+    icon: <PartyPopper className="w-4 h-4" />,
     activeClass: 'bg-salvia text-white border-salvia',
     hoverClass: 'hover:border-salvia hover:text-salvia',
   },
   {
     value: 'maybe',
     label: 'Forse',
-    emoji: '🤔',
+    icon: <HelpCircle className="w-4 h-4" />,
     activeClass: 'bg-yellow-400 text-white border-yellow-400',
     hoverClass: 'hover:border-yellow-400 hover:text-yellow-600',
   },
   {
     value: 'no',
     label: 'Non vengo',
-    emoji: '😔',
+    icon: <Frown className="w-4 h-4" />,
     activeClass: 'bg-red-400 text-white border-red-400',
     hoverClass: 'hover:border-red-400 hover:text-red-500',
   },
@@ -42,7 +43,7 @@ export default function RSVPSelector({ value, onChange, disabled = false }) {
               : clsx('border-gray-200 text-gray-600', opt.hoverClass)
           )}
         >
-          <span>{opt.emoji}</span>
+          <span>{opt.icon}</span>
           {opt.label}
         </button>
       ))}

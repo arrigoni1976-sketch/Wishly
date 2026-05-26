@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mail } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
+import CakeIcon from '../components/CakeIcon'
 import { createEvent } from '../lib/api'
 
 const STEPS = ['Info festa', 'Lista', 'Collettivo', 'Regali', 'Conferma']
@@ -134,7 +135,7 @@ function StepListSettings({ register, errors }) {
       </div>
 
       <div className="bg-cipria/10 border border-cipria/30 rounded-2xl p-4 text-sm text-gray-600">
-        <p className="font-medium text-gray-700 mb-1">📧 Cosa riceverai:</p>
+        <p className="font-medium text-gray-700 mb-1"><span className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-salvia" /> Cosa riceverai:</span></p>
         <ul className="space-y-1 text-gray-500">
           <li>· I link per condividere la lista</li>
           <li>· Un promemoria quando mancano 2 giorni alla festa</li>

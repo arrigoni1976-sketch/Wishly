@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Heart, Calendar, MapPin } from 'lucide-react'
+import { Heart, Calendar, MapPin, Banknote } from 'lucide-react'
 import Layout from '../components/Layout'
 import ProgressBar from '../components/ProgressBar'
 import PaymentModal from '../components/PaymentModal'
+import CelebrationIcon from '../components/CelebrationIcon'
+import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByCollectiveToken, createContribution } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -80,7 +82,7 @@ export default function CollectiveGiftPage() {
 
         {/* ── Header ──────────────────────────────────────────────────── */}
         <div className="card text-center">
-          <div className="text-5xl mb-4">💝</div>
+          <div className="mb-4 flex justify-center"><HeartRibbonIcon size={56} /></div>
           <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">
             {event.collective_description
               ? `${event.collective_description} per ${event.child_name}`
@@ -112,7 +114,7 @@ export default function CollectiveGiftPage() {
 
           {isComplete ? (
             <div className="mt-4 bg-salvia/10 border border-salvia/30 rounded-2xl p-4 text-center">
-              <p className="text-salvia font-semibold text-lg">🎉 Obiettivo raggiunto!</p>
+              <p className="text-salvia font-semibold text-lg"><span className="flex items-center justify-center gap-1.5"><CelebrationIcon size={20} /> Obiettivo raggiunto!</span></p>
               <p className="text-sm text-gray-500 mt-1">
                 Grazie a tutti per i contributi. Il regalo è completo!
               </p>
@@ -143,8 +145,8 @@ export default function CollectiveGiftPage() {
         {/* ── Contributori ─────────────────────────────────────────────── */}
         {event.contributions?.length > 0 && (
           <div className="card">
-            <h2 className="font-display font-bold text-lg text-gray-900 mb-4">
-              Chi ha contribuito ❤️
+            <h2 className="font-display font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
+              Chi ha contribuito <Heart className="w-5 h-5 text-cipria-dark" />
             </h2>
             <div className="space-y-3">
               {event.contributions
@@ -174,7 +176,7 @@ export default function CollectiveGiftPage() {
         {/* ── Info raccolta contanti + PayPal ─────────────────────────── */}
         {!isComplete && (
           <div className="rounded-2xl border border-avorio-dark bg-avorio p-4 text-sm text-gray-500 text-center">
-            <p className="font-medium text-gray-700 mb-1">💵 Raccolta in contanti</p>
+            <p className="font-medium text-gray-700 mb-1 flex items-center justify-center gap-1.5"><Banknote className="w-4 h-4 text-salvia" /> Raccolta in contanti</p>
             <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza.</p>
             {event.paypal_email && (
               <a

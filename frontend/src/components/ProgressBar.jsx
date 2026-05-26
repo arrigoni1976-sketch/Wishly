@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import CelebrationIcon from './CelebrationIcon'
 
 export default function ProgressBar({ current, goal, className }) {
   const percent = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0
@@ -33,7 +34,7 @@ export default function ProgressBar({ current, goal, className }) {
       </div>
 
       <div className="flex justify-between text-xs text-gray-500">
-        <span>{isComplete ? '🎉 Obiettivo raggiunto!' : `Mancano €${remaining.toFixed(2)}`}</span>
+        <span>{isComplete ? <><CelebrationIcon size={16} className="inline-block mr-1" />Obiettivo raggiunto!</> : `Mancano €${remaining.toFixed(2)}`}</span>
         <span>{percent}% completato</span>
       </div>
     </div>

@@ -33,7 +33,11 @@ export default function CopyLink({ url, label, icon, description, variant = 'def
       )}
     >
       <div className="flex items-center gap-2 mb-1">
-        {icon && <span className="text-xl">{icon}</span>}
+        {icon && (
+          typeof icon === 'string'
+            ? <span className="text-xl">{icon}</span>
+            : <span className="flex items-center">{icon}</span>
+        )}
         <span className="font-semibold text-sm text-gray-700">{label}</span>
       </div>
       {description && (

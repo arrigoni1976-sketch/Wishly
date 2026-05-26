@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import {
   Gift, Users, Eye, EyeOff, Plus, Calendar, MapPin,
-  Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper
+  Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
+  Link2, Lock, Baby
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import CopyLink from '../components/CopyLink'
 import GiftCard from '../components/GiftCard'
 import ProgressBar from '../components/ProgressBar'
 import GiftIcon from '../components/GiftIcon'
+import CakeIcon from '../components/CakeIcon'
+import CelebrationIcon from '../components/CelebrationIcon'
+import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -219,7 +223,7 @@ export default function ParentDashboardPage() {
         {/* ── Banner nuovo evento ──────────────────────────────────────── */}
         {showNewBanner && (
           <div className="relative bg-gradient-to-r from-salvia to-salvia-dark text-white rounded-3xl px-6 py-5 flex items-center gap-4 animate-slide-up shadow-lg shadow-salvia/20">
-            <div className="text-4xl flex-shrink-0">🎉</div>
+            <div className="flex-shrink-0"><CelebrationIcon size={36} /></div>
             <div className="flex-1">
               <p className="font-display font-bold text-lg leading-tight">
                 Evento attivo e pronto!
@@ -241,8 +245,8 @@ export default function ParentDashboardPage() {
         <div className="card">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-cipria rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
-                🎂
+              <div className="w-14 h-14 bg-cipria rounded-2xl flex items-center justify-center flex-shrink-0">
+                <CakeIcon size={32} />
               </div>
               <div>
                 <h1 className="font-display text-2xl font-bold text-gray-900">
@@ -269,18 +273,18 @@ export default function ParentDashboardPage() {
             {/* Stats pills */}
             <div className="flex flex-wrap gap-2">
               <div className="bg-green-50 text-green-700 rounded-xl px-3 py-1.5 text-sm font-medium">
-                🎉 {rsvpYes.length} confermati
+                <span className="inline-flex items-center gap-1"><CelebrationIcon size={14} /> {rsvpYes.length} confermati</span>
               </div>
               {totalChildren > 0 && (
                 <div className="bg-blue-50 text-blue-700 rounded-xl px-3 py-1.5 text-sm font-medium">
-                  👧 {totalChildren} bambini
+                  <span className="inline-flex items-center gap-1"><Baby className="w-3.5 h-3.5" /> {totalChildren} bambini</span>
                 </div>
               )}
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
                 <span className="inline-flex items-center gap-1"><GiftIcon size={14} /> {reservedCount}/{event.gifts?.length || 0} prenotati</span>
               </div>
               <div className="bg-avorio-dark text-gray-600 rounded-xl px-3 py-1.5 text-sm font-medium">
-                👀 {openedCount} hanno aperto
+                <span className="inline-flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {openedCount} hanno aperto</span>
               </div>
             </div>
           </div>
@@ -298,7 +302,7 @@ export default function ParentDashboardPage() {
           <CopyLink
             url={`${baseUrl}/lista/${event.guest_token}`}
             label="Lista invitati"
-            icon="🔗"
+            icon={<Link2 className="w-5 h-5 text-salvia" />}
             description="Condividi questo link con tutti gli invitati"
             variant="default"
           />
@@ -306,7 +310,7 @@ export default function ParentDashboardPage() {
             <CopyLink
               url={`${baseUrl}/collettivo/${event.collective_token}`}
               label="Regalo collettivo"
-              icon="💝"
+              icon={<HeartRibbonIcon size={20} />}
               description="Link separato solo per i contributi al regalo collettivo"
               variant="collective"
             />
@@ -314,7 +318,7 @@ export default function ParentDashboardPage() {
           <CopyLink
             url={`${baseUrl}/dashboard/${event.parent_token}`}
             label="Dashboard (solo tuo)"
-            icon="🔒"
+            icon={<Lock className="w-5 h-5 text-cipria-dark" />}
             description="Tieni questo link privato — ti dà accesso completo alla lista"
             variant="default"
           />

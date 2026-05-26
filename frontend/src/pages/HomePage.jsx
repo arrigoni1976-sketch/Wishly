@@ -1,8 +1,12 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star } from 'lucide-react'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles } from 'lucide-react'
 import GiftIcon from '../components/GiftIcon'
+import BalloonIcon from '../components/BalloonIcon'
+import CakeIcon from '../components/CakeIcon'
+import CelebrationIcon from '../components/CelebrationIcon'
+import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -17,35 +21,40 @@ const FEATURES = [
   },
   {
     icon: Users,
-    emoji: '🎉',
+    emoji: null,
+    customIcon: <CelebrationIcon size={28} />,
     title: 'RSVP integrato',
     description:
       'Gli invitati confermano la loro presenza (ci sarò / forse / non vengo) direttamente nella lista.',
   },
   {
     icon: Heart,
-    emoji: '💝',
+    emoji: null,
+    customIcon: <HeartRibbonIcon size={28} />,
     title: 'Regalo collettivo',
     description:
       'Gli invitati prenotano la loro quota e portano i contanti il giorno della festa, oppure pagano direttamente tramite PayPal. Barra di progresso in tempo reale.',
   },
   {
     icon: Shield,
-    emoji: '🔒',
+    emoji: null,
+    customIcon: <Lock size={24} className="text-salvia" />,
     title: 'Link privati',
     description:
       'Due link separati: uno per la lista completa, uno solo per il regalo collettivo.',
   },
   {
     icon: Bell,
-    emoji: '🔔',
+    emoji: null,
+    customIcon: <Bell size={24} className="text-salvia" />,
     title: 'Promemoria automatici',
     description:
       'Email automatica agli invitati 2 giorni prima. Riepilogo finale al genitore alla chiusura.',
   },
   {
     icon: Star,
-    emoji: '✨',
+    emoji: null,
+    customIcon: <Sparkles size={24} className="text-cipria-dark" />,
     title: 'Messaggi di ringraziamento',
     description:
       'Invia messaggi personalizzati post-festa a tutti i partecipanti in un click.',
@@ -112,7 +121,7 @@ export default function HomePage() {
 
         <div className="relative max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/70 border border-cipria/40 rounded-full px-4 py-1.5 text-sm text-gray-600 mb-6 backdrop-blur-sm">
-            <span>🎂</span>
+            <CakeIcon size={20} />
             <span>La wishlist intelligente per i compleanni</span>
           </div>
 
@@ -152,8 +161,8 @@ export default function HomePage() {
           </div>
           <div className="bg-white rounded-3xl shadow-2xl shadow-cipria/20 p-6 border border-avorio-dark">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-12 h-12 bg-cipria rounded-2xl flex items-center justify-center text-2xl">
-                🎈
+              <div className="w-12 h-12 bg-cipria rounded-2xl flex items-center justify-center">
+                <BalloonIcon size={28} />
               </div>
               <div>
                 <h3 className="font-display font-bold text-gray-900">Compleanno di Sofia</h3>
@@ -190,8 +199,8 @@ export default function HomePage() {
                     {item.price}
                   </span>
                   {item.reserved ? (
-                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                      🔒 {item.by}
+                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5">
+                      <Lock size={12} className="inline text-gray-400" /> {item.by}
                     </span>
                   ) : (
                     <button className="text-xs bg-salvia text-white px-3 py-1 rounded-lg font-medium">
@@ -271,7 +280,7 @@ export default function HomePage() {
                     className="flex-1 flex items-center justify-between bg-avorio rounded-2xl px-5 py-4 border border-avorio-dark hover:border-cipria hover:shadow-sm transition-all"
                   >
                     <div>
-                      <p className="font-semibold text-gray-800">🎈 Compleanno di {ev.childName}</p>
+                      <p className="font-semibold text-gray-800 flex items-center gap-1"><BalloonIcon size={16} className="inline-block" /> Compleanno di {ev.childName}</p>
                       <p className="text-sm text-gray-400">
                         {ev.partyDate
                           ? format(new Date(ev.partyDate), "d MMMM yyyy", { locale: it })

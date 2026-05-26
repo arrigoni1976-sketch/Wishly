@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Calendar, MapPin, Users, Gift } from 'lucide-react'
+import { Calendar, MapPin, Users, Gift, HelpCircle, Frown } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
 import GiftIcon from '../components/GiftIcon'
+import BalloonIcon from '../components/BalloonIcon'
+import HeartRibbonIcon from '../components/HeartRibbonIcon'
+import CelebrationIcon from '../components/CelebrationIcon'
 import RSVPSelector from '../components/RSVPSelector'
 import CopyLink from '../components/CopyLink'
 import {
@@ -64,7 +67,11 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved }) {
             <p className="text-sm text-gray-500 mt-0.5">
               Hai risposto:{' '}
               <span className="font-medium">
-                {status === 'yes' ? '🎉 Ci sarò' : status === 'maybe' ? '🤔 Forse' : '😔 Non vengo'}
+                <span className="flex items-center gap-1">
+                  {status === 'yes' ? <><CelebrationIcon size={14} /> Ci sarò</>
+                   : status === 'maybe' ? <><HelpCircle className="w-3.5 h-3.5" /> Forse</>
+                   : <><Frown className="w-3.5 h-3.5" /> Non vengo</>}
+                </span>
               </span>
             </p>
           </div>
@@ -299,8 +306,8 @@ export default function GuestWishlistPage() {
 
         {/* ── Header evento ───────────────────────────────────────────── */}
         <div className="card text-center">
-          <div className="w-16 h-16 bg-cipria rounded-2xl flex items-center justify-center text-4xl mx-auto mb-4">
-            🎈
+          <div className="w-16 h-16 bg-cipria rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <BalloonIcon size={40} />
           </div>
           <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">
             Compleanno di {event.child_name}!
@@ -349,7 +356,7 @@ export default function GuestWishlistPage() {
         {event.collective_enabled && (
           <div className="bg-gradient-to-br from-salvia/10 to-cipria/10 rounded-3xl border border-salvia/20 p-5">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">💝</span>
+              <HeartRibbonIcon size={24} />
               <div className="flex-1">
                 <p className="font-semibold text-gray-800">Regalo collettivo</p>
                 <p className="text-sm text-gray-500 mt-0.5 mb-3">
