@@ -8,6 +8,7 @@ import Layout from '../components/Layout'
 import CopyLink from '../components/CopyLink'
 import GiftCard from '../components/GiftCard'
 import ProgressBar from '../components/ProgressBar'
+import GiftIcon from '../components/GiftIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -276,7 +277,7 @@ export default function ParentDashboardPage() {
                 </div>
               )}
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
-                🎁 {reservedCount}/{event.gifts?.length || 0} prenotati
+                <span className="inline-flex items-center gap-1"><GiftIcon size={14} /> {reservedCount}/{event.gifts?.length || 0} prenotati</span>
               </div>
               <div className="bg-avorio-dark text-gray-600 rounded-xl px-3 py-1.5 text-sm font-medium">
                 👀 {openedCount} hanno aperto

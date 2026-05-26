@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { Calendar, MapPin, Users, Gift } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
+import GiftIcon from '../components/GiftIcon'
 import RSVPSelector from '../components/RSVPSelector'
 import CopyLink from '../components/CopyLink'
 import {
@@ -379,8 +380,8 @@ export default function GuestWishlistPage() {
         {/* ── Lista regali ─────────────────────────────────────────────── */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-bold text-xl text-gray-900">
-              Lista desideri 🎁
+            <h2 className="font-display font-bold text-xl text-gray-900 flex items-center gap-2">
+              Lista desideri <GiftIcon size={22} />
             </h2>
             <span className="text-sm text-gray-400">
               {giftsWithMyFlag.filter((g) => !g.reserved_by).length} disponibili

@@ -2,13 +2,15 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { Gift, Users, Heart, Shield, Bell, Star } from 'lucide-react'
+import GiftIcon from '../components/GiftIcon'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 const FEATURES = [
   {
     icon: Gift,
-    emoji: '🎁',
+    emoji: null,
+    customIcon: <GiftIcon size={28} />,
     title: 'Lista senza doppioni',
     description:
       'Chi prenota un regalo lo rende invisibile agli altri invitati. Zero sovrapposizioni, zero imbarazzo.',
@@ -203,7 +205,9 @@ export default function HomePage() {
             {/* Collective progress bar */}
             <div className="mt-5 pt-4 border-t border-avorio-dark">
               <div className="flex justify-between text-sm mb-2">
-                <span className="font-semibold text-gray-700">🎁 Regalo collettivo</span>
+                <span className="font-semibold text-gray-700 flex items-center gap-1.5">
+                  <GiftIcon size={16} /> Regalo collettivo
+                </span>
                 <span className="font-bold text-salvia">68%</span>
               </div>
               <div className="h-2 bg-avorio-dark rounded-full overflow-hidden">
@@ -309,7 +313,9 @@ export default function HomePage() {
                 key={feature.title}
                 className="group p-6 rounded-3xl border border-avorio-dark hover:border-cipria/50 hover:shadow-md hover:shadow-cipria/10 transition-all duration-300 bg-avorio/50"
               >
-                <div className="text-3xl mb-4">{feature.emoji}</div>
+                <div className="mb-4 flex items-center" style={{ minHeight: '2.25rem' }}>
+                  {feature.customIcon ?? <span className="text-3xl">{feature.emoji}</span>}
+                </div>
                 <h3 className="font-display font-bold text-gray-900 text-lg mb-2">
                   {feature.title}
                 </h3>
@@ -365,7 +371,7 @@ export default function HomePage() {
             className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-avorio transition-colors duration-200"
           >
             Crea la lista gratis
-            <span>🎁</span>
+            <GiftIcon size={22} />
           </Link>
         </div>
       </section>

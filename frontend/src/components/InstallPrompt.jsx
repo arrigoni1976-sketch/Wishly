@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { X, Download, Share } from 'lucide-react'
 import clsx from 'clsx'
+import GiftIcon from './GiftIcon'
 
 /**
  * InstallPrompt
@@ -91,8 +92,8 @@ export default function InstallPrompt() {
           </button>
 
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-salvia rounded-2xl flex items-center justify-center text-3xl flex-shrink-0">
-              🎁
+            <div className="w-14 h-14 bg-avorio rounded-2xl flex items-center justify-center flex-shrink-0">
+              <GiftIcon size={34} />
             </div>
             <div>
               <p className="font-display font-bold text-gray-900 text-base leading-tight">
@@ -138,8 +139,8 @@ export default function InstallPrompt() {
           </button>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-salvia rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">
-              🎁
+            <div className="w-12 h-12 bg-avorio rounded-2xl flex items-center justify-center flex-shrink-0">
+              <GiftIcon size={28} />
             </div>
             <div>
               <p className="font-display font-bold text-gray-900">Installa Wishly</p>
