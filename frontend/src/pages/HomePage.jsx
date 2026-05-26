@@ -85,6 +85,12 @@ export default function HomePage() {
     setMyEvents(saved)
   }, [])
 
+  const removeEvent = (parentToken) => {
+    const updated = myEvents.filter((ev) => ev.parentToken !== parentToken)
+    setMyEvents(updated)
+    localStorage.setItem('wishly_events', JSON.stringify(updated))
+  }
+
   return (
     <Layout>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
@@ -203,21 +209,29 @@ export default function HomePage() {
             <h2 className="font-display text-2xl font-bold text-gray-900 mb-4">Le tue liste</h2>
             <div className="space-y-3">
               {myEvents.map((ev) => (
-                <Link
-                  key={ev.parentToken}
-                  to={`/dashboard/${ev.parentToken}`}
-                  className="flex items-center justify-between bg-avorio rounded-2xl px-5 py-4 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
-                >
-                  <div>
-                    <p className="font-semibold text-gray-800">{ev.childName}</p>
-                    <p className="text-sm text-gray-400">
-                      {ev.partyDate
-                        ? format(new Date(ev.partyDate), "d MMMM yyyy", { locale: it })
-                        : ''}
-                    </p>
-                  </div>
-                  <span className="text-salvia font-medium text-sm">Apri →</span>
-                </Link>
+                <div key={ev.parentToken} className="flex items-center gap-2">
+                  <Link
+                    to={`/dashboard/${ev.parentToken}`}
+                    className="flex-1 flex items-center justify-between bg-avorio rounded-2xl px-5 py-4 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
+                  >
+                    <div>
+                      <p className="font-semibold text-gray-800">{ev.childName}</p>
+                      <p className="text-sm text-gray-400">
+                        {ev.partyDate
+                          ? format(new Date(ev.partyDate), "d MMMM yyyy", { locale: it })
+                          : ''}
+                      </p>
+                    </div>
+                    <span className="text-salvia font-medium text-sm">Apri →</span>
+                  </Link>
+                  <button
+                    onClick={() => removeEvent(ev.parentToken)}
+                    className="p-2 text-gray-300 hover:text-red-400 transition-colors"
+                    title="Rimuovi dalla lista"
+                  >
+                    ✕
+                  </button>
+                </div>
               ))}
             </div>
             <Link to="/crea" className="mt-4 inline-flex items-center gap-1 text-sm text-salvia font-medium hover:underline">
