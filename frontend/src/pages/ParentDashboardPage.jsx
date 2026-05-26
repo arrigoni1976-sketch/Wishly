@@ -3,7 +3,7 @@ import { useParams, Link, useSearchParams } from 'react-router-dom'
 import {
   Gift, Users, Eye, EyeOff, Plus, Calendar, MapPin,
   Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
-  Link2, Lock, Baby
+  Link2, Lock, Baby, AlertCircle
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import CopyLink from '../components/CopyLink'
@@ -200,7 +200,7 @@ export default function ParentDashboardPage() {
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh] px-4">
           <div className="text-center space-y-4">
-            <div className="text-5xl">😕</div>
+            <AlertCircle className="w-16 h-16 text-cipria-dark mx-auto" />
             <h2 className="font-display text-2xl font-bold text-gray-800">{error}</h2>
             <Link to="/" className="btn-primary inline-block">Torna alla home</Link>
           </div>

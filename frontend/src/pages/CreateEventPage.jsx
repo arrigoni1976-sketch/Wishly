@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mail } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mail, Lightbulb } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
@@ -226,7 +226,7 @@ function StepCollective({ register, watch, setValue }) {
           </div>
 
           <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm">
-            <p className="font-medium text-salvia mb-2">💡 Come funziona:</p>
+            <p className="font-medium text-salvia mb-2 flex items-center gap-1.5"><Lightbulb className="w-4 h-4" /> Come funziona:</p>
             <ul className="space-y-1 text-gray-600">
               <li>· Ogni contributo minimo è €10</li>
               <li>· Il massimo è l'importo rimanente all'obiettivo</li>
@@ -358,8 +358,8 @@ function StepConfirm({ data }) {
 
       <div className="bg-white border border-avorio-dark rounded-2xl p-5 space-y-3">
         <div className="flex items-center gap-3 pb-3 border-b border-avorio-dark">
-          <div className="w-10 h-10 bg-cipria rounded-xl flex items-center justify-center text-xl">
-            🎂
+          <div className="w-10 h-10 bg-cipria rounded-xl flex items-center justify-center">
+            <CakeIcon size={24} />
           </div>
           <div>
             <p className="font-bold text-gray-900 font-display text-lg">{data.childName || '—'}</p>
@@ -411,7 +411,7 @@ function StepConfirm({ data }) {
       </div>
 
       <div className="bg-cipria/10 border border-cipria/30 rounded-2xl p-4 text-sm text-gray-600">
-        <p className="font-medium text-gray-700 mb-1">📬 Dopo la creazione riceverai:</p>
+        <p className="font-medium text-gray-700 mb-1 flex items-center gap-1.5"><Mail className="w-4 h-4 text-salvia" /> Dopo la creazione riceverai:</p>
         <ul className="space-y-1 text-gray-500">
           <li>· Link dashboard (solo per te)</li>
           <li>· Link lista per gli invitati</li>

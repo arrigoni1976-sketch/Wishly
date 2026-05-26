@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Heart, Calendar, MapPin, Banknote } from 'lucide-react'
+import { Heart, Calendar, MapPin, Banknote, AlertCircle } from 'lucide-react'
 import Layout from '../components/Layout'
 import ProgressBar from '../components/ProgressBar'
 import PaymentModal from '../components/PaymentModal'
@@ -41,7 +41,7 @@ export default function CollectiveGiftPage() {
     // In a real app, redirect to payment provider here
     // For now simulate success
     await fetchEvent()
-    setSuccessMsg(`Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa! 🎉`)
+    setSuccessMsg(`Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa!`)
     setTimeout(() => setSuccessMsg(''), 6000)
   }
 
@@ -64,7 +64,7 @@ export default function CollectiveGiftPage() {
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh] px-4">
           <div className="text-center space-y-4">
-            <div className="text-5xl">😕</div>
+            <AlertCircle className="w-16 h-16 text-cipria-dark mx-auto" />
             <h2 className="font-display text-2xl font-bold text-gray-800">{error}</h2>
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function CollectiveGiftPage() {
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center gap-2 bg-[#0070ba] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#005ea6] transition-colors"
               >
-                <span>🔵</span> Paga con PayPal
+                Paga con PayPal
               </a>
             )}
           </div>

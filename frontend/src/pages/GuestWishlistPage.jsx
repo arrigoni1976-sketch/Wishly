@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Calendar, MapPin, Users, Gift, HelpCircle, Frown } from 'lucide-react'
+import { Calendar, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Smartphone } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
 import GiftIcon from '../components/GiftIcon'
@@ -290,7 +290,7 @@ export default function GuestWishlistPage() {
       <Layout>
         <div className="flex items-center justify-center min-h-[60vh] px-4">
           <div className="text-center space-y-4">
-            <div className="text-5xl">😕</div>
+            <AlertCircle className="w-16 h-16 text-cipria-dark mx-auto" />
             <h2 className="font-display text-2xl font-bold text-gray-800">{error}</h2>
           </div>
         </div>
@@ -340,7 +340,7 @@ export default function GuestWishlistPage() {
 
           {event.notes && (
             <p className="mt-4 pt-4 border-t border-avorio-dark text-sm text-gray-500 italic text-left">
-              📝 {event.notes}
+              <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 flex-shrink-0" />{event.notes}</span>
             </p>
           )}
         </div>
@@ -447,7 +447,7 @@ export default function GuestWishlistPage() {
               <p className="text-xs text-gray-400 mt-0.5">Accedi velocemente alle liste anche offline</p>
             </div>
             <button onClick={handleInstall} className="btn-primary text-sm py-2 px-4 whitespace-nowrap flex-shrink-0">
-              📲 Installa
+              <span className="flex items-center gap-1.5"><Smartphone className="w-4 h-4" /> Installa</span>
             </button>
           </div>
         )}
