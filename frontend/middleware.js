@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from '@vercel/edge'
 
 const API_URL = 'https://wishly-production.up.railway.app'
 
