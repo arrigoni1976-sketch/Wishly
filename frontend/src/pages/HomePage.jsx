@@ -22,7 +22,7 @@ const FEATURES = [
     emoji: '💝',
     title: 'Regalo collettivo',
     description:
-      'Raccogli contributi con PayPal, Satispay o carta. Barra di progresso in tempo reale.',
+      'Gli invitati prenotano la loro quota e portano i contanti il giorno della festa. Barra di progresso in tempo reale.',
   },
   {
     icon: Shield,
