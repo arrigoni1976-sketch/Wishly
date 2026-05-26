@@ -1,5 +1,3 @@
-import { NextResponse } from '@vercel/edge'
-
 const API_URL = 'https://wishly-production.up.railway.app'
 
 // Detect social media crawlers
@@ -27,11 +25,12 @@ function buildHTML({ title, description, imageUrl, url }) {
 </html>`
 }
 
-export async function middleware(request) {
+export default async function middleware(request) {
   const ua = request.headers.get('user-agent') || ''
-  if (!isCrawler(ua)) return NextResponse.next()
+  if (!isCrawler(ua)) return
 
-  const { pathname } = request.nextUrl
+  const url = new URL(request.url)
+  const { pathname } = url
   const baseUrl = 'https://wishly-blue.vercel.app'
   const imageUrl = `${baseUrl}/icons/icon-512x512.png`
 
@@ -48,7 +47,7 @@ export async function middleware(request) {
           imageUrl,
           url: `${baseUrl}${pathname}`,
         })
-        return new NextResponse(html, { headers: { 'Content-Type': 'text/html' } })
+        return new Response(html, { headers: { 'Content-Type': 'text/html' } })
       }
     }
 
@@ -67,14 +66,12 @@ export async function middleware(request) {
           imageUrl,
           url: `${baseUrl}${pathname}`,
         })
-        return new NextResponse(html, { headers: { 'Content-Type': 'text/html' } })
+        return new Response(html, { headers: { 'Content-Type': 'text/html' } })
       }
     }
   } catch (e) {
     // fallback to normal page
   }
-
-  return NextResponse.next()
 }
 
 export const config = {
