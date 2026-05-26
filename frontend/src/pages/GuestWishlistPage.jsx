@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Calendar, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Smartphone } from 'lucide-react'
+import { Calendar, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Smartphone, Share2 } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
 import GiftIcon from '../components/GiftIcon'
@@ -343,6 +343,27 @@ export default function GuestWishlistPage() {
               <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 flex-shrink-0" />{event.notes}</span>
             </p>
           )}
+
+          {/* Share button */}
+          <button
+            onClick={async () => {
+              const shareData = {
+                title: `Compleanno di ${event.child_name}`,
+                text: `Prenota un regalo per il compleanno di ${event.child_name}! 🎈`,
+                url: window.location.href,
+              }
+              if (navigator.share) {
+                await navigator.share(shareData)
+              } else {
+                await navigator.clipboard.writeText(window.location.href)
+                alert('Link copiato!')
+              }
+            }}
+            className="mt-4 inline-flex items-center gap-2 text-sm text-salvia font-medium hover:text-salvia-dark transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            Condividi la lista
+          </button>
         </div>
 
         {/* ── RSVP ────────────────────────────────────────────────────── */}

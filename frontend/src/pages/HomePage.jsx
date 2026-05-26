@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles } from 'lucide-react'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2 } from 'lucide-react'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -375,13 +375,34 @@ export default function HomePage() {
           <p className="text-salvia-light text-lg mb-8 leading-relaxed">
             Ci vogliono meno di 5 minuti. Aggiungi i regali, copia il link e mandalo su WhatsApp.
           </p>
-          <Link
-            to="/crea"
-            className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-avorio transition-colors duration-200"
-          >
-            Crea la lista gratis
-            <GiftIcon size={22} />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/crea"
+              className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-avorio transition-colors duration-200"
+            >
+              Crea la lista gratis
+              <GiftIcon size={22} />
+            </Link>
+            <button
+              onClick={async () => {
+                const shareData = {
+                  title: 'Piky — Lista desideri per compleanni',
+                  text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
+                  url: 'https://www.pikyapp.it',
+                }
+                if (navigator.share) {
+                  await navigator.share(shareData)
+                } else {
+                  await navigator.clipboard.writeText('https://www.pikyapp.it')
+                  alert('Link copiato!')
+                }
+              }}
+              className="inline-flex items-center gap-2 bg-salvia-dark text-white font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-salvia transition-colors duration-200"
+            >
+              <Share2 className="w-5 h-5" />
+              Condividi l'app
+            </button>
+          </div>
         </div>
       </section>
     </Layout>
