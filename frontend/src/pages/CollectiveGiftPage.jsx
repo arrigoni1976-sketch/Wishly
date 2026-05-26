@@ -164,9 +164,6 @@ export default function CollectiveGiftPage() {
                         <span className="capitalize">{c.payment_method}</span>
                       </p>
                     </div>
-                    <span className="font-bold text-salvia text-sm">
-                      €{parseFloat(c.amount).toFixed(2)}
-                    </span>
                   </div>
                 ))}
             </div>
