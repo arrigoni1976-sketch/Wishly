@@ -176,8 +176,13 @@ export default function GuestWishlistPage() {
   const [myRsvp, setMyRsvp] = useState(null)
   const [myReservations, setMyReservations] = useState([]) // gift IDs
   const [viewTracked, setViewTracked] = useState(false)
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [showInstallBanner, setShowInstallBanner] = useState(false)
+  const [showIOSModal, setShowIOSModal] = useState(false)
 
   const baseUrl = window.location.origin
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
 
   const fetchEvent = async () => {
     try {
@@ -191,6 +196,33 @@ export default function GuestWishlistPage() {
   }
 
   useEffect(() => { fetchEvent() }, [guestToken])
+
+  // PWA install prompt (Android)
+  useEffect(() => {
+    if (isStandalone) return
+    const handler = (e) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setShowInstallBanner(true)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  // Show install banner on iOS (manual instructions)
+  useEffect(() => {
+    if (!isStandalone && isIOS) setShowInstallBanner(true)
+  }, [])
+
+  const handleInstall = async () => {
+    if (isIOS) { setShowIOSModal(true); return }
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      await deferredPrompt.userChoice
+      setDeferredPrompt(null)
+      setShowInstallBanner(false)
+    }
+  }
 
   // Track view silently after 2s
   useEffect(() => {
@@ -385,7 +417,61 @@ export default function GuestWishlistPage() {
             </div>
           )}
         </div>
+
+        {/* ── Installa app ─────────────────────────────────────────────── */}
+        {showInstallBanner && (
+          <div className="bg-white rounded-3xl border border-avorio-dark p-5 flex items-center gap-4">
+            <img src="/icons/icon-72x72.png" alt="Wishly" className="w-12 h-12 rounded-2xl flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-gray-800 text-sm">Aggiungi Wishly al telefono</p>
+              <p className="text-xs text-gray-400 mt-0.5">Accedi velocemente alle liste anche offline</p>
+            </div>
+            <button onClick={handleInstall} className="btn-primary text-sm py-2 px-4 whitespace-nowrap flex-shrink-0">
+              📲 Installa
+            </button>
+          </div>
+        )}
+
       </div>
+
+      {/* ── Modal istruzioni iOS ──────────────────────────────────────────── */}
+      {showIOSModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center p-4"
+          onClick={() => setShowIOSModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <img src="/icons/icon-72x72.png" alt="Wishly" className="w-16 h-16 rounded-2xl mx-auto mb-3" />
+              <h3 className="font-display font-bold text-gray-900 text-xl mb-1">Aggiungi a schermata Home</h3>
+              <p className="text-sm text-gray-500">Segui questi passi in Safari:</p>
+            </div>
+            <ol className="space-y-3 text-sm text-gray-700">
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-salvia text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">1</span>
+                <span>Tocca il pulsante <strong>Condividi</strong> in basso (l'icona con la freccia verso l'alto <span className="text-lg">⬆️</span>)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-salvia text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">2</span>
+                <span>Scorri e tocca <strong>"Aggiungi a schermata Home"</strong></span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-salvia text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">3</span>
+                <span>Tocca <strong>"Aggiungi"</strong> in alto a destra</span>
+              </li>
+            </ol>
+            <button
+              onClick={() => setShowIOSModal(false)}
+              className="w-full btn-outline text-sm py-2.5"
+            >
+              Chiudi
+            </button>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }
