@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Heart, Calendar, MapPin, Banknote, AlertCircle } from 'lucide-react'
+import { Heart, Calendar, MapPin, Banknote, AlertCircle, ArrowLeft } from 'lucide-react'
 import Layout from '../components/Layout'
 import ProgressBar from '../components/ProgressBar'
 import PaymentModal from '../components/PaymentModal'
@@ -79,6 +79,15 @@ export default function CollectiveGiftPage() {
   return (
     <Layout>
       <div className="max-w-lg mx-auto px-4 py-12 space-y-6">
+
+        {/* ── Back button ─────────────────────────────────────────────── */}
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-salvia transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Torna alla lista
+        </button>
 
         {/* ── Header ──────────────────────────────────────────────────── */}
         <div className="card text-center">
