@@ -311,8 +311,7 @@ export default function HomePage() {
               Tutto quello che ti serve
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              Pensato per i genitori, comodo per gli invitati. Nessuna app da installare, nessun
-              account da creare.
+              Pensato per i genitori, comodo per gli invitati.
             </p>
           </div>
 
