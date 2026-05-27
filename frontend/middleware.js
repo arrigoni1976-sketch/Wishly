@@ -42,8 +42,8 @@ export default async function middleware(request) {
       if (res.ok) {
         const event = await res.json()
         const html = buildHTML({
-          title: `Lista desideri per il compleanno di ${event.child_name} 🎁`,
-          description: `Prenota un regalo per ${event.child_name}! Coordinati con gli altri invitati e scegli qualcosa di unico.`,
+          title: `Sei invitato alla festa di compleanno di ${event.child_name}!`,
+          description: `Conferma la tua presenza e scopri la lista dei regali. Coordinati con gli altri invitati — nessun doppione garantito.`,
           imageUrl,
           url: `${baseUrl}${pathname}`,
         })
