@@ -1,4 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background -->
   <rect width="100" height="100" rx="22" fill="#4A7A50"/>
-  <text x="50" y="68" font-size="56" text-anchor="middle">🎁</text>
+  <!-- Lid -->
+  <rect x="14" y="38" width="72" height="16" rx="2.5" fill="#D4A090"/>
+  <!-- Ribbon strip on lid -->
+  <rect x="44" y="38" width="12" height="16" fill="#FAF7F2" opacity="0.85"/>
+  <!-- Box body -->
+  <rect x="17" y="53" width="66" height="32" rx="2.5" fill="#E8C4B8"/>
+  <!-- Bow left lobe -->
+  <ellipse cx="34" cy="37" rx="14" ry="12" fill="#FAF7F2"/>
+  <!-- Bow right lobe -->
+  <ellipse cx="66" cy="37" rx="14" ry="12" fill="#FAF7F2"/>
+  <!-- Bow centre knot -->
+  <ellipse cx="50" cy="39" rx="7" ry="6" fill="#FAF7F2"/>
+  <!-- Dots -->
+  <circle cx="32" cy="67" r="2" fill="#FAF7F2" opacity="0.4"/>
+  <circle cx="68" cy="73" r="1.8" fill="#FAF7F2" opacity="0.4"/>
+  <circle cx="74" cy="61" r="1.5" fill="#FAF7F2" opacity="0.35"/>
 </svg>
