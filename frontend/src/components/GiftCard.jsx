@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ExternalLink, ShoppingBag, User, Users, Lock, Trash2, Pencil } from 'lucide-react'
+import { ExternalLink, ShoppingBag, Lock, Trash2, Pencil } from 'lucide-react'
 import clsx from 'clsx'
 
 export default function GiftCard({
@@ -11,9 +11,7 @@ export default function GiftCard({
   onDelete,
 }) {
   const [showReserveForm, setShowReserveForm] = useState(false)
-  const [reserveType, setReserveType] = useState('single') // 'single' | 'couple' | 'offline'
   const [guestName, setGuestName] = useState('')
-  const [partnerName, setPartnerName] = useState('')
   const [loading, setLoading] = useState(false)
   const [reserveError, setReserveError] = useState('')
 
@@ -28,8 +26,6 @@ export default function GiftCard({
       await onReserve?.({
         giftId: gift.id,
         guestName: guestName.trim(),
-        partnerName: reserveType === 'couple' ? partnerName.trim() : undefined,
-        purchasedOffline: reserveType === 'offline',
       })
       setShowReserveForm(false)
     } catch (e) {
@@ -152,47 +148,14 @@ export default function GiftCard({
             </button>
           ) : (
             <div className="space-y-3 animate-fade-in">
-              {/* Type selector */}
-              <div className="flex gap-2 text-sm">
-                {[
-                  { val: 'single', label: 'Solo io', Icon: User },
-                  { val: 'couple', label: 'In coppia', Icon: Users },
-                  { val: 'offline', label: 'Già comprato', Icon: ShoppingBag },
-                ].map(({ val, label, Icon }) => (
-                  <button
-                    key={val}
-                    type="button"
-                    onClick={() => setReserveType(val)}
-                    className={clsx(
-                      'flex items-center gap-1.5 flex-1 justify-center py-1.5 rounded-lg border text-xs font-medium transition-colors',
-                      reserveType === val
-                        ? 'bg-salvia text-white border-salvia'
-                        : 'border-gray-200 text-gray-600 hover:border-salvia'
-                    )}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
               <input
                 type="text"
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
                 placeholder="Il tuo nome *"
                 className="input text-sm py-2.5"
+                autoFocus
               />
-
-              {reserveType === 'couple' && (
-                <input
-                  type="text"
-                  value={partnerName}
-                  onChange={(e) => setPartnerName(e.target.value)}
-                  placeholder="Nome del partner"
-                  className="input text-sm py-2.5"
-                />
-              )}
 
               {reserveError && (
                 <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{reserveError}</p>
@@ -210,7 +173,7 @@ export default function GiftCard({
                   disabled={!guestName.trim() || loading}
                   className="flex-1 btn-primary text-sm py-2"
                 >
-                  {loading ? 'Confermo...' : 'Conferma'}
+                  {loading ? 'Confermo...' : 'Prenota'}
                 </button>
               </div>
             </div>
@@ -222,7 +185,7 @@ export default function GiftCard({
       {mode === 'guest' && isMyReservation && (
         <div className="mt-4 pt-3 border-t border-avorio-dark">
           <p className="text-xs text-salvia font-medium mb-2">
-            Hai prenotato questo regalo {gift.reserved_partner && `insieme a ${gift.reserved_partner}`}
+            Hai prenotato questo regalo
           </p>
           <button
             onClick={handleCancel}
