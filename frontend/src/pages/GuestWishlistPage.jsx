@@ -7,6 +7,7 @@ import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
+import WaveIcon from '../components/WaveIcon'
 import RSVPSelector from '../components/RSVPSelector'
 import CopyLink from '../components/CopyLink'
 import {
@@ -332,6 +333,53 @@ export default function GuestWishlistPage() {
             <Share2 className="w-4 h-4" />
             Condividi la lista
           </button>
+        </div>
+
+        {/* ── Welcome / invitation message ────────────────────────────── */}
+        <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark p-6 space-y-4">
+          {/* Greeting row */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-cipria/30 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <WaveIcon size={26} />
+            </div>
+            <h2 className="font-display font-bold text-gray-900 text-lg leading-snug">
+              Sei invitato al compleanno di {event.child_name}!
+            </h2>
+          </div>
+
+          {/* Event details recap */}
+          <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+            {event.party_date && (
+              <span className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium">
+                <Calendar className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
+                {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
+                {event.party_time && <> · {event.party_time.slice(0, 5)}</>}
+              </span>
+            )}
+            {event.location && (
+              <span className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium">
+                <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
+                {event.location}
+              </span>
+            )}
+          </div>
+
+          {/* Invitation text */}
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci con la tua risposta qui sotto.
+          </p>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Se hai voglia, trovi anche la lista dei desideri di{' '}
+            <span className="font-semibold text-gray-800">{event.child_name}</span>:
+            ogni regalo è in esclusiva, così nessuno si sovrappone.{' '}
+            Nessun obbligo, naturalmente!
+          </p>
+
+          {/* Sign-off */}
+          <div className="flex items-center gap-2 pt-1">
+            <BalloonIcon size={18} />
+            <span className="text-sm font-semibold text-salvia">A presto!</span>
+          </div>
         </div>
 
         {/* ── RSVP ────────────────────────────────────────────────────── */}
