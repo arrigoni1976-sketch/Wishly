@@ -38,28 +38,30 @@ export default function InstallPrompt() {
     // Non mostrare se già installata
     if (isInStandaloneMode()) return
 
-    // Non mostrare se l'utente ha già rifiutato
-    if (localStorage.getItem('piky-pwa-dismissed')) return
-
-    // Android/Chrome
+    // Android/Chrome — cattura l'evento ma non mostrare automaticamente
     const handler = (e) => {
       e.preventDefault()
       setDeferredPrompt(e)
-      setShowAndroid(true)
     }
     window.addEventListener('beforeinstallprompt', handler)
 
-    // iOS — mostra dopo 3 secondi se Safari
-    if (isIos()) {
-      const isSafari = /safari/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent)
-      if (isSafari) {
-        const timer = setTimeout(() => setShowIos(true), 3000)
-        return () => clearTimeout(timer)
+    // Ascolta il trigger manuale dal pulsante CTA
+    const triggerHandler = () => {
+      if (isIos()) {
+        setShowIos(true)
+      } else if (deferredPrompt) {
+        setShowAndroid(true)
+      } else if (isIos()) {
+        setShowIos(true)
       }
     }
+    window.addEventListener('piky:trigger-install', triggerHandler)
 
-    return () => window.removeEventListener('beforeinstallprompt', handler)
-  }, [])
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler)
+      window.removeEventListener('piky:trigger-install', triggerHandler)
+    }
+  }, [deferredPrompt])
 
   const handleInstall = async () => {
     if (!deferredPrompt) return

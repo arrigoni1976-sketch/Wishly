@@ -375,33 +375,41 @@ export default function HomePage() {
           <p className="text-salvia-light text-lg mb-8 leading-relaxed">
             Ci vogliono meno di 5 minuti. Aggiungi i regali, copia il link e mandalo su WhatsApp.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col gap-4 items-center">
             <Link
               to="/crea"
-              className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-avorio transition-colors duration-200"
+              className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-avorio transition-colors duration-200 w-full sm:w-auto justify-center"
             >
               Crea la lista gratis
               <GiftIcon size={22} />
             </Link>
-            <button
-              onClick={async () => {
-                const shareData = {
-                  title: 'Piky — Lista desideri per compleanni',
-                  text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
-                  url: window.location.origin,
-                }
-                if (navigator.share) {
-                  await navigator.share(shareData)
-                } else {
-                  await navigator.clipboard.writeText(window.location.origin)
-                  alert('Link copiato!')
-                }
-              }}
-              className="inline-flex items-center gap-2 bg-salvia-dark text-white font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-salvia transition-colors duration-200"
-            >
-              <Share2 className="w-5 h-5" />
-              Condividi l'app
-            </button>
+            <div className="flex gap-3 w-full sm:w-auto">
+              <button
+                onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-salvia-dark text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia transition-colors duration-200 text-sm"
+              >
+                📲 Scarica l'app
+              </button>
+              <button
+                onClick={async () => {
+                  const shareData = {
+                    title: 'Piky — Lista desideri per compleanni',
+                    text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
+                    url: window.location.origin,
+                  }
+                  if (navigator.share) {
+                    await navigator.share(shareData)
+                  } else {
+                    await navigator.clipboard.writeText(window.location.origin)
+                    alert('Link copiato!')
+                  }
+                }}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-salvia-dark text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia transition-colors duration-200 text-sm"
+              >
+                <Share2 className="w-4 h-4" />
+                Condividi
+              </button>
+            </div>
           </div>
         </div>
       </section>
