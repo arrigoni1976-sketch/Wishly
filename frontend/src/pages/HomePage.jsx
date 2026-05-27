@@ -388,7 +388,7 @@ export default function HomePage() {
                 onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
                 className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-salvia-dark text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia transition-colors duration-200 text-sm"
               >
-                📲 Scarica l'app
+                Scarica l'app
               </button>
               <button
                 onClick={async () => {
