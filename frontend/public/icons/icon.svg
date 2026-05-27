@@ -8,11 +8,11 @@
   <!-- Box body -->
   <rect x="100" y="268" width="312" height="175" rx="10" fill="#E8C4B8"/>
   <!-- Bow left lobe -->
-  <ellipse cx="176" cy="198" rx="72" ry="62" fill="#FAF7F2"/>
+  <ellipse cx="196" cy="196" rx="52" ry="46" fill="#FAF7F2"/>
   <!-- Bow right lobe -->
-  <ellipse cx="336" cy="198" rx="72" ry="62" fill="#FAF7F2"/>
+  <ellipse cx="316" cy="196" rx="52" ry="46" fill="#FAF7F2"/>
   <!-- Bow centre knot -->
-  <ellipse cx="256" cy="207" rx="34" ry="30" fill="#FAF7F2"/>
+  <ellipse cx="256" cy="204" rx="24" ry="22" fill="#FAF7F2"/>
   <!-- Decorative dots on body -->
   <circle cx="162" cy="346" r="7" fill="#FAF7F2" opacity="0.4"/>
   <circle cx="348" cy="378" r="6" fill="#FAF7F2" opacity="0.4"/>
