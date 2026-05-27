@@ -166,7 +166,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h3 className="font-display font-bold text-gray-900">Compleanno di Bianca</h3>
-                <p className="text-sm text-gray-500">15 giugno · 16:00 · Giardino di casa</p>
+                <p className="text-sm text-gray-500">5 ottobre · 16:00 · Giardino di casa</p>
               </div>
               <div className="ml-auto bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
                 8 confermati
