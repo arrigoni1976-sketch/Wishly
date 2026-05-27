@@ -224,7 +224,15 @@ function StepCollective({ register, watch, setValue }) {
               />
             </div>
             <p className="text-xs text-gray-400 mt-1">
-              Il tuo username PayPal.me (non l'email). Gli invitati potranno pagarti direttamente.
+              Gli invitati potranno pagarti direttamente con un click. Lo username lo trovi su{' '}
+              <a
+                href="https://www.paypal.com/myaccount/settings/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-salvia underline hover:text-salvia-dark"
+              >
+                paypal.com → Impostazioni → PayPal.me
+              </a>.
             </p>
           </div>
 
