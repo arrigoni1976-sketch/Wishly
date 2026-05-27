@@ -137,8 +137,8 @@ export default function HomePage() {
           </div>
 
           <h1 className="font-display text-5xl sm:text-6xl font-bold text-gray-900 leading-tight mb-6">
-            Regali perfetti,{' '}
-            <span className="text-salvia italic">zero doppioni</span>
+            Organizzare un compleanno{' '}
+            <span className="text-salvia italic">non è mai stato così semplice</span>
           </h1>
 
           <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
