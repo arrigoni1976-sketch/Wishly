@@ -215,7 +215,7 @@ function StepCollective({ register, watch, setValue }) {
           <div>
             <label className="label">Username PayPal.me (opzionale)</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm select-none">paypal.me/</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-sm font-medium select-none">paypal.me/</span>
               <input
                 {...register('paypalEmail')}
                 type="text"
