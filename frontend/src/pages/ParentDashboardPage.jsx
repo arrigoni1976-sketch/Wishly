@@ -3,10 +3,9 @@ import { useParams, Link, useSearchParams } from 'react-router-dom'
 import {
   Gift, Users, Eye, EyeOff, Plus, Calendar, MapPin,
   Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
-  Link2, Lock, Baby, AlertCircle
+  Baby, AlertCircle, Share2
 } from 'lucide-react'
 import Layout from '../components/Layout'
-import CopyLink from '../components/CopyLink'
 import GiftCard from '../components/GiftCard'
 import ProgressBar from '../components/ProgressBar'
 import GiftIcon from '../components/GiftIcon'
@@ -150,8 +149,48 @@ export default function ParentDashboardPage() {
   const [showRsvp, setShowRsvp] = useState(false)
   const [showViews, setShowViews] = useState(false)
   const [showContrib, setShowContrib] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [copiedCollective, setCopiedCollective] = useState(false)
 
   const baseUrl = window.location.origin
+
+  const shareGuestLink = async () => {
+    const url = `${baseUrl}/lista/${event?.guest_token}`
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Compleanno di ${event.child_name}`,
+          text: `Sei invitato al compleanno di ${event.child_name}! Qui puoi prenotare un regalo e confermare la tua presenza.`,
+          url,
+        })
+        return
+      } catch (e) {
+        if (e.name === 'AbortError') return
+      }
+    }
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
+  const shareCollectiveLink = async () => {
+    const url = `${baseUrl}/collettivo/${event?.collective_token}`
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Regalo collettivo per ${event.child_name}`,
+          text: `Contribuisci al regalo collettivo per il compleanno di ${event.child_name}!`,
+          url,
+        })
+        return
+      } catch (e) {
+        if (e.name === 'AbortError') return
+      }
+    }
+    await navigator.clipboard.writeText(url)
+    setCopiedCollective(true)
+    setTimeout(() => setCopiedCollective(false), 2500)
+  }
 
   const fetchEvent = async () => {
     try {
@@ -229,7 +268,7 @@ export default function ParentDashboardPage() {
                 Evento attivo e pronto!
               </p>
               <p className="text-white/80 text-sm mt-0.5">
-                La lista è stata creata con successo. Copia i link qui sotto e condividili con gli invitati.
+                La lista è pronta! Condividi il link con i tuoi invitati con il pulsante qui sotto.
               </p>
             </div>
             <button
@@ -296,32 +335,25 @@ export default function ParentDashboardPage() {
           )}
         </div>
 
-        {/* ── Link condivisione ────────────────────────────────────────── */}
-        <div className="card space-y-3">
-          <h2 className="font-display font-bold text-lg text-gray-900 mb-1">Link da condividere</h2>
-          <CopyLink
-            url={`${baseUrl}/lista/${event.guest_token}`}
-            label="Lista invitati"
-            icon={<Link2 className="w-5 h-5 text-salvia" />}
-            description="Condividi questo link con tutti gli invitati"
-            variant="default"
-          />
-          {event.collective_enabled && (
-            <CopyLink
-              url={`${baseUrl}/collettivo/${event.collective_token}`}
-              label="Regalo collettivo"
-              icon={<HeartRibbonIcon size={20} />}
-              description="Link separato solo per i contributi al regalo collettivo"
-              variant="collective"
-            />
-          )}
-          <CopyLink
-            url={`${baseUrl}/dashboard/${event.parent_token}`}
-            label="Dashboard (solo tuo)"
-            icon={<Lock className="w-5 h-5 text-cipria-dark" />}
-            description="Tieni questo link privato — ti dà accesso completo alla lista"
-            variant="default"
-          />
+        {/* ── Condividi con gli invitati ─────────────────────────────── */}
+        <div className="card">
+          <h2 className="font-display font-bold text-lg text-gray-900 mb-1">
+            Invita i tuoi ospiti
+          </h2>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Condividi il link con gli invitati al compleanno di{' '}
+            <span className="font-medium text-gray-700">{event.child_name}</span>.
+          </p>
+          <p className="text-sm text-gray-500 leading-relaxed mb-5">
+            Potranno confermare la presenza e prenotare un regalo — senza doppioni.
+          </p>
+          <button
+            onClick={shareGuestLink}
+            className="btn-primary w-full py-3.5 flex items-center justify-center gap-2 text-base"
+          >
+            <Share2 className="w-5 h-5" />
+            {copied ? 'Link copiato!' : 'Condividi invito'}
+          </button>
         </div>
 
         {/* ── Regalo collettivo ────────────────────────────────────────── */}
@@ -346,6 +378,14 @@ export default function ParentDashboardPage() {
               current={event.collective_amount || 0}
               goal={event.collective_goal || 0}
             />
+
+            <button
+              onClick={shareCollectiveLink}
+              className="mt-4 inline-flex items-center gap-2 text-sm text-salvia font-medium hover:text-salvia-dark transition-colors"
+            >
+              <Share2 className="w-4 h-4" />
+              {copiedCollective ? 'Link copiato!' : 'Condividi link collettivo'}
+            </button>
 
             {showContrib && event.contributions?.length > 0 && (
               <div className="mt-4 border-t border-avorio-dark pt-4 space-y-2">
