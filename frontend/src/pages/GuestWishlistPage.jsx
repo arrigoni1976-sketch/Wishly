@@ -17,6 +17,7 @@ import {
   cancelReservation,
   submitRsvp,
   updateRsvp,
+  addUserKeyLink,
 } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -212,6 +213,20 @@ export default function GuestWishlistPage() {
   }
 
   useEffect(() => { fetchEvent() }, [guestToken])
+
+  // Register invite under personal key (non-blocking)
+  useEffect(() => {
+    if (!event) return
+    const userKey = localStorage.getItem('piky_user_key')
+    if (userKey) {
+      addUserKeyLink(userKey, {
+        linkType: 'invite',
+        token: guestToken,
+        childName: event.child_name,
+        partyDate: event.party_date,
+      }).catch(() => {})
+    }
+  }, [event])
 
   // Track view silently after 2s
   useEffect(() => {

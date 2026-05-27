@@ -5,7 +5,7 @@ import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mai
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
-import { createEvent } from '../lib/api'
+import { createEvent, addUserKeyLink } from '../lib/api'
 
 const STEPS = ['Info festa', 'Lista', 'Collettivo', 'Regali', 'Conferma']
 
@@ -489,7 +489,8 @@ export default function CreateEventPage() {
     setError('')
     try {
       const res = await createEvent(data)
-      // Salva in localStorage per recupero futuro
+
+      // Salva in localStorage
       const saved = JSON.parse(localStorage.getItem('piky_events') || '[]')
       saved.unshift({
         childName: data.childName,
@@ -498,6 +499,18 @@ export default function CreateEventPage() {
         createdAt: new Date().toISOString(),
       })
       localStorage.setItem('piky_events', JSON.stringify(saved.slice(0, 10)))
+
+      // Associa alla chiave personale (non bloccante)
+      const userKey = localStorage.getItem('piky_user_key')
+      if (userKey) {
+        addUserKeyLink(userKey, {
+          linkType: 'event',
+          token: res.data.parentToken,
+          childName: data.childName,
+          partyDate: data.partyDate,
+        }).catch(() => {})
+      }
+
       navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
     } catch (e) {
       setError(e?.response?.data?.message || 'Errore nella creazione. Riprova.')

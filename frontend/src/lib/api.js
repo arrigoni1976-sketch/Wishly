@@ -36,6 +36,12 @@ export const createPaymentIntent = (data) => api.post('/payments/stripe/intent',
 export const createPayPalOrder = (data) => api.post('/payments/paypal/order', data)
 export const initSatispay = (data) => api.post('/payments/satispay/init', data)
 
+// ─── User keys ─────────────────────────────────────────────────────────────
+
+export const registerUserKey = (key) => api.post('/user-keys/register', { key })
+export const getUserKeyLinks = (key) => api.get(`/user-keys/${encodeURIComponent(key)}`)
+export const addUserKeyLink = (key, data) => api.post(`/user-keys/${encodeURIComponent(key)}/link`, data)
+
 // ─── Error helper ──────────────────────────────────────────────────────────
 
 export const getErrorMessage = (err) =>

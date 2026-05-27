@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2 } from 'lucide-react'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key } from 'lucide-react'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
+import KeyModal from '../components/KeyModal'
+import { useUserKey } from '../hooks/useUserKey'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -91,13 +93,20 @@ const STEPS = [
 export default function HomePage() {
   const [myEvents, setMyEvents] = useState([])
   const [myInvites, setMyInvites] = useState([])
+  const [showKeyModal, setShowKeyModal] = useState(false)
+  const { userKey, saveKey } = useUserKey()
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('piky_events') || '[]')
-    setMyEvents(saved)
-    const invites = JSON.parse(localStorage.getItem('piky_invites') || '[]')
-    setMyInvites(invites)
-  }, [])
+  const refreshLists = () => {
+    setMyEvents(JSON.parse(localStorage.getItem('piky_events') || '[]'))
+    setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
+  }
+
+  useEffect(() => { refreshLists() }, [])
+
+  const handleKeySet = (key) => {
+    saveKey(key)
+    refreshLists() // reload from localStorage after recovery merge
+  }
 
   const removeEvent = (parentToken) => {
     const updated = myEvents.filter((ev) => ev.parentToken !== parentToken)
@@ -110,6 +119,8 @@ export default function HomePage() {
     setMyInvites(updated)
     localStorage.setItem('piky_invites', JSON.stringify(updated))
   }
+
+  const hasContent = myEvents.length > 0 || myInvites.length > 0
 
   return (
     <Layout>
@@ -225,6 +236,49 @@ export default function HomePage() {
               <p className="text-xs text-gray-400 mt-1">€136 raccolti su €200</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ─── Codice personale ───────────────────────────────────────────── */}
+      <section className="px-4 py-5 bg-white border-b border-avorio-dark">
+        <div className="max-w-3xl mx-auto">
+          {userKey ? (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Key className="w-4 h-4 text-salvia flex-shrink-0" />
+                <span>
+                  Codice:{' '}
+                  <span className="font-mono font-semibold text-gray-800 tracking-wider">
+                    {userKey.toUpperCase()}
+                  </span>
+                </span>
+              </div>
+              <button
+                onClick={() => setShowKeyModal(true)}
+                className="text-xs text-salvia hover:underline font-medium"
+              >
+                Cambia
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 bg-avorio rounded-2xl border border-avorio-dark px-4 py-3">
+              <Key className="w-5 h-5 text-salvia flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-800 text-sm">
+                  Crea il tuo codice personale
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Per ritrovare le tue liste su qualsiasi dispositivo
+                </p>
+              </div>
+              <button
+                onClick={() => setShowKeyModal(true)}
+                className="text-sm font-medium text-salvia bg-salvia/10 px-3 py-1.5 rounded-xl hover:bg-salvia/20 transition-colors flex-shrink-0"
+              >
+                Crea →
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -412,6 +466,11 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <KeyModal
+        isOpen={showKeyModal}
+        onClose={() => setShowKeyModal(false)}
+        onKeySet={handleKeySet}
+      />
     </Layout>
   )
 }
