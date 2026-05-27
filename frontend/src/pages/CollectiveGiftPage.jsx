@@ -184,16 +184,6 @@ export default function CollectiveGiftPage() {
           <div className="rounded-2xl border border-avorio-dark bg-avorio p-4 text-sm text-gray-500 text-center">
             <p className="font-medium text-gray-700 mb-1 flex items-center justify-center gap-1.5"><Banknote className="w-4 h-4 text-salvia" /> Raccolta in contanti</p>
             <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza, o paga direttamente con PayPal.</p>
-            {event.paypal_email && (
-              <a
-                href={`https://paypal.me/${event.paypal_email}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-2 bg-[#0070ba] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#005ea6] transition-colors"
-              >
-                Paga con PayPal
-              </a>
-            )}
           </div>
         )}
       </div>
@@ -204,6 +194,7 @@ export default function CollectiveGiftPage() {
         goal={goal}
         collected={collected}
         onSubmit={handleContribute}
+        paypalEmail={event?.paypal_email}
       />
     </Layout>
   )

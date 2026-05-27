@@ -4,7 +4,7 @@ import clsx from 'clsx'
 
 const QUICK_AMOUNTS = [10, 20, 30, 50]
 
-export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit }) {
+export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit, paypalEmail }) {
   const remaining = Math.max(0, goal - collected)
   const [amount, setAmount] = useState('')
   const [customAmount, setCustomAmount] = useState(false)
@@ -21,12 +21,27 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
     numAmount >= 10 &&
     numAmount <= remaining
 
-  const handleSubmit = async () => {
+  const handleCash = async () => {
     if (!isValid) return
     setError('')
     setLoading(true)
     try {
       await onSubmit({ method: 'contanti', amount: numAmount, name: name.trim() })
+      onClose()
+    } catch (e) {
+      setError(e.message || 'Errore. Riprova.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePayPal = async () => {
+    if (!isValid) return
+    setError('')
+    setLoading(true)
+    try {
+      await onSubmit({ method: 'paypal', amount: numAmount, name: name.trim() })
+      window.open(`https://paypal.me/${paypalEmail}/${numAmount}`, '_blank')
       onClose()
     } catch (e) {
       setError(e.message || 'Errore. Riprova.')
@@ -58,7 +73,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
           </div>
 
           <p className="text-sm text-gray-500 mb-5">
-            Indica il tuo nome e la quota che vuoi contribuire. Porterai i contanti il giorno della festa.
+            Indica il tuo nome e la quota che vuoi contribuire.
           </p>
 
           {/* Name */}
@@ -138,21 +153,45 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
             <p className="text-sm text-red-500 mb-4 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
           )}
 
-          <button
-            onClick={handleSubmit}
-            disabled={!isValid || loading}
-            className="btn-primary w-full py-3.5 text-base"
-          >
-            {loading
-              ? 'Salvataggio...'
-              : isValid
-              ? `Prenota €${numAmount.toFixed(2)}`
-              : 'Inserisci nome e importo'}
-          </button>
+          {/* Action buttons */}
+          <div className="space-y-2">
+            {/* PayPal — shown only if paypalEmail is set */}
+            {paypalEmail && (
+              <button
+                onClick={handlePayPal}
+                disabled={!isValid || loading}
+                className="w-full py-3.5 text-base font-semibold rounded-2xl flex items-center justify-center gap-2 transition-colors
+                  bg-[#0070ba] hover:bg-[#005ea6] text-white
+                  disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Salvataggio...' : isValid ? `Paga €${numAmount.toFixed(2)} con PayPal` : 'Paga con PayPal'}
+              </button>
+            )}
 
-          <p className="text-xs text-center text-gray-400 mt-3">
-            Nessun pagamento online — porterai i contanti il giorno della festa.
-          </p>
+            {/* Cash */}
+            <button
+              onClick={handleCash}
+              disabled={!isValid || loading}
+              className={clsx(
+                'w-full py-3.5 text-base transition-colors rounded-2xl font-semibold flex items-center justify-center',
+                paypalEmail
+                  ? 'border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed'
+                  : 'btn-primary'
+              )}
+            >
+              {loading
+                ? 'Salvataggio...'
+                : isValid
+                ? `Prenota €${numAmount.toFixed(2)} — porto i contanti`
+                : 'Inserisci nome e importo'}
+            </button>
+          </div>
+
+          {!paypalEmail && (
+            <p className="text-xs text-center text-gray-400 mt-3">
+              Nessun pagamento online — porterai i contanti il giorno della festa.
+            </p>
+          )}
         </div>
       </div>
     </div>
