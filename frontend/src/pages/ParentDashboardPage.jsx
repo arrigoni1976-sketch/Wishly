@@ -349,9 +349,9 @@ export default function ParentDashboardPage() {
           </p>
           <button
             onClick={shareGuestLink}
-            className="btn-primary w-full py-3.5 flex items-center justify-center gap-2 text-base"
+            className="btn-primary w-full py-2.5 flex items-center justify-center gap-2 text-sm"
           >
-            <Share2 className="w-5 h-5" />
+            <Share2 className="w-4 h-4" />
             {copied ? 'Link copiato!' : 'Condividi invito'}
           </button>
         </div>
