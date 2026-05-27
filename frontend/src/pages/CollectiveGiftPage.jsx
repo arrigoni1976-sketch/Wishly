@@ -186,7 +186,7 @@ export default function CollectiveGiftPage() {
             <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza.</p>
             {event.paypal_email && (
               <a
-                href={`https://www.paypal.com/paypalme/${event.paypal_email}`}
+                href={`https://paypal.me/${event.paypal_email}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center gap-2 bg-[#0070ba] text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#005ea6] transition-colors"

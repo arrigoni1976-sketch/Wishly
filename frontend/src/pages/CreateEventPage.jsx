@@ -213,15 +213,18 @@ function StepCollective({ register, watch, setValue }) {
           </div>
 
           <div>
-            <label className="label">Email PayPal (opzionale)</label>
-            <input
-              {...register('paypalEmail')}
-              type="email"
-              placeholder="Es. nome@email.com"
-              className="input"
-            />
+            <label className="label">Username PayPal.me (opzionale)</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm select-none">paypal.me/</span>
+              <input
+                {...register('paypalEmail')}
+                type="text"
+                placeholder="tuousername"
+                className="input pl-[5.5rem]"
+              />
+            </div>
             <p className="text-xs text-gray-400 mt-1">
-              Se la inserisci, gli invitati potranno versare la quota direttamente sul tuo PayPal.
+              Il tuo username PayPal.me (non l'email). Gli invitati potranno pagarti direttamente.
             </p>
           </div>
 
