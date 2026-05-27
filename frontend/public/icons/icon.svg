@@ -1,20 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <!-- Background -->
-  <rect width="512" height="512" rx="112" fill="#4A7A50"/>
-  <!-- Lid -->
-  <rect x="90" y="205" width="332" height="68" rx="8" fill="#D4A090"/>
-  <!-- Ribbon strip on lid -->
-  <rect x="240" y="205" width="32" height="68" fill="#FAF7F2" opacity="0.85"/>
-  <!-- Box body -->
-  <rect x="100" y="268" width="312" height="175" rx="10" fill="#E8C4B8"/>
-  <!-- Bow left lobe -->
-  <ellipse cx="196" cy="196" rx="52" ry="46" fill="#FAF7F2"/>
-  <!-- Bow right lobe -->
-  <ellipse cx="316" cy="196" rx="52" ry="46" fill="#FAF7F2"/>
+  <rect width="512" height="512" rx="115" fill="#4A7A50"/>
+
+  <!-- Bow left lobe (behind lid) -->
+  <ellipse cx="182" cy="187" rx="54" ry="52" fill="#F5EDE3"/>
+  <!-- Bow right lobe (behind lid) -->
+  <ellipse cx="330" cy="187" rx="54" ry="52" fill="#F5EDE3"/>
   <!-- Bow centre knot -->
-  <ellipse cx="256" cy="204" rx="24" ry="22" fill="#FAF7F2"/>
+  <ellipse cx="256" cy="196" rx="25" ry="23" fill="#F5EDE3"/>
+
+  <!-- Lid -->
+  <rect x="88" y="207" width="336" height="54" rx="7" fill="#D4A090"/>
+  <!-- Ribbon strip on lid -->
+  <rect x="242" y="207" width="28" height="54" fill="#F5EDE3" opacity="0.88"/>
+
+  <!-- Box body -->
+  <rect x="97" y="258" width="318" height="150" rx="9" fill="#ECC4B4"/>
+  <!-- Body bottom edge (subtle depth) -->
+  <rect x="97" y="393" width="318" height="15" rx="9" fill="#E0B5A4" opacity="0.45"/>
+
   <!-- Decorative dots on body -->
-  <circle cx="162" cy="346" r="7" fill="#FAF7F2" opacity="0.4"/>
-  <circle cx="348" cy="378" r="6" fill="#FAF7F2" opacity="0.4"/>
-  <circle cx="378" cy="318" r="5" fill="#FAF7F2" opacity="0.35"/>
+  <circle cx="163" cy="328" r="6" fill="#D4A090" opacity="0.45"/>
+  <circle cx="352" cy="305" r="5" fill="#D4A090" opacity="0.4"/>
+  <circle cx="375" cy="358" r="4.5" fill="#D4A090" opacity="0.35"/>
 </svg>
