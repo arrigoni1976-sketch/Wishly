@@ -183,7 +183,7 @@ export default function CollectiveGiftPage() {
         {!isComplete && (
           <div className="rounded-2xl border border-avorio-dark bg-avorio p-4 text-sm text-gray-500 text-center">
             <p className="font-medium text-gray-700 mb-1 flex items-center justify-center gap-1.5"><Banknote className="w-4 h-4 text-salvia" /> Raccolta in contanti</p>
-            <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza.</p>
+            <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza, o paga direttamente con PayPal.</p>
             {event.paypal_email && (
               <a
                 href={`https://paypal.me/${event.paypal_email}`}
