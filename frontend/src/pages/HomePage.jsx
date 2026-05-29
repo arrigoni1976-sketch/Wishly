@@ -348,8 +348,17 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Separatore visivo */}
+        <div className="max-w-lg mx-auto mt-12 px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-avorio-dark rounded-full" />
+            <span className="text-xs text-gray-300 tracking-widest">· · ·</span>
+            <div className="flex-1 h-px bg-avorio-dark rounded-full" />
+          </div>
+        </div>
+
         {/* Mock preview card */}
-        <div className="relative max-w-lg mx-auto mt-16 px-4">
+        <div className="relative max-w-lg mx-auto mt-10 px-4">
           {/* Example badge */}
           <div className="absolute -top-3 left-8 z-10 bg-salvia text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
             Esempio
