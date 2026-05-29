@@ -156,7 +156,7 @@ export default function HomePage() {
             <span className="text-salvia italic">non è mai stato così semplice</span>
           </h1>
 
-          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
+          <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
             Organizza il compleanno del tuo bambino in pochi minuti. Invita le persone condividendo un link — la lista dei regali e le conferme di presenza le gestisce l'app.
           </p>
 
