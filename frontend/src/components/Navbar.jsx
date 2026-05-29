@@ -7,20 +7,9 @@ export default function Navbar() {
   const isHome = location.pathname === '/'
   const [spinning, setSpinning] = useState(false)
 
-  const handleUpdate = async () => {
+  const handleUpdate = () => {
     setSpinning(true)
-    try {
-      if (window.__pikyUpdateSW) {
-        window.__pikyUpdateSW(true)
-      }
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations()
-        for (const reg of regs) reg.update()
-      }
-    } catch (_) {}
-    setTimeout(() => {
-      window.location.reload()
-    }, 500)
+    window.location.reload()
   }
 
   return (
