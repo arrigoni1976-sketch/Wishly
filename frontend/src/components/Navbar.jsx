@@ -33,23 +33,23 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {isHome && (
-          <nav className="flex items-center gap-3">
-            <button
-              onClick={handleUpdate}
-              title="Aggiorna l'app"
-              className="w-9 h-9 flex items-center justify-center rounded-xl border border-avorio-dark text-gray-400 hover:text-salvia hover:border-salvia transition-colors"
-            >
-              <RefreshCw className={`w-4 h-4 ${spinning ? 'animate-spin' : ''}`} />
-            </button>
+        <nav className="flex items-center gap-3">
+          <button
+            onClick={handleUpdate}
+            title="Aggiorna l'app"
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-avorio-dark text-gray-400 hover:text-salvia hover:border-salvia transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${spinning ? 'animate-spin' : ''}`} />
+          </button>
+          {isHome && (
             <Link
               to="/crea"
               className="btn-primary text-sm py-2 px-5"
             >
               Crea la lista
             </Link>
-          </nav>
-        )}
+          )}
+        </nav>
       </div>
     </header>
   )
