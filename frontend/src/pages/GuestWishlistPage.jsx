@@ -97,7 +97,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved }) {
           onClick={() => setStep('form')}
           className="btn-primary text-sm px-6 py-2.5"
         >
-          Rispondi all'RSVP
+          Conferma la tua presenza
         </button>
       </div>
     )
@@ -186,6 +186,7 @@ export default function GuestWishlistPage() {
   const [myRsvp, setMyRsvp] = useState(null)
   const [myReservations, setMyReservations] = useState([]) // gift IDs
   const [viewTracked, setViewTracked] = useState(false)
+  const [showRsvpModal, setShowRsvpModal] = useState(false)
 
   const baseUrl = window.location.origin
 
@@ -313,14 +314,18 @@ export default function GuestWishlistPage() {
             )}
           </div>
 
-          {/* Confirmed count — visible to guests */}
-          <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 rounded-xl px-4 py-2 text-sm font-medium">
+          {/* Confirmed count — visible to guests, cliccabile */}
+          <button
+            onClick={() => rsvpYesCount > 0 && setShowRsvpModal(true)}
+            className={`inline-flex items-center gap-2 bg-green-50 text-green-700 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${rsvpYesCount > 0 ? 'hover:bg-green-100 cursor-pointer' : 'cursor-default'}`}
+          >
             <Users className="w-4 h-4" />
             {rsvpYesCount > 0
               ? `${rsvpYesCount} ${rsvpYesCount === 1 ? 'persona confermata' : 'persone confermate'}`
               : 'Nessuna conferma ancora'}
             {totalChildren > 0 && ` · ${totalChildren} bambini`}
-          </div>
+            {rsvpYesCount > 0 && <span className="text-green-500 text-xs ml-1">›</span>}
+          </button>
 
           {event.notes && (
             <p className="mt-4 pt-4 border-t border-avorio-dark text-sm text-gray-500 italic text-left">
@@ -520,6 +525,45 @@ export default function GuestWishlistPage() {
         </div>
 
       </div>
+
+      {/* ── Modal confermati ─────────────────────────────────────────────── */}
+      {showRsvpModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center p-4"
+          onClick={() => setShowRsvpModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="font-display font-bold text-gray-900 text-lg">Chi partecipa 🎉</h3>
+              <button onClick={() => setShowRsvpModal(false)} className="text-gray-300 hover:text-gray-500 text-xl leading-none">✕</button>
+            </div>
+            <ul className="space-y-2">
+              {event.rsvp
+                .filter((r) => r.status === 'yes')
+                .map((r, i) => (
+                  <li key={i} className="flex items-center justify-between py-2.5 border-b border-avorio-dark last:border-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-sm font-bold">
+                        {r.guest_name?.charAt(0).toUpperCase() || '?'}
+                      </div>
+                      <span className="font-medium text-gray-800 text-sm">{r.guest_name}</span>
+                    </div>
+                    {r.children_count > 0 && (
+                      <span className="text-xs text-gray-400">+{r.children_count} bambini</span>
+                    )}
+                  </li>
+                ))}
+            </ul>
+            <p className="text-xs text-gray-400 text-center">
+              {rsvpYesCount} {rsvpYesCount === 1 ? 'persona confermata' : 'persone confermate'}
+              {totalChildren > 0 && ` · ${totalChildren} bambini`}
+            </p>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }
