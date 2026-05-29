@@ -95,6 +95,7 @@ export default function HomePage() {
   const [myInvites, setMyInvites] = useState([])
   const [showKeyModal, setShowKeyModal] = useState(false)
   const [keyModalMode, setKeyModalMode] = useState('create')
+  const [pendingDelete, setPendingDelete] = useState(null) // token dell'elemento da rimuovere
   const { userKey, saveKey } = useUserKey()
 
   const openKeyModal = (mode = 'create') => {
@@ -280,7 +281,15 @@ export default function HomePage() {
                         </div>
                         <span className="text-salvia font-medium text-sm">Apri →</span>
                       </Link>
-                      <button onClick={() => removeEvent(ev.parentToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
+                      {pendingDelete === ev.parentToken ? (
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <span className="text-xs text-gray-500">Rimuovi?</span>
+                          <button onClick={() => { removeEvent(ev.parentToken); setPendingDelete(null) }} className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors">Sì</button>
+                          <button onClick={() => setPendingDelete(null)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">No</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setPendingDelete(ev.parentToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
+                      )}
                     </div>
                   ))}
                   <Link to="/crea" className="inline-flex items-center gap-1 text-xs text-salvia font-medium hover:underline mt-1">
@@ -319,7 +328,15 @@ export default function HomePage() {
                         </div>
                         <span className="text-cipria-dark font-medium text-sm">Apri →</span>
                       </Link>
-                      <button onClick={() => removeInvite(ev.guestToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
+                      {pendingDelete === ev.guestToken ? (
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <span className="text-xs text-gray-500">Rimuovi?</span>
+                          <button onClick={() => { removeInvite(ev.guestToken); setPendingDelete(null) }} className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors">Sì</button>
+                          <button onClick={() => setPendingDelete(null)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">No</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setPendingDelete(ev.guestToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
+                      )}
                     </div>
                   ))}
                 </div>
