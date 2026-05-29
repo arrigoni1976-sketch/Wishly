@@ -413,10 +413,12 @@ export default function ParentDashboardPage() {
               </div>
             </div>
 
-            <ProgressBar
-              current={event.collective_amount || 0}
-              goal={event.collective_goal || 0}
-            />
+            {(event.collective_amount > 0 || event.collective_goal > 0) && (
+              <ProgressBar
+                current={event.collective_amount || 0}
+                goal={event.collective_goal || 0}
+              />
+            )}
 
             <button
               onClick={shareCollectiveLink}

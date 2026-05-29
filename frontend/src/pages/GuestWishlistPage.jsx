@@ -419,17 +419,21 @@ export default function GuestWishlistPage() {
                 <p className="text-sm text-gray-500 mt-0.5 mb-3">
                   Puoi contribuire al regalo collettivo con il link dedicato
                 </p>
-                <div className="h-2 bg-white/60 rounded-full overflow-hidden mb-2">
-                  <div
-                    className="h-full bg-salvia rounded-full transition-all"
-                    style={{
-                      width: `${Math.min(100, ((event.collective_amount || 0) / (event.collective_goal || 1)) * 100)}%`,
-                    }}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mb-3">
-                  €{(event.collective_amount || 0).toFixed(2)} su €{(event.collective_goal || 0).toFixed(2)}
-                </p>
+                {(event.collective_amount > 0 || event.collective_goal > 0) && (
+                  <>
+                    <div className="h-2 bg-white/60 rounded-full overflow-hidden mb-2">
+                      <div
+                        className="h-full bg-salvia rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(100, ((event.collective_amount || 0) / (event.collective_goal || 1)) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mb-3">
+                      €{(event.collective_amount || 0).toFixed(2)} su €{(event.collective_goal || 0).toFixed(2)}
+                    </p>
+                  </>
+                )}
                 <a
                   href={`${baseUrl}/collettivo/${event.collective_token}`}
                   className="btn-primary text-sm py-2 px-4 inline-block"

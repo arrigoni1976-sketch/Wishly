@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key } from 'lucide-react'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw } from 'lucide-react'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -96,9 +96,17 @@ export default function HomePage() {
   const [showKeyModal, setShowKeyModal] = useState(false)
   const { userKey, saveKey } = useUserKey()
 
+  const [refreshing, setRefreshing] = useState(false)
+
   const refreshLists = () => {
     setMyEvents(JSON.parse(localStorage.getItem('piky_events') || '[]'))
     setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
+  }
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+    refreshLists()
+    setTimeout(() => setRefreshing(false), 600)
   }
 
   useEffect(() => { refreshLists() }, [])
@@ -286,7 +294,12 @@ export default function HomePage() {
       {myEvents.length > 0 && (
         <section className="py-10 px-4 bg-white border-b border-avorio-dark">
           <div className="max-w-3xl mx-auto">
-            <h2 className="font-display text-2xl font-bold text-gray-900 mb-4">Le tue liste</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-2xl font-bold text-gray-900">Le tue liste</h2>
+              <button onClick={handleRefresh} className="p-1.5 text-gray-400 hover:text-salvia transition-colors" title="Aggiorna">
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
             <div className="space-y-3">
               {myEvents.map((ev) => (
                 <div key={ev.parentToken} className="flex items-center gap-2">
@@ -325,7 +338,12 @@ export default function HomePage() {
       {myInvites.length > 0 && (
         <section className="py-10 px-4 bg-white border-b border-avorio-dark">
           <div className="max-w-3xl mx-auto">
-            <h2 className="font-display text-2xl font-bold text-gray-900 mb-4">Inviti ricevuti</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-2xl font-bold text-gray-900">Inviti ricevuti</h2>
+              <button onClick={handleRefresh} className="p-1.5 text-gray-400 hover:text-salvia transition-colors" title="Aggiorna">
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
             <div className="space-y-3">
               {myInvites.map((ev) => (
                 <div key={ev.guestToken} className="flex items-center gap-2">
