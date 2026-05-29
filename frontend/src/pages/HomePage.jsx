@@ -173,19 +173,14 @@ export default function HomePage() {
             </a>
           </div>
 
-          <p className="text-sm text-gray-400 mt-6">
-            Nessun account necessario · Completamente gratuito · Zero commissioni
-          </p>
-
-          {/* Azioni secondarie — visibili subito senza scorrere */}
-          <div className="flex items-center justify-center gap-1 mt-4 flex-wrap text-sm text-gray-400">
+          {/* Azioni secondarie — pulsanti piccoli, visibili subito */}
+          <div className="flex items-center justify-center gap-2 mt-5 flex-wrap">
             <button
               onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
-              className="px-3 py-1.5 hover:text-salvia transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors shadow-sm"
             >
               Scarica l'app
             </button>
-            <span>·</span>
             <button
               onClick={async () => {
                 const shareData = {
@@ -200,22 +195,23 @@ export default function HomePage() {
                   alert('Link copiato!')
                 }
               }}
-              className="px-3 py-1.5 hover:text-salvia transition-colors inline-flex items-center gap-1"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors shadow-sm"
             >
               <Share2 className="w-3.5 h-3.5" /> Condividi
             </button>
             {!userKey && (
-              <>
-                <span>·</span>
-                <button
-                  onClick={() => openKeyModal('recover')}
-                  className="px-3 py-1.5 hover:text-salvia transition-colors font-medium"
-                >
-                  Ho già un codice →
-                </button>
-              </>
+              <button
+                onClick={() => openKeyModal('recover')}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors shadow-sm"
+              >
+                Ho già un codice →
+              </button>
             )}
           </div>
+
+          <p className="text-sm text-gray-400 mt-5">
+            Nessun account necessario · Completamente gratuito · Zero commissioni
+          </p>
         </div>
 
         {/* Mock preview card */}
