@@ -226,13 +226,38 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
                 >
                   ← Cambia nome
                 </button>
-                <button
-                  onClick={handleConfirmCreate}
-                  disabled={loading}
-                  className="flex-1 btn-primary py-2.5"
+                {/* Form con autocomplete per attivare il portachiavi del browser/iPhone */}
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleConfirmCreate() }}
+                  action={window.location.href}
+                  className="flex-1"
                 >
-                  {loading ? 'Salvo…' : 'Ho salvato il codice ✓'}
-                </button>
+                  <input
+                    type="text"
+                    name="username"
+                    autoComplete="username"
+                    defaultValue={name}
+                    className="sr-only"
+                    readOnly
+                    tabIndex={-1}
+                  />
+                  <input
+                    type="password"
+                    name="password"
+                    autoComplete="new-password"
+                    defaultValue={generatedKey}
+                    className="sr-only"
+                    readOnly
+                    tabIndex={-1}
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full btn-primary py-2.5 flex items-center justify-center gap-1.5"
+                  >
+                    {loading ? 'Salvo…' : <><Key className="w-4 h-4" /> Salva nel portachiavi</>}
+                  </button>
+                </form>
               </div>
             </div>
           )}
