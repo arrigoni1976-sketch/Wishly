@@ -175,6 +175,8 @@ router.post('/guest/:token/view', async (req, res, next) => {
 
     if (!event) return res.status(404).json({ message: 'Evento non trovato' })
 
+    console.log(`[view] token=${req.params.token} eventId=${event.id} guestName=${guestName || 'anon'}`)
+
     // Upsert view record (by guest_name if provided, otherwise aggregate anonymous row)
     if (guestName) {
       const { data: existing } = await supabase
@@ -210,10 +212,12 @@ router.post('/guest/:token/view', async (req, res, next) => {
           .update({ view_count: existing.view_count + 1, last_viewed_at: new Date().toISOString() })
           .eq('id', existing.id)
       } else {
-        await supabase.from('link_views').insert({
+        const { error: insertErr } = await supabase.from('link_views').insert({
           event_id: event.id,
           guest_name: null,
         })
+        if (insertErr) console.error('[view] insert anon error:', insertErr.message)
+        else console.log('[view] anon row inserted')
       }
     }
 
