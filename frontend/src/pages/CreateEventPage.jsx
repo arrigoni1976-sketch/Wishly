@@ -349,7 +349,7 @@ function StepGifts({ control, register, watch }) {
 
       {fields.length === 0 && (
         <p className="text-center text-sm text-gray-400 bg-avorio-dark rounded-2xl py-4">
-          Puoi aggiungere regali anche dopo aver creato la lista dal dashboard
+          Puoi aggiungere regali anche dopo, direttamente dalla tua lista
         </p>
       )}
     </div>
@@ -424,7 +424,7 @@ function StepConfirm({ data }) {
       <div className="bg-cipria/10 border border-cipria/30 rounded-2xl p-4 text-sm text-gray-600">
         <p className="font-medium text-gray-700 mb-1 flex items-center gap-1.5"><Mail className="w-4 h-4 text-salvia" /> Dopo la creazione riceverai:</p>
         <ul className="space-y-1 text-gray-500">
-          <li>· Link dashboard (solo per te)</li>
+          <li>· Link di gestione lista (solo per te)</li>
           <li>· Link lista per gli invitati</li>
           {data.collectiveEnabled && <li>· Link regalo collettivo</li>}
         </ul>
