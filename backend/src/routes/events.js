@@ -28,6 +28,7 @@ router.post('/', async (req, res, next) => {
       .from('events')
       .insert({
         child_name: childName,
+        gender: gender || null,
         birth_date: birthDate || null,
         party_date: partyDate,
         party_time: partyTime || null,
