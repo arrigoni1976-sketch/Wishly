@@ -147,7 +147,7 @@ export default function ParentDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [giftModal, setGiftModal] = useState({ open: false, data: null })
-  const [showRsvp, setShowRsvp] = useState(false)
+  const [showRsvp, setShowRsvp] = useState(true)
   const [showViews, setShowViews] = useState(false)
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -330,9 +330,12 @@ export default function ParentDashboardPage() {
 
             {/* Stats pills */}
             <div className="flex flex-wrap gap-2">
-              <div className="bg-green-50 text-green-700 rounded-xl px-3 py-1.5 text-sm font-medium">
+              <button
+                onClick={() => { setShowRsvp(true); document.getElementById('rsvp-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+                className="bg-green-50 text-green-700 rounded-xl px-3 py-1.5 text-sm font-medium hover:bg-green-100 transition-colors"
+              >
                 <span className="inline-flex items-center gap-1"><CelebrationIcon size={14} /> {rsvpYes.length} confermati</span>
-              </div>
+              </button>
               {totalChildren > 0 && (
                 <div className="bg-blue-50 text-blue-700 rounded-xl px-3 py-1.5 text-sm font-medium">
                   <span className="inline-flex items-center gap-1"><Baby className="w-3.5 h-3.5" /> {totalChildren} bambini</span>
@@ -470,7 +473,7 @@ export default function ParentDashboardPage() {
         </div>
 
         {/* ── RSVP ────────────────────────────────────────────────────── */}
-        <div className="card">
+        <div id="rsvp-section" className="card">
           <button
             onClick={() => setShowRsvp((v) => !v)}
             className="w-full flex items-center justify-between"
