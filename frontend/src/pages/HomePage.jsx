@@ -43,7 +43,7 @@ const FEATURES = [
     customIcon: <Lock size={24} className="text-salvia" />,
     title: 'Link privati',
     description:
-      'Due link separati: uno per la lista completa, uno solo per il regalo collettivo.',
+      'Due link privati: uno per gestire la lista (solo per te), uno da condividere con gli invitati.',
   },
   {
     icon: Bell,
