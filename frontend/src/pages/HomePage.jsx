@@ -351,9 +351,9 @@ export default function HomePage() {
         {/* Separatore visivo */}
         <div className="max-w-lg mx-auto mt-12 px-6">
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-avorio-dark rounded-full" />
-            <span className="text-xs text-gray-300 tracking-widest">· · ·</span>
-            <div className="flex-1 h-px bg-avorio-dark rounded-full" />
+            <div className="flex-1 h-0.5 bg-gray-200 rounded-full" />
+            <span className="text-xs text-gray-400 tracking-widest">· · ·</span>
+            <div className="flex-1 h-0.5 bg-gray-200 rounded-full" />
           </div>
         </div>
 
