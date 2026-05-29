@@ -236,7 +236,7 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
                     type="text"
                     name="username"
                     autoComplete="username"
-                    defaultValue={name}
+                    defaultValue={`Piky-${name.trim()}`}
                     className="sr-only"
                     readOnly
                     tabIndex={-1}
