@@ -12,7 +12,7 @@ import GiftIcon from '../components/GiftIcon'
 import CakeIcon from '../components/CakeIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -151,8 +151,38 @@ export default function ParentDashboardPage() {
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
   const [copiedCollective, setCopiedCollective] = useState(false)
+  const [collectiveModal, setCollectiveModal] = useState(false)
+  const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
+  const [collectiveSaving, setCollectiveSaving] = useState(false)
 
   const baseUrl = window.location.origin
+
+  const openCollectiveEdit = () => {
+    setCollectiveForm({
+      description: event.collective_description || '',
+      goal: event.collective_goal || '',
+      paypal_email: event.paypal_email || '',
+    })
+    setCollectiveModal(true)
+  }
+
+  const saveCollective = async () => {
+    setCollectiveSaving(true)
+    try {
+      await updateEvent(event.id, {
+        parentToken: parentToken,
+        collective_description: collectiveForm.description || null,
+        collective_goal: parseFloat(collectiveForm.goal) || event.collective_goal,
+        paypal_email: collectiveForm.paypal_email || null,
+      })
+      await fetchEvent()
+      setCollectiveModal(false)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setCollectiveSaving(false)
+    }
+  }
 
   const shareGuestLink = async () => {
     const url = `${baseUrl}/lista/${event?.guest_token}`
@@ -365,13 +395,22 @@ export default function ParentDashboardPage() {
                   ? `${event.collective_description} — Regalo collettivo`
                   : 'Regalo collettivo'}
               </h2>
-              <button
-                onClick={() => setShowContrib((v) => !v)}
-                className="text-sm text-salvia font-medium flex items-center gap-1"
-              >
-                {showContrib ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                {showContrib ? 'Nascondi' : 'Contribuenti'}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={openCollectiveEdit}
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-salvia hover:bg-salvia/10 transition-colors"
+                  title="Modifica regalo collettivo"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setShowContrib((v) => !v)}
+                  className="text-sm text-salvia font-medium flex items-center gap-1"
+                >
+                  {showContrib ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {showContrib ? 'Nascondi' : 'Contribuenti'}
+                </button>
+              </div>
             </div>
 
             <ProgressBar
@@ -528,6 +567,70 @@ export default function ParentDashboardPage() {
         onClose={() => setGiftModal({ open: false, data: null })}
         onSave={giftModal.data ? handleEditGift : handleAddGift}
       />
+
+      {/* ── Modifica regalo collettivo ──────────────────────────────────── */}
+      {collectiveModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center p-4"
+          onClick={() => setCollectiveModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="font-display font-bold text-gray-900 text-lg">Modifica regalo collettivo</h3>
+              <button onClick={() => setCollectiveModal(false)} className="text-gray-300 hover:text-gray-500 text-xl">✕</button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="label">Descrizione</label>
+                <input
+                  value={collectiveForm.description}
+                  onChange={(e) => setCollectiveForm((f) => ({ ...f, description: e.target.value }))}
+                  placeholder="es. Bicicletta nuova"
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Obiettivo (€)</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={collectiveForm.goal}
+                  onChange={(e) => setCollectiveForm((f) => ({ ...f, goal: e.target.value }))}
+                  placeholder="es. 150"
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Email PayPal (opzionale)</label>
+                <input
+                  type="email"
+                  value={collectiveForm.paypal_email}
+                  onChange={(e) => setCollectiveForm((f) => ({ ...f, paypal_email: e.target.value }))}
+                  placeholder="tua@email.com"
+                  className="input"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setCollectiveModal(false)} className="flex-1 btn-outline text-sm py-2.5">
+                Annulla
+              </button>
+              <button
+                onClick={saveCollective}
+                disabled={collectiveSaving}
+                className="flex-1 btn-primary text-sm py-2.5"
+              >
+                {collectiveSaving ? 'Salvo...' : 'Salva'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   )
 }
