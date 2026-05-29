@@ -253,78 +253,81 @@ export default function HomePage() {
         </div>
 
         {/* ─── Le tue liste + Inviti ────────────────────────────────── */}
-        <div className="max-w-lg mx-auto mt-10 px-4 space-y-5">
-          {/* Le tue liste */}
-          <div>
-            <div className="flex items-center justify-between mb-2 px-1">
-              <h2 className="font-display text-base font-bold text-gray-700">Le tue liste</h2>
-              <button onClick={handleRefresh} className="p-1 text-gray-400 hover:text-salvia transition-colors" title="Aggiorna">
-                <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
-            {myEvents.length > 0 ? (
-              <div className="space-y-2">
-                {myEvents.map((ev) => (
-                  <div key={ev.parentToken} className="flex items-center gap-2">
-                    <Link
-                      to={`/dashboard/${ev.parentToken}`}
-                      className="flex-1 flex items-center justify-between bg-white rounded-2xl px-4 py-3 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-800 text-sm">{ev.childName}</p>
-                        <p className="text-xs text-gray-400">
-                          {ev.partyDate ? format(new Date(ev.partyDate), 'd MMMM yyyy', { locale: it }) : ''}
-                        </p>
-                      </div>
-                      <span className="text-salvia font-medium text-sm">Apri →</span>
-                    </Link>
-                    <button onClick={() => removeEvent(ev.parentToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
-                  </div>
-                ))}
-                <Link to="/crea" className="inline-flex items-center gap-1 text-xs text-salvia font-medium hover:underline px-1 mt-1">
-                  + Crea una nuova lista
-                </Link>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between bg-white/70 border border-dashed border-gray-200 rounded-2xl px-4 py-3">
-                <p className="text-sm text-gray-400">Nessuna lista ancora</p>
-                <Link to="/crea" className="text-sm text-salvia font-medium hover:underline">Crea la prima →</Link>
-              </div>
-            )}
-          </div>
+        <div className="max-w-lg mx-auto mt-10 px-4">
+          <div className="bg-white/80 border border-avorio-dark rounded-3xl shadow-sm overflow-hidden">
 
-          {/* Inviti ricevuti */}
-          <div>
-            <div className="flex items-center justify-between mb-2 px-1">
-              <h2 className="font-display text-base font-bold text-gray-700">Inviti ricevuti</h2>
+            {/* Le tue liste */}
+            <div className="px-5 pt-5 pb-4">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-display text-sm font-bold text-gray-600 uppercase tracking-wide">Le tue liste</h2>
+                <button onClick={handleRefresh} className="p-1 text-gray-300 hover:text-salvia transition-colors" title="Aggiorna">
+                  <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+              {myEvents.length > 0 ? (
+                <div className="space-y-2">
+                  {myEvents.map((ev) => (
+                    <div key={ev.parentToken} className="flex items-center gap-2">
+                      <Link
+                        to={`/dashboard/${ev.parentToken}`}
+                        className="flex-1 flex items-center justify-between bg-avorio rounded-2xl px-4 py-3 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
+                      >
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm">{ev.childName}</p>
+                          <p className="text-xs text-gray-400">
+                            {ev.partyDate ? format(new Date(ev.partyDate), 'd MMMM yyyy', { locale: it }) : ''}
+                          </p>
+                        </div>
+                        <span className="text-salvia font-medium text-sm">Apri →</span>
+                      </Link>
+                      <button onClick={() => removeEvent(ev.parentToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
+                    </div>
+                  ))}
+                  <Link to="/crea" className="inline-flex items-center gap-1 text-xs text-salvia font-medium hover:underline mt-1">
+                    + Crea una nuova lista
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-400">Nessuna lista ancora</p>
+                  <Link to="/crea" className="text-sm text-salvia font-medium hover:underline">Crea la prima →</Link>
+                </div>
+              )}
             </div>
-            {myInvites.length > 0 ? (
-              <div className="space-y-2">
-                {myInvites.map((ev) => (
-                  <div key={ev.guestToken} className="flex items-center gap-2">
-                    <Link
-                      to={`/lista/${ev.guestToken}`}
-                      className="flex-1 flex items-center justify-between bg-white rounded-2xl px-4 py-3 border border-avorio-dark hover:border-cipria hover:shadow-sm transition-all"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-800 text-sm flex items-center gap-1">
-                          <BalloonIcon size={14} /> Compleanno di {ev.childName}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {ev.partyDate ? format(new Date(ev.partyDate), 'd MMMM yyyy', { locale: it }) : ''}
-                        </p>
-                      </div>
-                      <span className="text-cipria-dark font-medium text-sm">Apri →</span>
-                    </Link>
-                    <button onClick={() => removeInvite(ev.guestToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white/70 border border-dashed border-gray-200 rounded-2xl px-4 py-3">
+
+            {/* Divisore */}
+            <div className="border-t border-avorio-dark mx-5" />
+
+            {/* Inviti ricevuti */}
+            <div className="px-5 pt-4 pb-5">
+              <h2 className="font-display text-sm font-bold text-gray-600 uppercase tracking-wide mb-3">Inviti ricevuti</h2>
+              {myInvites.length > 0 ? (
+                <div className="space-y-2">
+                  {myInvites.map((ev) => (
+                    <div key={ev.guestToken} className="flex items-center gap-2">
+                      <Link
+                        to={`/lista/${ev.guestToken}`}
+                        className="flex-1 flex items-center justify-between bg-avorio rounded-2xl px-4 py-3 border border-avorio-dark hover:border-cipria hover:shadow-sm transition-all"
+                      >
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm flex items-center gap-1">
+                            <BalloonIcon size={14} /> Compleanno di {ev.childName}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {ev.partyDate ? format(new Date(ev.partyDate), 'd MMMM yyyy', { locale: it }) : ''}
+                          </p>
+                        </div>
+                        <span className="text-cipria-dark font-medium text-sm">Apri →</span>
+                      </Link>
+                      <button onClick={() => removeInvite(ev.guestToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
                 <p className="text-sm text-gray-400">Nessun invito — comparirà qui quando aprirai un link invito</p>
-              </div>
-            )}
+              )}
+            </div>
+
           </div>
         </div>
 
