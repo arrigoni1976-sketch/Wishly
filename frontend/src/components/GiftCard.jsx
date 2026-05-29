@@ -52,8 +52,8 @@ export default function GiftCard({
         isMyReservation && 'ring-2 ring-salvia'
       )}
     >
-      {/* Reserved badge */}
-      {isReserved && (
+      {/* Reserved badge — shown only in guest mode (parent mode shows edit/delete there instead) */}
+      {isReserved && mode === 'guest' && (
         <div
           className={clsx(
             'absolute top-3 right-3 flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full',
@@ -88,7 +88,15 @@ export default function GiftCard({
       )}
 
       <div className="pr-16">
-        <h3 className="font-semibold text-gray-900 text-base leading-snug">{gift.name}</h3>
+        <div className="flex items-start gap-2 flex-wrap">
+          <h3 className="font-semibold text-gray-900 text-base leading-snug">{gift.name}</h3>
+          {isReserved && mode === 'parent' && (
+            <span className="flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 flex-shrink-0 mt-0.5">
+              <Lock className="w-3 h-3" />
+              Prenotato
+            </span>
+          )}
+        </div>
         {gift.description && (
           <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{gift.description}</p>
         )}
