@@ -41,9 +41,9 @@ const FEATURES = [
     icon: Shield,
     emoji: null,
     customIcon: <Lock size={24} className="text-salvia" />,
-    title: 'Link privati',
+    title: 'Link privato',
     description:
-      'Due link privati: uno per gestire la lista (solo per te), uno da condividere con gli invitati.',
+      'Link privato da condividere con gli invitati — solo chi ha il link può vedere la lista.',
   },
   {
     icon: Bell,
