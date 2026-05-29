@@ -160,14 +160,14 @@ export default function HomePage() {
             Organizza il compleanno del tuo bambino in pochi minuti. Invita le persone condividendo un link — la lista dei regali e le conferme di presenza le gestisce l'app.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/crea" className="btn-primary text-lg px-8 py-4 rounded-2xl inline-flex items-center gap-2">
+          <div className="flex flex-row gap-3 justify-center">
+            <Link to="/crea" className="btn-primary text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]">
               <span>Crea la lista gratis</span>
               <span>→</span>
             </Link>
             <a
               href="#come-funziona"
-              className="btn-outline text-lg px-8 py-4 rounded-2xl inline-flex items-center gap-2"
+              className="btn-outline text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]"
             >
               <span>Come funziona</span>
             </a>
