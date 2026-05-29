@@ -355,9 +355,9 @@ export default function HomePage() {
           {/* Titolo sezione */}
           <div className="text-center mb-8">
             <h2 className="font-display text-3xl font-bold text-gray-900 mb-2">
-              Scopri come funziona
+              Scopri di più
             </h2>
-            <p className="text-sm text-gray-500">Semplice per i genitori, comodo per gli invitati</p>
+            <p className="text-lg text-gray-500">Semplice per i genitori, comodo per gli invitati</p>
           </div>
 
           {/* Mock preview card */}
@@ -440,7 +440,7 @@ export default function HomePage() {
             <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
               Tutto quello che ti serve
             </h2>
-            <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-500">
               Pensato per i genitori, comodo per gli invitati.
             </p>
           </div>
@@ -470,6 +470,7 @@ export default function HomePage() {
           <div className="text-center mb-14">
             <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">Come funziona</h2>
             <p className="text-lg text-gray-500">Quattro passi e la lista è pronta</p>
+
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
