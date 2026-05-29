@@ -354,7 +354,7 @@ export default function HomePage() {
 
           {/* Titolo sezione */}
           <div className="text-center mb-8">
-            <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="font-display text-3xl font-bold text-gray-900 mb-2">
               Scopri come funziona
             </h2>
             <p className="text-sm text-gray-500">Semplice per i genitori, comodo per gli invitati</p>
@@ -437,7 +437,7 @@ export default function HomePage() {
       <section className="py-24 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="font-display text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
               Tutto quello che ti serve
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
@@ -468,7 +468,7 @@ export default function HomePage() {
       <section id="come-funziona" className="py-24 px-4 bg-avorio">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="font-display text-4xl font-bold text-gray-900 mb-4">Come funziona</h2>
+            <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">Come funziona</h2>
             <p className="text-lg text-gray-500">Quattro passi e la lista è pronta</p>
           </div>
 
