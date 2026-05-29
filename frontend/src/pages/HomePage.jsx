@@ -123,16 +123,25 @@ export default function HomePage() {
     refreshLists() // reload from localStorage after recovery merge
   }
 
+  const addToHidden = (token) => {
+    const hidden = JSON.parse(localStorage.getItem('piky_hidden') || '[]')
+    if (!hidden.includes(token)) {
+      localStorage.setItem('piky_hidden', JSON.stringify([...hidden, token]))
+    }
+  }
+
   const removeEvent = (parentToken) => {
     const updated = myEvents.filter((ev) => ev.parentToken !== parentToken)
     setMyEvents(updated)
     localStorage.setItem('piky_events', JSON.stringify(updated))
+    addToHidden(parentToken)
   }
 
   const removeInvite = (guestToken) => {
     const updated = myInvites.filter((ev) => ev.guestToken !== guestToken)
     setMyInvites(updated)
     localStorage.setItem('piky_invites', JSON.stringify(updated))
+    addToHidden(guestToken)
   }
 
   const hasContent = myEvents.length > 0 || myInvites.length > 0

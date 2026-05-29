@@ -85,8 +85,12 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
       // Merge into localStorage
       const events = JSON.parse(localStorage.getItem('piky_events') || '[]')
       const invites = JSON.parse(localStorage.getItem('piky_invites') || '[]')
+      const hidden = JSON.parse(localStorage.getItem('piky_hidden') || '[]')
 
       for (const link of links) {
+        // Skip tokens the user has explicitly deleted
+        if (hidden.includes(link.token)) continue
+
         if (link.link_type === 'event' && !events.find((e) => e.parentToken === link.token)) {
           events.unshift({
             childName: link.child_name,
