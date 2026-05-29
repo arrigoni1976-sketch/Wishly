@@ -349,7 +349,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── Scopri come funziona ─────────────────────────────────────────── */}
-      <section className="bg-white pt-16 pb-6 px-4">
+      <section className="bg-white pt-16 pb-2 px-4">
         <div className="max-w-lg mx-auto">
 
           {/* Titolo sezione */}
@@ -434,7 +434,7 @@ export default function HomePage() {
 
 
       {/* ─── Features ─────────────────────────────────────────────────────── */}
-      <section className="py-24 px-4 bg-white">
+      <section className="py-16 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
