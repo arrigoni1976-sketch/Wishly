@@ -176,6 +176,46 @@ export default function HomePage() {
           <p className="text-sm text-gray-400 mt-6">
             Nessun account necessario · Completamente gratuito · Zero commissioni
           </p>
+
+          {/* Azioni secondarie — visibili subito senza scorrere */}
+          <div className="flex items-center justify-center gap-1 mt-4 flex-wrap text-sm text-gray-400">
+            <button
+              onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
+              className="px-3 py-1.5 hover:text-salvia transition-colors"
+            >
+              Scarica l'app
+            </button>
+            <span>·</span>
+            <button
+              onClick={async () => {
+                const shareData = {
+                  title: 'Piky — Lista desideri per compleanni',
+                  text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
+                  url: window.location.origin,
+                }
+                if (navigator.share) {
+                  await navigator.share(shareData)
+                } else {
+                  await navigator.clipboard.writeText(window.location.origin)
+                  alert('Link copiato!')
+                }
+              }}
+              className="px-3 py-1.5 hover:text-salvia transition-colors inline-flex items-center gap-1"
+            >
+              <Share2 className="w-3.5 h-3.5" /> Condividi
+            </button>
+            {!userKey && (
+              <>
+                <span>·</span>
+                <button
+                  onClick={() => openKeyModal('recover')}
+                  className="px-3 py-1.5 hover:text-salvia transition-colors font-medium"
+                >
+                  Ho già un codice →
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Mock preview card */}
