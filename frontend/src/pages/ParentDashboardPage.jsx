@@ -265,7 +265,7 @@ export default function ParentDashboardPage() {
   const rsvpNo = event.rsvp?.filter((r) => r.status === 'no') || []
   const totalChildren = rsvpYes.reduce((acc, r) => acc + (r.children_count || 0), 0)
   const reservedCount = event.gifts?.filter((g) => g.reserved_by).length || 0
-  const openedCount = event.link_views?.length || 0
+  const openedCount = event.link_views?.reduce((acc, v) => acc + (v.view_count || 1), 0) || 0
 
   return (
     <Layout>
