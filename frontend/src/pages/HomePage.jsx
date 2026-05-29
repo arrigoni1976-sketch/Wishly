@@ -504,21 +504,22 @@ export default function HomePage() {
           <p className="text-white/80 text-lg mb-8 leading-relaxed">
             Ci vogliono meno di 5 minuti. Aggiungi i regali, copia il link e mandalo su WhatsApp.
           </p>
-          <div className="flex flex-col gap-4 items-center">
+          <div className="flex flex-col items-center gap-5">
             <Link
               to="/crea"
-              className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-lg px-8 py-4 rounded-2xl hover:bg-avorio transition-colors duration-200 w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-base px-7 py-3.5 rounded-2xl hover:bg-avorio transition-colors duration-200 justify-center"
             >
               Crea la lista gratis
-              <GiftIcon size={22} />
+              <GiftIcon size={18} />
             </Link>
-            <div className="flex gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-1 text-white/60 text-sm">
               <button
                 onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-salvia-dark text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia transition-colors duration-200 text-sm"
+                className="px-3 py-1.5 hover:text-white transition-colors"
               >
                 Scarica l'app
               </button>
+              <span>·</span>
               <button
                 onClick={async () => {
                   const shareData = {
@@ -533,10 +534,9 @@ export default function HomePage() {
                     alert('Link copiato!')
                   }
                 }}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-salvia-dark text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia transition-colors duration-200 text-sm"
+                className="px-3 py-1.5 hover:text-white transition-colors inline-flex items-center gap-1.5"
               >
-                <Share2 className="w-4 h-4" />
-                Condividi
+                <Share2 className="w-3.5 h-3.5" /> Condividi
               </button>
             </div>
           </div>
