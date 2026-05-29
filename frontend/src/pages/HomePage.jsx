@@ -94,7 +94,13 @@ export default function HomePage() {
   const [myEvents, setMyEvents] = useState([])
   const [myInvites, setMyInvites] = useState([])
   const [showKeyModal, setShowKeyModal] = useState(false)
+  const [keyModalMode, setKeyModalMode] = useState('create')
   const { userKey, saveKey } = useUserKey()
+
+  const openKeyModal = (mode = 'create') => {
+    setKeyModalMode(mode)
+    setShowKeyModal(true)
+  }
 
   const [refreshing, setRefreshing] = useState(false)
 
@@ -262,7 +268,7 @@ export default function HomePage() {
                 </span>
               </div>
               <button
-                onClick={() => setShowKeyModal(true)}
+                onClick={() => openKeyModal('create')}
                 className="text-xs text-salvia hover:underline font-medium"
               >
                 Cambia
@@ -273,18 +279,26 @@ export default function HomePage() {
               <Key className="w-5 h-5 text-salvia flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-800 text-sm">
-                  Crea il tuo codice personale
+                  Salva le tue liste
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Per ritrovare le tue liste su qualsiasi dispositivo
+                  Crea un codice personale per ritrovarle su qualsiasi dispositivo
                 </p>
               </div>
-              <button
-                onClick={() => setShowKeyModal(true)}
-                className="text-sm font-medium text-salvia bg-salvia/10 px-3 py-1.5 rounded-xl hover:bg-salvia/20 transition-colors flex-shrink-0"
-              >
-                Crea →
-              </button>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={() => openKeyModal('recover')}
+                  className="text-xs font-medium text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
+                >
+                  Ho un codice
+                </button>
+                <button
+                  onClick={() => openKeyModal('create')}
+                  className="text-sm font-medium text-salvia bg-salvia/10 px-3 py-1.5 rounded-xl hover:bg-salvia/20 transition-colors"
+                >
+                  Crea →
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -486,6 +500,7 @@ export default function HomePage() {
       </section>
       <KeyModal
         isOpen={showKeyModal}
+        initialMode={keyModalMode}
         onClose={() => setShowKeyModal(false)}
         onKeySet={handleKeySet}
       />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Key, X, AlertTriangle } from 'lucide-react'
 import { registerUserKey, getUserKeyLinks } from '../lib/api'
 
@@ -16,8 +16,13 @@ function buildKey(name) {
   return `${prefix}-${randomSuffix()}`
 }
 
-export default function KeyModal({ isOpen, onClose, onKeySet }) {
-  const [mode, setMode] = useState('create') // 'create' | 'recover'
+export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKeySet }) {
+  const [mode, setMode] = useState(initialMode) // 'create' | 'recover'
+
+  // Aggiorna il modo quando si riapre il modal
+  useEffect(() => {
+    if (isOpen) setMode(initialMode)
+  }, [isOpen, initialMode])
   const [name, setName] = useState('')
   const [generatedKey, setGeneratedKey] = useState('')
   const [recoveryInput, setRecoveryInput] = useState('')
