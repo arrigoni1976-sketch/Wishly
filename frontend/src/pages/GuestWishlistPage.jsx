@@ -340,26 +340,6 @@ export default function GuestWishlistPage() {
             </p>
           )}
 
-          {/* Share button */}
-          <button
-            onClick={async () => {
-              const shareData = {
-                title: `Compleanno di ${event.child_name}`,
-                text: `Prenota un regalo per il compleanno di ${event.child_name}! 🎈`,
-                url: window.location.href,
-              }
-              if (navigator.share) {
-                await navigator.share(shareData)
-              } else {
-                await navigator.clipboard.writeText(window.location.href)
-                alert('Link copiato!')
-              }
-            }}
-            className="mt-4 inline-flex items-center gap-2 text-sm text-salvia font-medium hover:text-salvia-dark transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            Condividi la lista
-          </button>
         </div>
 
         {/* ── Welcome / invitation message ────────────────────────────── */}
