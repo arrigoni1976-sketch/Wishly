@@ -23,12 +23,38 @@ function StepPartyInfo({ register, errors }) {
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
           <label className="label">Nome del bambino *</label>
-          <input
-            {...register('childName', { required: 'Campo obbligatorio' })}
-            type="text"
-            placeholder="Es. Sofia"
-            className="input"
-          />
+          <div className="flex gap-2">
+            <input
+              {...register('childName', { required: 'Campo obbligatorio' })}
+              type="text"
+              placeholder="Es. Sofia"
+              className="input flex-1"
+            />
+            <div className="flex gap-1.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setValue('gender', watch('gender') === 'F' ? '' : 'F')}
+                className={`w-11 h-11 rounded-xl text-sm font-bold border-2 transition-colors ${
+                  watch('gender') === 'F'
+                    ? 'bg-cipria border-cipria-dark text-cipria-dark'
+                    : 'bg-white border-gray-200 text-gray-400 hover:border-cipria-dark hover:text-cipria-dark'
+                }`}
+              >
+                F
+              </button>
+              <button
+                type="button"
+                onClick={() => setValue('gender', watch('gender') === 'M' ? '' : 'M')}
+                className={`w-11 h-11 rounded-xl text-sm font-bold border-2 transition-colors ${
+                  watch('gender') === 'M'
+                    ? 'bg-salvia/20 border-salvia text-salvia'
+                    : 'bg-white border-gray-200 text-gray-400 hover:border-salvia hover:text-salvia'
+                }`}
+              >
+                M
+              </button>
+            </div>
+          </div>
           {errors.childName && (
             <p className="text-xs text-red-500 mt-1">{errors.childName.message}</p>
           )}
@@ -449,6 +475,7 @@ export default function CreateEventPage() {
   } = useForm({
     defaultValues: {
       childName: '',
+      gender: '',
       birthDate: '',
       partyDate: '',
       partyTime: '16:00',

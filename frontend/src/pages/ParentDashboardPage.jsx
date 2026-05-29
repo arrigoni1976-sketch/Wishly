@@ -10,6 +10,7 @@ import GiftCard from '../components/GiftCard'
 import ProgressBar from '../components/ProgressBar'
 import GiftIcon from '../components/GiftIcon'
 import CakeIcon from '../components/CakeIcon'
+import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent } from '../lib/api'
@@ -295,8 +296,15 @@ export default function ParentDashboardPage() {
         <div className="card">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-cipria rounded-2xl flex items-center justify-center flex-shrink-0">
-                <CakeIcon size={32} />
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                event.gender === 'F' ? 'bg-cipria' : event.gender === 'M' ? 'bg-salvia/20' : 'bg-cipria'
+              }`}>
+                {event.gender === 'F'
+                  ? <HeartRibbonIcon size={32} />
+                  : event.gender === 'M'
+                  ? <BalloonIcon size={32} />
+                  : <CakeIcon size={32} />
+                }
               </div>
               <div>
                 <h1 className="font-display text-2xl font-bold text-gray-900">

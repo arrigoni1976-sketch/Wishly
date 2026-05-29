@@ -291,8 +291,15 @@ export default function GuestWishlistPage() {
 
         {/* ── Header evento ───────────────────────────────────────────── */}
         <div className="card text-center">
-          <div className="w-16 h-16 bg-cipria rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <BalloonIcon size={40} />
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+            event.gender === 'F' ? 'bg-cipria' : event.gender === 'M' ? 'bg-salvia/20' : 'bg-cipria'
+          }`}>
+            {event.gender === 'F'
+              ? <HeartRibbonIcon size={40} />
+              : event.gender === 'M'
+              ? <BalloonIcon size={40} />
+              : <BalloonIcon size={40} />
+            }
           </div>
           <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">
             Compleanno di {event.child_name}!
