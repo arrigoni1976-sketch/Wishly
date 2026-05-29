@@ -349,7 +349,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── Scopri come funziona ─────────────────────────────────────────── */}
-      <section className="bg-white pt-12 pb-10 px-4">
+      <section className="bg-white pt-16 pb-6 px-4">
         <div className="max-w-lg mx-auto">
 
           {/* Titolo sezione */}
