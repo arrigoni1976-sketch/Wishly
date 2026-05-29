@@ -172,8 +172,55 @@ export default function HomePage() {
             </a>
           </div>
 
-          {/* Azioni secondarie — pulsanti piccoli, visibili subito */}
-          <div className="flex items-center justify-center gap-2 mt-5 flex-wrap">
+          {/* Box codice — visibile subito sotto i bottoni principali */}
+          <div className="max-w-md mx-auto mt-6 text-left">
+            {userKey ? (
+              <div className="flex items-center justify-between bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Key className="w-4 h-4 text-salvia flex-shrink-0" />
+                  <span>
+                    Codice:{' '}
+                    <span className="font-mono font-semibold text-gray-800 tracking-wider">
+                      {userKey.toUpperCase()}
+                    </span>
+                  </span>
+                </div>
+                <button
+                  onClick={() => openKeyModal('create')}
+                  className="text-xs text-salvia hover:underline font-medium"
+                >
+                  Cambia
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-3 shadow-sm">
+                <Key className="w-5 h-5 text-salvia flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-800 text-sm">Salva le tue liste</p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Crea un codice per ritrovarle su qualsiasi dispositivo
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => openKeyModal('recover')}
+                    className="text-xs font-medium text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
+                  >
+                    Ho un codice
+                  </button>
+                  <button
+                    onClick={() => openKeyModal('create')}
+                    className="text-sm font-medium text-salvia bg-salvia/10 px-3 py-1.5 rounded-xl hover:bg-salvia/20 transition-colors"
+                  >
+                    Crea →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Azioni secondarie — Scarica e Condividi */}
+          <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
             <button
               onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
               className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors shadow-sm"
@@ -198,14 +245,6 @@ export default function HomePage() {
             >
               <Share2 className="w-3.5 h-3.5" /> Condividi
             </button>
-            {!userKey && (
-              <button
-                onClick={() => openKeyModal('recover')}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors shadow-sm"
-              >
-                Ho già un codice →
-              </button>
-            )}
           </div>
 
           <p className="text-sm text-gray-400 mt-5">
@@ -285,57 +324,6 @@ export default function HomePage() {
               <p className="text-xs text-gray-400 mt-1">€136 raccolti su €200</p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ─── Codice personale ───────────────────────────────────────────── */}
-      <section className="px-4 py-5 bg-white border-b border-avorio-dark">
-        <div className="max-w-3xl mx-auto">
-          {userKey ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Key className="w-4 h-4 text-salvia flex-shrink-0" />
-                <span>
-                  Codice:{' '}
-                  <span className="font-mono font-semibold text-gray-800 tracking-wider">
-                    {userKey.toUpperCase()}
-                  </span>
-                </span>
-              </div>
-              <button
-                onClick={() => openKeyModal('create')}
-                className="text-xs text-salvia hover:underline font-medium"
-              >
-                Cambia
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3 bg-avorio rounded-2xl border border-avorio-dark px-4 py-3">
-              <Key className="w-5 h-5 text-salvia flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-800 text-sm">
-                  Salva le tue liste
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Crea un codice personale per ritrovarle su qualsiasi dispositivo
-                </p>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => openKeyModal('recover')}
-                  className="text-xs font-medium text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
-                >
-                  Ho un codice
-                </button>
-                <button
-                  onClick={() => openKeyModal('create')}
-                  className="text-sm font-medium text-salvia bg-salvia/10 px-3 py-1.5 rounded-xl hover:bg-salvia/20 transition-colors"
-                >
-                  Crea →
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
