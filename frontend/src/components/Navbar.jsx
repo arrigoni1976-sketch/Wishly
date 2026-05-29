@@ -1,8 +1,27 @@
 import { Link, useLocation } from 'react-router-dom'
+import { RefreshCw } from 'lucide-react'
+import { useState } from 'react'
 
 export default function Navbar() {
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const [spinning, setSpinning] = useState(false)
+
+  const handleUpdate = async () => {
+    setSpinning(true)
+    try {
+      if (window.__pikyUpdateSW) {
+        window.__pikyUpdateSW(true)
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations()
+        for (const reg of regs) reg.update()
+      }
+    } catch (_) {}
+    setTimeout(() => {
+      window.location.reload()
+    }, 500)
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-avorio/90 backdrop-blur-sm border-b border-avorio-dark pt-safe">
@@ -16,6 +35,13 @@ export default function Navbar() {
 
         {isHome && (
           <nav className="flex items-center gap-3">
+            <button
+              onClick={handleUpdate}
+              title="Aggiorna l'app"
+              className="w-9 h-9 flex items-center justify-center rounded-xl border border-avorio-dark text-gray-400 hover:text-salvia hover:border-salvia transition-colors"
+            >
+              <RefreshCw className={`w-4 h-4 ${spinning ? 'animate-spin' : ''}`} />
+            </button>
             <Link
               to="/crea"
               className="btn-primary text-sm py-2 px-5"

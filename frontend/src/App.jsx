@@ -21,6 +21,9 @@ const updateSW = registerSW({
   },
 })
 
+// Esponi la funzione di update globalmente per il pulsante in Navbar
+window.__pikyUpdateSW = updateSW
+
 export default function App() {
   return (
     <Router>
