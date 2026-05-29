@@ -156,8 +156,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
-            Crea la lista dei desideri del tuo bambino (o la tua!), condividila con gli invitati e lascia che
-            si coordinino da soli. Semplice per te, perfetto per tutti.
+            Organizza il compleanno del tuo bambino in pochi minuti. Invita le persone condividendo un link — la lista dei regali e le conferme di presenza le gestisce l'app.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
