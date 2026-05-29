@@ -140,7 +140,7 @@ export default function HomePage() {
   return (
     <Layout>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-avorio via-avorio to-cipria/20 pt-10 pb-28 px-4">
+      <section className="relative overflow-hidden bg-gradient-to-br from-avorio via-avorio to-cipria/20 pt-10 pb-14 px-4">
         {/* Decorative blobs */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-cipria/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-salvia/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4 pointer-events-none" />
@@ -346,87 +346,89 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Separatore visivo */}
-        <div className="max-w-lg mx-auto mt-12 px-6">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-0.5 bg-gray-200 rounded-full" />
-            <span className="text-xs text-gray-400 tracking-widest">· · ·</span>
-            <div className="flex-1 h-0.5 bg-gray-200 rounded-full" />
-          </div>
-        </div>
+      </section>
 
-        {/* Mock preview card */}
-        <div className="relative max-w-lg mx-auto mt-10 px-4">
-          {/* Example badge */}
-          <div className="absolute -top-3 left-8 z-10 bg-salvia text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-            Esempio
+      {/* ─── Scopri come funziona ─────────────────────────────────────────── */}
+      <section className="bg-white py-16 px-4">
+        <div className="max-w-lg mx-auto">
+
+          {/* Titolo sezione */}
+          <div className="text-center mb-10">
+            <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">
+              Scopri come funziona
+            </h2>
+            <p className="text-sm text-gray-500">Semplice per i genitori, comodo per gli invitati</p>
           </div>
-          <div className="bg-white rounded-3xl shadow-2xl shadow-cipria/20 p-6 border border-avorio-dark">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-12 h-12 bg-cipria rounded-2xl flex items-center justify-center">
-                <BalloonIcon size={28} />
-              </div>
-              <div>
-                <h3 className="font-display font-bold text-gray-900">Compleanno di Bianca</h3>
-                <p className="text-sm text-gray-500">5 ottobre · 16:00 · Giardino di casa</p>
-              </div>
-              <div className="ml-auto bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                8 confermati
-              </div>
+
+          {/* Mock preview card */}
+          <div className="relative">
+            <div className="absolute -top-3 left-6 z-10 bg-salvia text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+              Esempio
             </div>
-
-            <div className="space-y-3">
-              {[
-                { name: 'LEGO Technic 42175', price: '€89', reserved: true, by: 'Marco & Anna' },
-                { name: 'Bici senza pedali Strider', price: '€119', reserved: false },
-                { name: 'Kit pittura acquerello', price: '€34', reserved: true, by: 'Giulia' },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center gap-3 p-3 rounded-xl border ${
-                    item.reserved
-                      ? 'border-gray-100 bg-gray-50 opacity-70'
-                      : 'border-cipria/40 bg-cipria/5'
-                  }`}
-                >
-                  <div
-                    className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                      item.reserved ? 'bg-gray-300' : 'bg-salvia'
-                    }`}
-                  />
-                  <span className={`flex-1 text-sm font-medium ${item.reserved ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
-                    {item.name}
-                  </span>
-                  <span className={`text-sm font-bold ${item.reserved ? 'text-gray-400' : 'text-salvia'}`}>
-                    {item.price}
-                  </span>
-                  {item.reserved ? (
-                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5">
-                      <Lock size={12} className="inline text-gray-400" /> {item.by}
-                    </span>
-                  ) : (
-                    <button className="text-xs bg-salvia text-white px-3 py-1 rounded-lg font-medium">
-                      Prenota
-                    </button>
-                  )}
+            <div className="bg-avorio rounded-3xl shadow-lg shadow-gray-100 p-6 border border-avorio-dark">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-12 h-12 bg-cipria rounded-2xl flex items-center justify-center">
+                  <BalloonIcon size={28} />
                 </div>
-              ))}
-            </div>
+                <div>
+                  <h3 className="font-display font-bold text-gray-900">Compleanno di Bianca</h3>
+                  <p className="text-sm text-gray-500">5 ottobre · 16:00 · Giardino di casa</p>
+                </div>
+                <div className="ml-auto bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  8 confermati
+                </div>
+              </div>
 
-            {/* Collective progress bar */}
-            <div className="mt-5 pt-4 border-t border-avorio-dark">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="font-semibold text-gray-700 flex items-center gap-1.5">
-                  <GiftIcon size={16} /> Regalo collettivo
-                </span>
-                <span className="font-bold text-salvia">68%</span>
+              <div className="space-y-3">
+                {[
+                  { name: 'LEGO Technic 42175', price: '€89', reserved: true, by: 'Marco & Anna' },
+                  { name: 'Bici senza pedali Strider', price: '€119', reserved: false },
+                  { name: 'Kit pittura acquerello', price: '€34', reserved: true, by: 'Giulia' },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-center gap-3 p-3 rounded-xl border ${
+                      item.reserved
+                        ? 'border-gray-100 bg-gray-50 opacity-70'
+                        : 'border-cipria/40 bg-cipria/5'
+                    }`}
+                  >
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.reserved ? 'bg-gray-300' : 'bg-salvia'}`} />
+                    <span className={`flex-1 text-sm font-medium ${item.reserved ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
+                      {item.name}
+                    </span>
+                    <span className={`text-sm font-bold ${item.reserved ? 'text-gray-400' : 'text-salvia'}`}>
+                      {item.price}
+                    </span>
+                    {item.reserved ? (
+                      <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5">
+                        <Lock size={12} className="inline text-gray-400" /> {item.by}
+                      </span>
+                    ) : (
+                      <button className="text-xs bg-salvia text-white px-3 py-1 rounded-lg font-medium">
+                        Prenota
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
-              <div className="h-2 bg-avorio-dark rounded-full overflow-hidden">
-                <div className="h-full w-[68%] bg-gradient-to-r from-cipria-dark to-salvia rounded-full" />
+
+              {/* Collective progress bar */}
+              <div className="mt-5 pt-4 border-t border-avorio-dark">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="font-semibold text-gray-700 flex items-center gap-1.5">
+                    <GiftIcon size={16} /> Regalo collettivo
+                  </span>
+                  <span className="font-bold text-salvia">68%</span>
+                </div>
+                <div className="h-2 bg-avorio-dark rounded-full overflow-hidden">
+                  <div className="h-full w-[68%] bg-gradient-to-r from-cipria-dark to-salvia rounded-full" />
+                </div>
+                <p className="text-xs text-gray-400 mt-1">€136 raccolti su €200</p>
               </div>
-              <p className="text-xs text-gray-400 mt-1">€136 raccolti su €200</p>
             </div>
           </div>
+
         </div>
       </section>
 
