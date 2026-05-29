@@ -349,11 +349,11 @@ export default function HomePage() {
       </section>
 
       {/* ─── Scopri come funziona ─────────────────────────────────────────── */}
-      <section className="bg-white py-16 px-4">
+      <section className="bg-white pt-12 pb-10 px-4">
         <div className="max-w-lg mx-auto">
 
           {/* Titolo sezione */}
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">
               Scopri come funziona
             </h2>
