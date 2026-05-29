@@ -10,7 +10,7 @@ import { createEvent, addUserKeyLink } from '../lib/api'
 const STEPS = ['Info festa', 'Lista', 'Collettivo', 'Regali', 'Conferma']
 
 // ─── Step 1: Dettagli della festa ─────────────────────────────────────────
-function StepPartyInfo({ register, errors }) {
+function StepPartyInfo({ register, errors, watch, setValue }) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -560,7 +560,7 @@ export default function CreateEventPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
-            {currentStep === 1 && <StepPartyInfo register={register} errors={errors} />}
+            {currentStep === 1 && <StepPartyInfo register={register} errors={errors} watch={watch} setValue={setValue} />}
             {currentStep === 2 && <StepListSettings register={register} errors={errors} />}
             {currentStep === 3 && (
               <StepCollective register={register} watch={watch} setValue={setValue} />
