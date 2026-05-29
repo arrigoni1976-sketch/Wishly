@@ -150,7 +150,6 @@ export default function ParentDashboardPage() {
   const [showViews, setShowViews] = useState(false)
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [copiedCollective, setCopiedCollective] = useState(false)
   const [collectiveModal, setCollectiveModal] = useState(false)
   const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
@@ -203,24 +202,6 @@ export default function ParentDashboardPage() {
     setTimeout(() => setCopied(false), 2500)
   }
 
-  const shareCollectiveLink = async () => {
-    const url = `${baseUrl}/collettivo/${event?.collective_token}`
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Regalo collettivo per ${event.child_name}`,
-          text: `Contribuisci al regalo collettivo per il compleanno di ${event.child_name}!`,
-          url,
-        })
-        return
-      } catch (e) {
-        if (e.name === 'AbortError') return
-      }
-    }
-    await navigator.clipboard.writeText(url)
-    setCopiedCollective(true)
-    setTimeout(() => setCopiedCollective(false), 2500)
-  }
 
   const fetchEvent = async () => {
     try {
@@ -420,13 +401,6 @@ export default function ParentDashboardPage() {
               />
             )}
 
-            <button
-              onClick={shareCollectiveLink}
-              className="mt-4 inline-flex items-center gap-2 text-sm text-salvia font-medium hover:text-salvia-dark transition-colors"
-            >
-              <Share2 className="w-4 h-4" />
-              {copiedCollective ? 'Link copiato!' : 'Condividi link collettivo'}
-            </button>
 
             {showContrib && event.contributions?.length > 0 && (
               <div className="mt-4 border-t border-avorio-dark pt-4 space-y-2">

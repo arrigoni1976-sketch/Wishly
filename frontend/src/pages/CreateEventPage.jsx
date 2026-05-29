@@ -242,7 +242,6 @@ function StepCollective({ register, watch, setValue }) {
               <li>· Ogni contributo minimo è €10</li>
               <li>· Il massimo è l'importo rimanente all'obiettivo</li>
               <li>· I fondi ti vengono trasferiti al raggiungimento dell'obiettivo</li>
-              <li>· Link separato condivisibile solo per il collettivo</li>
             </ul>
           </div>
         </div>
@@ -426,7 +425,6 @@ function StepConfirm({ data }) {
         <ul className="space-y-1 text-gray-500">
           <li>· Link di gestione lista (solo per te)</li>
           <li>· Link lista per gli invitati</li>
-          {data.collectiveEnabled && <li>· Link regalo collettivo</li>}
         </ul>
       </div>
     </div>
