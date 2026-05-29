@@ -282,10 +282,9 @@ export default function HomePage() {
                         <span className="text-salvia font-medium text-sm">Apri →</span>
                       </Link>
                       {pendingDelete === ev.parentToken ? (
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <span className="text-xs text-gray-500">Rimuovi?</span>
-                          <button onClick={() => { removeEvent(ev.parentToken); setPendingDelete(null) }} className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors">Sì</button>
-                          <button onClick={() => setPendingDelete(null)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">No</button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button onClick={() => setPendingDelete(null)} className="text-xs font-medium text-gray-500 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl transition-colors">No</button>
+                          <button onClick={() => { removeEvent(ev.parentToken); setPendingDelete(null) }} className="text-xs font-semibold text-white bg-red-400 hover:bg-red-500 px-3 py-1.5 rounded-xl transition-colors">Sì</button>
                         </div>
                       ) : (
                         <button onClick={() => setPendingDelete(ev.parentToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
@@ -329,10 +328,9 @@ export default function HomePage() {
                         <span className="text-cipria-dark font-medium text-sm">Apri →</span>
                       </Link>
                       {pendingDelete === ev.guestToken ? (
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <span className="text-xs text-gray-500">Rimuovi?</span>
-                          <button onClick={() => { removeInvite(ev.guestToken); setPendingDelete(null) }} className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors">Sì</button>
-                          <button onClick={() => setPendingDelete(null)} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">No</button>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button onClick={() => setPendingDelete(null)} className="text-xs font-medium text-gray-500 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl transition-colors">No</button>
+                          <button onClick={() => { removeInvite(ev.guestToken); setPendingDelete(null) }} className="text-xs font-semibold text-white bg-red-400 hover:bg-red-500 px-3 py-1.5 rounded-xl transition-colors">Sì</button>
                         </div>
                       ) : (
                         <button onClick={() => setPendingDelete(ev.guestToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
