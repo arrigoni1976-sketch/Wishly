@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw } from 'lucide-react'
+import { syncFromServer } from '../lib/sync'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -110,17 +111,27 @@ export default function HomePage() {
     setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
   }
 
-  const handleRefresh = () => {
+  // Auto-sync from server on every load when key is present
+  useEffect(() => {
+    refreshLists()
+    if (!userKey) return
+    syncFromServer(userKey)
+      .then(({ changed }) => { if (changed) refreshLists() })
+      .catch(() => {})
+  }, [userKey])
+
+  const handleRefresh = async () => {
     setRefreshing(true)
+    if (userKey) {
+      await syncFromServer(userKey).catch(() => {})
+    }
     refreshLists()
     setTimeout(() => setRefreshing(false), 600)
   }
 
-  useEffect(() => { refreshLists() }, [])
-
   const handleKeySet = (key) => {
     saveKey(key)
-    refreshLists() // reload from localStorage after recovery merge
+    refreshLists()
   }
 
   const addToHidden = (token) => {

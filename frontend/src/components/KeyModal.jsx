@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Key, X, AlertTriangle } from 'lucide-react'
-import { registerUserKey, getUserKeyLinks } from '../lib/api'
+import { registerUserKey } from '../lib/api'
+import { syncFromServer, uploadLocalToKey } from '../lib/sync'
 
 // Chars without ambiguous look-alikes (no 0/O, 1/I/L)
 const SAFE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -57,11 +58,12 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
     setError('')
     try {
       await registerUserKey(generatedKey)
+      // Upload any existing localStorage data to the new key
+      await uploadLocalToKey(generatedKey).catch(() => {})
       onKeySet(generatedKey)
       onClose()
     } catch (e) {
       if (e?.response?.status === 409) {
-        // Key collision — regenerate
         const newKey = buildKey(name)
         setGeneratedKey(newKey)
         setError('Codice già esistente, ne abbiamo generato uno nuovo. Conferma di nuovo.')
@@ -79,39 +81,7 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
     setLoading(true)
     setError('')
     try {
-      const res = await getUserKeyLinks(key)
-      const links = res.data.links || []
-
-      // Merge into localStorage
-      const events = JSON.parse(localStorage.getItem('piky_events') || '[]')
-      const invites = JSON.parse(localStorage.getItem('piky_invites') || '[]')
-      const hidden = JSON.parse(localStorage.getItem('piky_hidden') || '[]')
-
-      for (const link of links) {
-        // Skip tokens the user has explicitly deleted
-        if (hidden.includes(link.token)) continue
-
-        if (link.link_type === 'event' && !events.find((e) => e.parentToken === link.token)) {
-          events.unshift({
-            childName: link.child_name,
-            partyDate: link.party_date,
-            parentToken: link.token,
-            createdAt: link.created_at,
-          })
-        }
-        if (link.link_type === 'invite' && !invites.find((e) => e.guestToken === link.token)) {
-          invites.unshift({
-            childName: link.child_name,
-            partyDate: link.party_date,
-            guestToken: link.token,
-            visitedAt: link.created_at,
-          })
-        }
-      }
-
-      localStorage.setItem('piky_events', JSON.stringify(events.slice(0, 20)))
-      localStorage.setItem('piky_invites', JSON.stringify(invites.slice(0, 20)))
-
+      await syncFromServer(key)
       onKeySet(key)
       onClose()
     } catch (e) {
