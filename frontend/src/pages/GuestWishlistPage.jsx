@@ -183,7 +183,11 @@ export default function GuestWishlistPage() {
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [myRsvp, setMyRsvp] = useState(null)
+  const [myRsvp, setMyRsvp] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(`piky_rsvp_${guestToken}`)) || null
+    } catch { return null }
+  })
   const [myReservations, setMyReservations] = useState([]) // gift IDs
   const [viewTracked, setViewTracked] = useState(false)
   const [showRsvpModal, setShowRsvpModal] = useState(false)
@@ -238,6 +242,11 @@ export default function GuestWishlistPage() {
     }, 2000)
     return () => clearTimeout(timer)
   }, [event, viewTracked])
+
+  const handleRsvpSaved = (rsvp) => {
+    setMyRsvp(rsvp)
+    localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(rsvp))
+  }
 
   const handleReserve = async ({ giftId, guestName, partnerName, purchasedOffline }) => {
     await reserveGift(giftId, { guestName, partnerName, purchasedOffline })
@@ -393,7 +402,7 @@ export default function GuestWishlistPage() {
         <RsvpSection
           eventId={event.id}
           existingRsvp={myRsvp}
-          onRsvpSaved={setMyRsvp}
+          onRsvpSaved={handleRsvpSaved}
         />
 
         {/* ── Collettivo promo ─────────────────────────────────────────── */}
