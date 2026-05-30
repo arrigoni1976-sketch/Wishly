@@ -135,10 +135,14 @@ export default function CollectiveGiftPage() {
                 className="btn-primary w-full py-3.5 text-base flex items-center justify-center gap-2"
               >
                 <Heart className="w-5 h-5" />
-                Contribuisci al regalo
+                {event.collective_fixed_quota
+                  ? `Paga la quota di €${parseFloat(event.collective_fixed_quota).toFixed(2)}`
+                  : 'Contribuisci al regalo'}
               </button>
               <p className="text-xs text-center text-gray-400 mt-2">
-                Importo minimo €10 · Massimo €{remaining.toFixed(0)}
+                {event.collective_fixed_quota
+                  ? `Quota fissa per persona · Massimo disponibile €${remaining.toFixed(0)}`
+                  : `Importo minimo €10 · Massimo €${remaining.toFixed(0)}`}
               </p>
             </div>
           )}
@@ -195,6 +199,7 @@ export default function CollectiveGiftPage() {
         collected={collected}
         onSubmit={handleContribute}
         paypalEmail={event?.paypal_email}
+        fixedAmount={event?.collective_fixed_quota}
       />
     </Layout>
   )

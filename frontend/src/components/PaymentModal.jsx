@@ -4,7 +4,7 @@ import clsx from 'clsx'
 
 const QUICK_AMOUNTS = [10, 20, 30, 50]
 
-export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit, paypalEmail }) {
+export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit, paypalEmail, fixedAmount }) {
   const remaining = Math.max(0, goal - collected)
   const [amount, setAmount] = useState('')
   const [customAmount, setCustomAmount] = useState(false)
@@ -14,12 +14,11 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
 
   if (!isOpen) return null
 
-  const numAmount = parseFloat(amount)
-  const isValid =
-    name.trim() &&
-    !isNaN(numAmount) &&
-    numAmount >= 10 &&
-    numAmount <= remaining
+  // If fixedAmount is set, use it (capped at remaining)
+  const effectiveFixed = fixedAmount ? Math.min(parseFloat(fixedAmount), remaining) : null
+
+  const numAmount = effectiveFixed ?? parseFloat(amount)
+  const isValid = name.trim() && !isNaN(numAmount) && numAmount >= 1 && numAmount <= remaining
 
   const handleCash = async () => {
     if (!isValid) return
@@ -52,13 +51,11 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl animate-slide-up max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
@@ -73,7 +70,9 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
           </div>
 
           <p className="text-sm text-gray-500 mb-5">
-            Indica il tuo nome e la quota che vuoi contribuire.
+            {effectiveFixed
+              ? 'Inserisci il tuo nome per confermare la quota.'
+              : 'Indica il tuo nome e la quota che vuoi contribuire.'}
           </p>
 
           {/* Name */}
@@ -85,69 +84,78 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
               onChange={(e) => setName(e.target.value)}
               placeholder="Come vuoi apparire nella lista"
               className="input"
+              autoFocus
             />
           </div>
 
-          {/* Amount */}
-          <div className="mb-6">
-            <label className="label">Importo (min €10, max €{remaining.toFixed(0)})</label>
-
-            {/* Quick amounts */}
-            {!customAmount && (
-              <div className="grid grid-cols-4 gap-2 mb-2">
-                {QUICK_AMOUNTS.filter((a) => a <= remaining).map((a) => (
-                  <button
-                    key={a}
-                    type="button"
-                    onClick={() => setAmount(String(a))}
-                    className={clsx(
-                      'py-2.5 rounded-xl text-sm font-semibold border-2 transition-all',
-                      amount === String(a)
-                        ? 'bg-salvia text-white border-salvia'
-                        : 'border-gray-200 text-gray-700 hover:border-salvia'
-                    )}
-                  >
-                    €{a}
-                  </button>
-                ))}
+          {/* Amount — fixed or free choice */}
+          {effectiveFixed ? (
+            <div className="mb-6">
+              <div className="bg-avorio rounded-2xl border border-avorio-dark px-4 py-3 flex items-center justify-between">
+                <span className="text-sm text-gray-600 font-medium">Quota per persona</span>
+                <span className="text-xl font-bold text-salvia">€{effectiveFixed.toFixed(2)}</span>
               </div>
-            )}
+            </div>
+          ) : (
+            <div className="mb-6">
+              <label className="label">Importo (min €10, max €{remaining.toFixed(0)})</label>
 
-            <div className="flex gap-2">
-              {!customAmount ? (
-                <button
-                  type="button"
-                  onClick={() => { setCustomAmount(true); setAmount('') }}
-                  className="flex-1 py-2 text-sm text-gray-500 border border-dashed border-gray-300 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
-                >
-                  Altro importo
-                </button>
-              ) : (
-                <div className="flex-1 relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">€</span>
-                  <input
-                    type="number"
-                    min={10}
-                    max={remaining}
-                    step={1}
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0"
-                    className="input pl-7"
-                  />
+              {!customAmount && (
+                <div className="grid grid-cols-4 gap-2 mb-2">
+                  {QUICK_AMOUNTS.filter((a) => a <= remaining).map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setAmount(String(a))}
+                      className={clsx(
+                        'py-2.5 rounded-xl text-sm font-semibold border-2 transition-all',
+                        amount === String(a)
+                          ? 'bg-salvia text-white border-salvia'
+                          : 'border-gray-200 text-gray-700 hover:border-salvia'
+                      )}
+                    >
+                      €{a}
+                    </button>
+                  ))}
                 </div>
               )}
-              {customAmount && (
-                <button
-                  type="button"
-                  onClick={() => { setCustomAmount(false); setAmount('') }}
-                  className="px-3 py-2 text-sm text-gray-400 hover:text-gray-600 border border-gray-200 rounded-xl"
-                >
-                  Veloci
-                </button>
-              )}
+
+              <div className="flex gap-2">
+                {!customAmount ? (
+                  <button
+                    type="button"
+                    onClick={() => { setCustomAmount(true); setAmount('') }}
+                    className="flex-1 py-2 text-sm text-gray-500 border border-dashed border-gray-300 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
+                  >
+                    Altro importo
+                  </button>
+                ) : (
+                  <div className="flex-1 relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">€</span>
+                    <input
+                      type="number"
+                      min={10}
+                      max={remaining}
+                      step={1}
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0"
+                      className="input pl-7"
+                    />
+                  </div>
+                )}
+                {customAmount && (
+                  <button
+                    type="button"
+                    onClick={() => { setCustomAmount(false); setAmount('') }}
+                    className="px-3 py-2 text-sm text-gray-400 hover:text-gray-600 border border-gray-200 rounded-xl"
+                  >
+                    Veloci
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {error && (
             <p className="text-sm text-red-500 mb-4 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
@@ -155,7 +163,6 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
 
           {/* Action buttons */}
           <div className="space-y-2">
-            {/* PayPal — shown only if paypalEmail is set */}
             {paypalEmail && (
               <button
                 onClick={handlePayPal}
@@ -168,7 +175,6 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
               </button>
             )}
 
-            {/* Cash */}
             <button
               onClick={handleCash}
               disabled={!isValid || loading}
@@ -183,7 +189,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
                 ? 'Salvataggio...'
                 : isValid
                 ? `Prenota €${numAmount.toFixed(2)} — porto i contanti`
-                : 'Inserisci nome e importo'}
+                : 'Inserisci il tuo nome'}
             </button>
           </div>
 

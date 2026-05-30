@@ -11,7 +11,7 @@ router.post('/', async (req, res, next) => {
     const {
       childName, birthDate, partyDate, partyTime, location, notes,
       parentEmail, closingDate, gender,
-      collectiveEnabled, collectiveGoal, collectiveDescription, paypalEmail,
+      collectiveEnabled, collectiveGoal, collectiveDescription, paypalEmail, collectiveFixedQuota,
       gifts = [],
     } = req.body
 
@@ -44,6 +44,7 @@ router.post('/', async (req, res, next) => {
         collective_description: collectiveDescription || null,
         collective_amount: 0,
         paypal_email: collectiveEnabled && paypalEmail ? paypalEmail : null,
+        collective_fixed_quota: collectiveEnabled && collectiveFixedQuota ? parseFloat(collectiveFixedQuota) : null,
       })
       .select()
       .single()
@@ -146,7 +147,7 @@ router.get('/collective/:token', async (req, res, next) => {
       .from('events')
       .select(`
         id, child_name, party_date, party_time, location,
-        collective_enabled, collective_goal, collective_amount, collective_description, paypal_email,
+        collective_enabled, collective_goal, collective_amount, collective_description, paypal_email, collective_fixed_quota,
         contributions(id, contributor_name, amount, payment_method, status, created_at)
       `)
       .eq('collective_token', req.params.token)

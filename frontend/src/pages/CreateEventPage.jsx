@@ -175,6 +175,7 @@ function StepListSettings({ register, errors }) {
 // ─── Step 3: Regalo collettivo (opzionale) ─────────────────────────────────
 function StepCollective({ register, watch, setValue }) {
   const collectiveEnabled = watch('collectiveEnabled')
+  const fixedQuotaEnabled = watch('fixedQuotaEnabled')
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -237,6 +238,53 @@ function StepCollective({ register, watch, setValue }) {
               className="input resize-none"
             />
           </div>
+
+          {/* Quota fissa */}
+          <div
+            className="flex items-center justify-between p-4 bg-white rounded-2xl border border-avorio-dark cursor-pointer"
+            onClick={() => setValue('fixedQuotaEnabled', !fixedQuotaEnabled)}
+          >
+            <div>
+              <p className="font-medium text-gray-800 text-sm">Quota fissa per persona</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Ogni invitato paga lo stesso importo — nessuna scelta
+              </p>
+            </div>
+            <div
+              className={`w-12 h-6 rounded-full transition-colors duration-200 relative flex-shrink-0 ${
+                fixedQuotaEnabled ? 'bg-salvia' : 'bg-gray-200'
+              }`}
+            >
+              <div
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                  fixedQuotaEnabled ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </div>
+          </div>
+
+          {fixedQuotaEnabled && (
+            <div className="animate-fade-in">
+              <label className="label">Quota per persona (€) *</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">€</span>
+                <input
+                  {...register('collectiveFixedQuota', {
+                    required: fixedQuotaEnabled ? 'Inserisci la quota' : false,
+                    min: { value: 1, message: 'Minimo €1' },
+                  })}
+                  type="number"
+                  min={1}
+                  step={1}
+                  placeholder="20"
+                  className="input pl-8"
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">
+                Ogni invitato vedrà solo questo importo, senza poterlo modificare
+              </p>
+            </div>
+          )}
 
           <div>
             <label className="label">Username PayPal.me (opzionale)</label>
@@ -487,6 +535,8 @@ export default function CreateEventPage() {
       collectiveGoal: '',
       collectiveDescription: '',
       paypalEmail: '',
+      fixedQuotaEnabled: false,
+      collectiveFixedQuota: '',
       gifts: [],
     },
   })
