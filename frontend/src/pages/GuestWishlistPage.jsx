@@ -233,11 +233,12 @@ export default function GuestWishlistPage() {
     }
   }, [event])
 
-  // Track view silently after 2s
+  // Track view silently after 2s — named if RSVP already known
   useEffect(() => {
     if (!event || viewTracked) return
     const timer = setTimeout(() => {
-      trackLinkView(guestToken, {}).catch(() => {})
+      const viewPayload = myRsvp?.guest_name ? { guestName: myRsvp.guest_name } : {}
+      trackLinkView(guestToken, viewPayload).catch(() => {})
       setViewTracked(true)
     }, 2000)
     return () => clearTimeout(timer)
@@ -246,6 +247,10 @@ export default function GuestWishlistPage() {
   const handleRsvpSaved = (rsvp) => {
     setMyRsvp(rsvp)
     localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(rsvp))
+    // Register named view now that we know who this is
+    if (rsvp.guest_name) {
+      trackLinkView(guestToken, { guestName: rsvp.guest_name }).catch(() => {})
+    }
   }
 
   const handleReserve = async ({ giftId, guestName, partnerName, purchasedOffline }) => {

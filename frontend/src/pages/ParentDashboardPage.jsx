@@ -530,8 +530,8 @@ export default function ParentDashboardPage() {
               {event.link_views?.length > 0 ? (
                 event.link_views.map((v) => (
                   <div key={v.id} className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-700">
-                      {v.guest_name || <span className="text-gray-400 italic">Anonimo</span>}
+                    <span className={v.guest_name ? 'font-medium text-gray-700' : 'text-gray-400 italic text-xs'}>
+                      {v.guest_name || 'Visitatori anonimi'}
                     </span>
                     <div className="flex items-center gap-3 text-gray-400 text-xs">
                       <span>{v.view_count}x</span>
