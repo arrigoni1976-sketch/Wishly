@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw } from 'lucide-react'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw, Calendar, MapPin } from 'lucide-react'
 import { syncFromServer } from '../lib/sync'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
@@ -380,71 +380,121 @@ export default function HomePage() {
             <p className="text-lg text-gray-500">Semplice per i genitori, comodo per gli invitati</p>
           </div>
 
-          {/* Mock preview card */}
-          <div className="relative">
-            <div className="absolute -top-3 left-6 z-10 bg-salvia text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-              Esempio
-            </div>
-            <div className="bg-avorio rounded-3xl shadow-lg shadow-gray-100 p-6 border border-avorio-dark">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 bg-cipria rounded-2xl flex items-center justify-center">
-                  <HeartRibbonIcon size={28} />
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-gray-900">Compleanno di Bianca</h3>
-                  <p className="text-sm text-gray-500">5 ottobre · 16:00 · Giardino di casa</p>
-                </div>
-                <div className="ml-auto bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
-                  8 confermati
-                </div>
+          {/* Phone mockup — fedele alla pagina ospite reale */}
+          <div className="flex justify-center">
+            <div className="relative">
+              {/* Etichetta esempio */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 bg-salvia text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm whitespace-nowrap">
+                Così lo vede l'invitato
               </div>
 
-              <div className="space-y-3">
-                {[
-                  { name: 'LEGO Technic 42175', price: '€89', reserved: true, by: 'Marco & Anna' },
-                  { name: 'Bici senza pedali Strider', price: '€119', reserved: false },
-                  { name: 'Kit pittura acquerello', price: '€34', reserved: true, by: 'Giulia' },
-                ].map((item, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center gap-3 p-3 rounded-xl border ${
-                      item.reserved
-                        ? 'border-gray-100 bg-gray-50 opacity-70'
-                        : 'border-cipria/40 bg-cipria/5'
-                    }`}
-                  >
-                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.reserved ? 'bg-gray-300' : 'bg-salvia'}`} />
-                    <span className={`flex-1 text-sm font-medium ${item.reserved ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
-                      {item.name}
-                    </span>
-                    <span className={`text-sm font-bold ${item.reserved ? 'text-gray-400' : 'text-salvia'}`}>
-                      {item.price}
-                    </span>
-                    {item.reserved ? (
-                      <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full inline-flex items-center gap-0.5">
-                        <Lock size={12} className="inline text-gray-400" /> {item.by}
-                      </span>
-                    ) : (
-                      <button className="text-xs bg-salvia text-white px-3 py-1 rounded-lg font-medium">
-                        Prenota
-                      </button>
-                    )}
+              {/* Cornice telefono */}
+              <div className="bg-gray-800 rounded-[2.8rem] p-[5px] shadow-2xl shadow-gray-300 border border-gray-700" style={{ width: 270 }}>
+                {/* Dynamic island */}
+                <div className="flex justify-center pt-2 pb-1">
+                  <div className="w-16 h-4 bg-gray-900 rounded-full" />
+                </div>
+
+                {/* Schermo */}
+                <div className="bg-avorio rounded-[2.2rem] overflow-hidden" style={{ height: 530 }}>
+
+                  {/* Mini navbar */}
+                  <div className="bg-white border-b border-avorio-dark px-4 py-2.5 flex items-center justify-between">
+                    <span className="font-display font-bold text-salvia text-sm tracking-tight">piky</span>
+                    <HeartRibbonIcon size={16} />
                   </div>
-                ))}
-              </div>
 
-              {/* Collective progress bar */}
-              <div className="mt-5 pt-4 border-t border-avorio-dark">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="font-semibold text-gray-700 flex items-center gap-1.5">
-                    <GiftIcon size={16} /> Regalo collettivo
-                  </span>
-                  <span className="font-bold text-salvia">68%</span>
+                  {/* Contenuto scrollabile (visualmente troncato) */}
+                  <div className="px-3 pt-3 pb-6 space-y-2.5 overflow-hidden">
+
+                    {/* Header evento */}
+                    <div className="bg-white rounded-2xl p-3 text-center shadow-sm border border-avorio-dark">
+                      <div className="w-10 h-10 bg-cipria rounded-xl flex items-center justify-center mx-auto mb-1.5">
+                        <HeartRibbonIcon size={22} />
+                      </div>
+                      <p className="font-display font-bold text-gray-900 text-xs leading-snug">
+                        Compleanno di Bianca!
+                      </p>
+                      <div className="flex items-center justify-center gap-2 mt-1">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-gray-400">
+                          <Calendar className="w-2.5 h-2.5 text-cipria-dark" /> 5 ottobre · 16:00
+                        </span>
+                        <span className="inline-flex items-center gap-1 text-[10px] text-gray-400">
+                          <MapPin className="w-2.5 h-2.5 text-cipria-dark" /> Giardino di casa
+                        </span>
+                      </div>
+                      <div className="mt-2 inline-flex items-center gap-1 bg-green-50 text-green-700 rounded-lg px-2 py-0.5 text-[10px] font-semibold">
+                        <Users className="w-2.5 h-2.5" /> 8 persone confermate
+                      </div>
+                    </div>
+
+                    {/* RSVP */}
+                    <div className="bg-white rounded-2xl p-3 shadow-sm border border-avorio-dark">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-2">Conferma la tua presenza</p>
+                      <div className="flex gap-1.5">
+                        <div className="flex-1 py-1.5 text-[10px] font-bold bg-salvia text-white rounded-xl text-center">
+                          ✓ Ci sarò
+                        </div>
+                        <div className="flex-1 py-1.5 text-[10px] font-medium border border-avorio-dark text-gray-400 rounded-xl text-center">
+                          Forse
+                        </div>
+                        <div className="flex-1 py-1.5 text-[10px] font-medium border border-avorio-dark text-gray-400 rounded-xl text-center">
+                          Non vengo
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Lista regali */}
+                    <div className="bg-white rounded-2xl p-3 shadow-sm border border-avorio-dark">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
+                        <GiftIcon size={12} /> Lista desideri
+                      </p>
+                      <div className="space-y-1.5">
+                        {[
+                          { name: 'LEGO Technic 42175', price: '€89', reserved: true, by: 'Marco' },
+                          { name: 'Bici Strider', price: '€119', reserved: false },
+                          { name: 'Kit pittura acquerello', price: '€34', reserved: true, by: 'Giulia' },
+                        ].map((item, i) => (
+                          <div
+                            key={i}
+                            className={`flex items-center gap-1.5 px-2 py-1.5 rounded-xl ${
+                              item.reserved ? 'bg-gray-50 opacity-60' : 'bg-cipria/10 border border-cipria/30'
+                            }`}
+                          >
+                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${item.reserved ? 'bg-gray-300' : 'bg-salvia'}`} />
+                            <span className={`flex-1 text-[10px] font-medium truncate ${item.reserved ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                              {item.name}
+                            </span>
+                            <span className={`text-[10px] font-bold flex-shrink-0 ${item.reserved ? 'text-gray-400' : 'text-salvia'}`}>
+                              {item.price}
+                            </span>
+                            {item.reserved ? (
+                              <span className="text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0 flex items-center gap-0.5">
+                                <Lock size={8} /> {item.by}
+                              </span>
+                            ) : (
+                              <div className="text-[9px] bg-salvia text-white px-2 py-0.5 rounded-lg font-semibold flex-shrink-0">
+                                Prenota
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Regalo collettivo — parzialmente visibile per suggerire altro contenuto */}
+                    <div className="bg-gradient-to-br from-salvia/10 to-cipria/10 rounded-2xl p-3 border border-salvia/20">
+                      <p className="text-[10px] font-bold text-gray-700 mb-1.5 flex items-center gap-1">
+                        <HeartRibbonIcon size={12} /> Regalo collettivo
+                      </p>
+                      <div className="h-1.5 bg-white/60 rounded-full overflow-hidden mb-1">
+                        <div className="h-full w-[68%] bg-gradient-to-r from-cipria-dark to-salvia rounded-full" />
+                      </div>
+                      <p className="text-[9px] text-gray-500">€136 raccolti su €200 · 68%</p>
+                    </div>
+
+                  </div>
                 </div>
-                <div className="h-2 bg-avorio-dark rounded-full overflow-hidden">
-                  <div className="h-full w-[68%] bg-gradient-to-r from-cipria-dark to-salvia rounded-full" />
-                </div>
-                <p className="text-xs text-gray-400 mt-1">€136 raccolti su €200</p>
               </div>
             </div>
           </div>
