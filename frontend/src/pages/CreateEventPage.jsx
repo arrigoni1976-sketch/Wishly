@@ -22,7 +22,7 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
-          <label className="label">Nome del bambino *</label>
+          <label className="label">Nome del festeggiato *</label>
           <div className="flex gap-2">
             <input
               {...register('childName', { required: 'Campo obbligatorio' })}
