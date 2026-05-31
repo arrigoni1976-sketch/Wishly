@@ -160,6 +160,16 @@ export default function HomePage() {
 
   const hasContent = myEvents.length > 0 || myInvites.length > 0
 
+  const HIDE_AFTER_DAYS = 60
+  const isExpired = (partyDate) => {
+    if (!partyDate) return false
+    return Date.now() - new Date(partyDate).getTime() > HIDE_AFTER_DAYS * 24 * 60 * 60 * 1000
+  }
+
+  const visibleEvents = myEvents.filter((ev) => !isExpired(ev.partyDate))
+  const visibleInvites = myInvites.filter((inv) => !isExpired(inv.partyDate))
+  const hiddenCount = (myEvents.length - visibleEvents.length) + (myInvites.length - visibleInvites.length)
+
   return (
     <Layout>
       {/* ─── Hero ─────────────────────────────────────────────────────────── */}
@@ -288,9 +298,9 @@ export default function HomePage() {
                   <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
                 </button>
               </div>
-              {myEvents.length > 0 ? (
+              {visibleEvents.length > 0 ? (
                 <div className="space-y-2">
-                  {myEvents.map((ev) => (
+                  {visibleEvents.map((ev) => (
                     <div key={ev.parentToken} className="flex items-center gap-2">
                       <Link
                         to={`/dashboard/${ev.parentToken}`}
@@ -332,9 +342,9 @@ export default function HomePage() {
             {/* Inviti ricevuti */}
             <div className="px-5 pt-4 pb-5">
               <h2 className="font-display text-sm font-bold text-gray-600 uppercase tracking-wide mb-3">Inviti ricevuti</h2>
-              {myInvites.length > 0 ? (
+              {visibleInvites.length > 0 ? (
                 <div className="space-y-2">
-                  {myInvites.map((ev) => (
+                  {visibleInvites.map((ev) => (
                     <div key={ev.guestToken} className="flex items-center gap-2">
                       <Link
                         to={`/lista/${ev.guestToken}`}
@@ -365,6 +375,18 @@ export default function HomePage() {
                 <p className="text-sm text-gray-400">Nessun invito — comparirà qui quando aprirai un link invito</p>
               )}
             </div>
+
+            {/* Avviso scadenza automatica */}
+            {hasContent && (
+              <div className="px-5 pb-4">
+                <p className="text-xs text-gray-300 text-center">
+                  {hiddenCount > 0
+                    ? `${hiddenCount} ${hiddenCount === 1 ? 'lista nascosta' : 'liste nascoste'} automaticamente · `
+                    : ''}
+                  Le liste scompaiono automaticamente 60 giorni dopo la festa
+                </p>
+              </div>
+            )}
 
           </div>
         </div>
