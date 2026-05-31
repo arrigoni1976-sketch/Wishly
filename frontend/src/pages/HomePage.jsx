@@ -292,12 +292,18 @@ export default function HomePage() {
 
             {/* Le tue liste */}
             <div className="px-5 pt-5 pb-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-1">
                 <h2 className="font-display text-sm font-bold text-gray-600 uppercase tracking-wide">Le tue liste</h2>
                 <button onClick={handleRefresh} className="p-1 text-gray-300 hover:text-salvia transition-colors" title="Aggiorna">
                   <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
                 </button>
               </div>
+              <p className="text-xs text-gray-300 mb-3">
+                {hiddenCount > 0
+                  ? `${hiddenCount} ${hiddenCount === 1 ? 'lista nascosta' : 'liste nascoste'} automaticamente · `
+                  : ''}
+                Spariscono 60 giorni dopo la festa
+              </p>
               {visibleEvents.length > 0 ? (
                 <div className="space-y-2">
                   {visibleEvents.map((ev) => (
@@ -376,17 +382,6 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Avviso scadenza automatica */}
-            {hasContent && (
-              <div className="px-5 pb-4">
-                <p className="text-xs text-gray-300 text-center">
-                  {hiddenCount > 0
-                    ? `${hiddenCount} ${hiddenCount === 1 ? 'lista nascosta' : 'liste nascoste'} automaticamente · `
-                    : ''}
-                  Le liste scompaiono automaticamente 60 giorni dopo la festa
-                </p>
-              </div>
-            )}
 
           </div>
         </div>
