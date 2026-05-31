@@ -7,6 +7,7 @@ import CreateEventPage from './pages/CreateEventPage'
 import ParentDashboardPage from './pages/ParentDashboardPage'
 import GuestWishlistPage from './pages/GuestWishlistPage'
 import CollectiveGiftPage from './pages/CollectiveGiftPage'
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
 import NotFoundPage from './pages/NotFoundPage'
 import InstallPrompt from './components/InstallPrompt'
 
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/dashboard/:parentToken" element={<ParentDashboardPage />} />
         <Route path="/lista/:guestToken" element={<GuestWishlistPage />} />
         <Route path="/collettivo/:collectiveToken" element={<CollectiveGiftPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
