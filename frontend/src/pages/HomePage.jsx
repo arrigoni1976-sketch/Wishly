@@ -282,7 +282,7 @@ export default function HomePage() {
           </div>
 
           <p className="text-sm text-gray-400 mt-5">
-            Nessun account necessario · Completamente gratuito · Zero commissioni
+            Nessun account necessario · Pronto in pochi minuti · Tutto in un link
           </p>
         </div>
 
