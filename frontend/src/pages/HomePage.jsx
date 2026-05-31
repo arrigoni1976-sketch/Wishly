@@ -448,6 +448,13 @@ export default function HomePage() {
                       </div>
                     </div>
 
+                    {/* Messaggio invito */}
+                    <div className="bg-gradient-to-br from-avorio to-white rounded-2xl p-3 border border-avorio-dark">
+                      <p className="text-[10px] text-gray-600 leading-relaxed italic">
+                        "Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci!"
+                      </p>
+                    </div>
+
                     {/* RSVP */}
                     <div className="bg-white rounded-2xl p-3 shadow-sm border border-avorio-dark">
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-2">Conferma la tua presenza</p>
@@ -502,16 +509,6 @@ export default function HomePage() {
                       </div>
                     </div>
 
-                    {/* Regalo collettivo — parzialmente visibile per suggerire altro contenuto */}
-                    <div className="bg-gradient-to-br from-salvia/10 to-cipria/10 rounded-2xl p-3 border border-salvia/20">
-                      <p className="text-[10px] font-bold text-gray-700 mb-1.5 flex items-center gap-1">
-                        <HeartRibbonIcon size={12} /> Regalo collettivo
-                      </p>
-                      <div className="h-1.5 bg-white/60 rounded-full overflow-hidden mb-1">
-                        <div className="h-full w-[68%] bg-gradient-to-r from-cipria-dark to-salvia rounded-full" />
-                      </div>
-                      <p className="text-[9px] text-gray-500">€136 raccolti su €200 · 68%</p>
-                    </div>
 
                   </div>
                 </div>
