@@ -397,7 +397,7 @@ export default function HomePage() {
             <h2 className="font-display text-3xl font-bold text-gray-900 mb-2">
               Scopri di più
             </h2>
-            <p className="text-lg text-gray-500">Semplice per i genitori, comodo per gli invitati</p>
+            <p className="text-lg text-gray-500">Semplice per chi organizza, comodo per gli invitati</p>
           </div>
 
           {/* Phone mockup — fedele alla pagina ospite reale */}
@@ -528,7 +528,7 @@ export default function HomePage() {
               Tutto quello che ti serve
             </h2>
             <p className="text-lg text-gray-500">
-              Pensato per i genitori, comodo per gli invitati.
+              Pensato per chi organizza, comodo per gli invitati.
             </p>
           </div>
 
