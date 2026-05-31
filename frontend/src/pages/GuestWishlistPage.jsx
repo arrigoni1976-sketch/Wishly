@@ -295,6 +295,32 @@ export default function GuestWishlistPage() {
     }
   }, [event])
 
+  // Auto-recover RSVP and gift reservations from server if name is known
+  useEffect(() => {
+    if (!event) return
+    const storedName = localStorage.getItem('piky_guest_name')
+    if (!storedName) return
+
+    // Recover RSVP
+    if (!myRsvp) {
+      const found = event.rsvp?.find(
+        (r) => r.guest_name?.toLowerCase() === storedName.toLowerCase()
+      )
+      if (found) {
+        setMyRsvp(found)
+        localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(found))
+      }
+    }
+
+    // Recover gift reservations
+    const reservedByMe = (event.gifts || [])
+      .filter((g) => g.reserved_by?.toLowerCase() === storedName.toLowerCase())
+      .map((g) => g.id)
+    if (reservedByMe.length > 0) {
+      setMyReservations(reservedByMe)
+    }
+  }, [event])
+
   // Track view silently after 2s — named if RSVP already known
   useEffect(() => {
     if (!event || viewTracked) return
@@ -335,14 +361,15 @@ export default function GuestWishlistPage() {
   const handleRsvpSaved = (rsvp) => {
     setMyRsvp(rsvp)
     localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(rsvp))
-    // Register named view now that we know who this is
     if (rsvp.guest_name) {
+      localStorage.setItem('piky_guest_name', rsvp.guest_name)
       trackLinkView(guestToken, { guestName: rsvp.guest_name }).catch(() => {})
     }
   }
 
   const handleReserve = async ({ giftId, guestName, partnerName, purchasedOffline }) => {
     await reserveGift(giftId, { guestName, partnerName, purchasedOffline })
+    if (guestName) localStorage.setItem('piky_guest_name', guestName)
     setMyReservations((prev) => [...prev, giftId])
     await fetchEvent()
   }
