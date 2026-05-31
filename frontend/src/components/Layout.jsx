@@ -12,7 +12,6 @@ export default function Layout({ children, showNav = true }) {
           <span className="text-cipria-dark">♥</span> per i compleanni speciali
         </p>
         <p className="text-xs text-gray-300">
-          Alessio Arrigoni &middot;{' '}
           <Link to="/privacy" className="underline hover:text-gray-400 transition-colors">
             Privacy Policy
           </Link>
