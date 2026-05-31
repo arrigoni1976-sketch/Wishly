@@ -117,7 +117,7 @@ export default function HomePage() {
     refreshLists()
     if (!userKey) return
     syncFromServer(userKey)
-      .then(({ changed }) => { if (changed) refreshLists() })
+      .then(() => refreshLists())
       .catch(() => {})
   }, [userKey])
 

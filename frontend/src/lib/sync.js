@@ -1,15 +1,18 @@
 import { getUserKeyLinks, addUserKeyLink } from './api'
 
-// Pull server links → merge into localStorage (skips hidden/deleted items)
+// Pull server links → merge into localStorage (adds missing, removes deleted)
 export async function syncFromServer(key) {
   const res = await getUserKeyLinks(key)
   const links = res.data.links || []
+  const serverTokens = new Set(links.map((l) => l.token))
+
   const hidden = JSON.parse(localStorage.getItem('piky_hidden') || '[]')
-  const events = JSON.parse(localStorage.getItem('piky_events') || '[]')
-  const invites = JSON.parse(localStorage.getItem('piky_invites') || '[]')
+  let events = JSON.parse(localStorage.getItem('piky_events') || '[]')
+  let invites = JSON.parse(localStorage.getItem('piky_invites') || '[]')
 
   let changed = false
 
+  // Add items from server that aren't in localStorage yet
   for (const link of links) {
     if (hidden.includes(link.token)) continue
 
@@ -32,6 +35,16 @@ export async function syncFromServer(key) {
       })
       changed = true
     }
+  }
+
+  // Remove items from localStorage that are no longer on the server
+  const filteredEvents = events.filter((e) => serverTokens.has(e.parentToken))
+  const filteredInvites = invites.filter((i) => serverTokens.has(i.guestToken))
+
+  if (filteredEvents.length !== events.length || filteredInvites.length !== invites.length) {
+    changed = true
+    events = filteredEvents
+    invites = filteredInvites
   }
 
   if (changed) {
