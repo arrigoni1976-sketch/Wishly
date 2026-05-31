@@ -258,6 +258,56 @@ export async function sendThankYouEmail({ to, guestName, childName, message }) {
   await send(to, subject, html)
 }
 
+// ─── Email: codice personale ─────────────────────────────────────────────────
+
+export async function sendUserKeyEmail({ to, key }) {
+  const subject = `🔑 Il tuo codice Piky: ${key.toUpperCase()}`
+  const html = `
+    <div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+      <div style="background: #4A7A50; padding: 32px; border-radius: 16px 16px 0 0; text-align: center;">
+        <h1 style="color: white; font-size: 28px; margin: 0; font-family: Georgia, serif;">
+          🎁 Piky
+        </h1>
+        <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0;">Il tuo codice personale</p>
+      </div>
+
+      <div style="background: #FAF7F2; padding: 32px; border-radius: 0 0 16px 16px; border: 1px solid #F0EBE3;">
+        <p style="color: #444; font-size: 15px; margin: 0 0 24px; line-height: 1.6;">
+          Ecco il tuo codice personale Piky. Conserva questa email — ti servirà per
+          ritrovare le tue liste e i tuoi inviti su qualsiasi dispositivo.
+        </p>
+
+        <div style="background: white; border: 2px solid #4A7A50; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 24px;">
+          <p style="font-size: 12px; font-weight: 600; color: #999; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.08em;">
+            Il tuo codice
+          </p>
+          <p style="font-size: 36px; font-weight: 800; color: #4A7A50; letter-spacing: 0.15em; margin: 0; font-family: 'Courier New', monospace;">
+            ${key.toUpperCase()}
+          </p>
+        </div>
+
+        <div style="background: #FFF8E6; border: 1px solid #F5D87A; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+          <p style="font-size: 13px; color: #7A5C00; margin: 0; line-height: 1.5;">
+            <strong>Come usarlo:</strong> apri Piky, tocca "Ho già un codice" e inserisci il codice qui sopra.
+            Tutte le tue liste e i tuoi inviti appariranno automaticamente.
+          </p>
+        </div>
+
+        <a href="${BASE}"
+           style="display: inline-block; background: #4A7A50; color: white; padding: 14px 28px;
+                  border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 15px;">
+          Apri Piky →
+        </a>
+
+        <p style="color: #bbb; font-size: 12px; margin: 24px 0 0;">
+          Se non hai creato un codice Piky, ignora questa email.
+        </p>
+      </div>
+    </div>
+  `
+  await send(to, subject, html)
+}
+
 // ─── Cron jobs ────────────────────────────────────────────────────────────────
 
 export async function sendReminders() {

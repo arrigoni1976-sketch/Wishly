@@ -25,6 +25,7 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
     if (isOpen) setMode(initialMode)
   }, [isOpen, initialMode])
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [generatedKey, setGeneratedKey] = useState('')
   const [recoveryInput, setRecoveryInput] = useState('')
   const [step, setStep] = useState(1) // 1: name input, 2: confirm key
@@ -36,6 +37,7 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
   const reset = () => {
     setStep(1)
     setName('')
+    setEmail('')
     setGeneratedKey('')
     setRecoveryInput('')
     setError('')
@@ -57,7 +59,7 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
     setLoading(true)
     setError('')
     try {
-      await registerUserKey(generatedKey)
+      await registerUserKey(generatedKey, email.trim() || null)
       // Upload any existing localStorage data to the new key
       await uploadLocalToKey(generatedKey).catch(() => {})
       onKeySet(generatedKey)
@@ -186,6 +188,18 @@ export default function KeyModal({ isOpen, initialMode = 'create', onClose, onKe
                     recuperare le tue liste su un altro dispositivo.
                   </p>
                 </div>
+              </div>
+
+              <div>
+                <label className="label">Ricevi il codice via email <span className="text-gray-400 font-normal">(opzionale)</span></label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nome@email.it"
+                  className="input"
+                />
+                <p className="text-xs text-gray-400 mt-1">Ti mandiamo il codice come promemoria, così non lo perdi.</p>
               </div>
 
               {error && (

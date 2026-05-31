@@ -39,7 +39,7 @@ export const initSatispay = (data) => api.post('/payments/satispay/init', data)
 
 // ─── User keys ─────────────────────────────────────────────────────────────
 
-export const registerUserKey = (key) => api.post('/user-keys/register', { key })
+export const registerUserKey = (key, email = null) => api.post('/user-keys/register', { key, email })
 export const getUserKeyLinks = (key) => api.get(`/user-keys/${encodeURIComponent(key)}`)
 export const addUserKeyLink = (key, data) => api.post(`/user-keys/${encodeURIComponent(key)}/link`, data)
 export const removeUserKeyLink = (key, token) => api.delete(`/user-keys/${encodeURIComponent(key)}/link/${encodeURIComponent(token)}`)

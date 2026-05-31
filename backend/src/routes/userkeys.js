@@ -1,12 +1,13 @@
 import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
+import { sendUserKeyEmail } from '../services/email.js'
 
 const router = Router()
 
 // POST /api/user-keys/register — Create a new personal key
 router.post('/register', async (req, res, next) => {
   try {
-    const { key } = req.body
+    const { key, email } = req.body
     if (!key || key.trim().length < 3) {
       return res.status(400).json({ message: 'Chiave non valida (minimo 3 caratteri)' })
     }
@@ -26,6 +27,12 @@ router.post('/register', async (req, res, next) => {
 
     const { error } = await supabase.from('user_keys').insert({ key_value: normalized })
     if (error) throw error
+
+    // Send key reminder email if provided (non-blocking)
+    if (email && email.includes('@')) {
+      sendUserKeyEmail({ to: email, key: normalized })
+        .catch((err) => console.error('[email] failed to send user key email:', err.message))
+    }
 
     res.status(201).json({ key: normalized })
   } catch (err) {
