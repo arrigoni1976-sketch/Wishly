@@ -13,7 +13,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -413,22 +413,46 @@ export default function ParentDashboardPage() {
             )}
 
 
-            {showContrib && event.contributions?.length > 0 && (
-              <div className="mt-4 border-t border-avorio-dark pt-4 space-y-2">
-                {event.contributions.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-700">{c.contributor_name}</span>
-                    <div className="flex items-center gap-3 text-gray-500">
-                      <span className="text-xs">{format(new Date(c.created_at), 'd MMM', { locale: it })}</span>
-                      <span className="text-xs capitalize bg-gray-100 px-2 py-0.5 rounded-full">
-                        {c.payment_method}
-                      </span>
-                      <span className="font-semibold text-salvia">€{parseFloat(c.amount).toFixed(2)}</span>
+            {showContrib && event.contributions?.length > 0 && (() => {
+              const confirmed = event.contributions.filter(c => c.status === 'completed')
+              const pending = event.contributions.filter(c => c.status === 'pending' && c.payment_method === 'paypal')
+              return (
+                <div className="mt-4 border-t border-avorio-dark pt-4 space-y-3">
+                  {confirmed.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-gray-700">{c.contributor_name}</span>
+                      <div className="flex items-center gap-2 text-gray-500">
+                        <span className="text-xs">{format(new Date(c.created_at), 'd MMM', { locale: it })}</span>
+                        <span className="text-xs capitalize bg-gray-100 px-2 py-0.5 rounded-full">{c.payment_method}</span>
+                        <span className="font-semibold text-salvia">€{parseFloat(c.amount).toFixed(2)}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                  {pending.length > 0 && (
+                    <div className="border-t border-amber-100 pt-3 space-y-2">
+                      <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide">Da verificare su PayPal</p>
+                      {pending.map((c) => (
+                        <div key={c.id} className="flex items-center justify-between text-sm bg-amber-50 rounded-xl px-3 py-2">
+                          <div>
+                            <span className="font-medium text-gray-700">{c.contributor_name}</span>
+                            <span className="text-xs text-gray-400 ml-2">{format(new Date(c.created_at), 'd MMM', { locale: it })} · €{parseFloat(c.amount).toFixed(2)}</span>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              await confirmContribution(event.id, c.id, parentToken)
+                              fetchEvent()
+                            }}
+                            className="text-xs font-semibold text-white bg-salvia hover:bg-salvia/90 px-3 py-1.5 rounded-lg transition-colors"
+                          >
+                            Conferma
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
 
             {showContrib && (!event.contributions || event.contributions.length === 0) && (
               <p className="mt-4 text-sm text-gray-400 text-center">Nessun contributo ancora</p>

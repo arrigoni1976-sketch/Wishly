@@ -42,10 +42,10 @@ export default function CollectiveGiftPage() {
     // For now simulate success
     await fetchEvent()
     const msg = method === 'paypal'
-      ? `Grazie ${name}! Hai pagato €${amount.toFixed(2)} tramite PayPal.`
+      ? `Grazie ${name}! 🎉 Il tuo contributo di €${amount.toFixed(2)} è stato registrato. Il totale si aggiornerà non appena Piky avrà ricevuto la conferma del pagamento PayPal.`
       : `Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa!`
     setSuccessMsg(msg)
-    setTimeout(() => setSuccessMsg(''), 6000)
+    setTimeout(() => setSuccessMsg(''), 10000)
   }
 
   const isComplete = event

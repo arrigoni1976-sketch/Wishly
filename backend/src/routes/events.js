@@ -395,26 +395,64 @@ router.post('/:id/contributions', async (req, res, next) => {
         contributor_name: contributorName,
         amount: parseFloat(amount),
         payment_method: paymentMethod,
-        status: 'pending', // will be updated by payment webhook
+        status: paymentMethod === 'paypal' ? 'pending' : 'completed',
       })
       .select()
       .single()
 
     if (error) throw error
 
-    // For mock/test: immediately set as completed and update total
-    // In production this happens via payment webhook
+    // Per i contanti: aggiorna subito il totale. Per PayPal: in attesa di conferma
+    if (paymentMethod !== 'paypal') {
+      await supabase
+        .from('events')
+        .update({ collective_amount: event.collective_amount + parseFloat(amount) })
+        .eq('id', req.params.id)
+    }
+
+    res.status(201).json({ ...data })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── PATCH /api/events/:id/contributions/:cid/confirm — Confirm PayPal payment ─
+router.patch('/:id/contributions/:cid/confirm', async (req, res, next) => {
+  try {
+    const { parentToken } = req.body
+
+    // Verify organizer ownership
+    const { data: event } = await supabase
+      .from('events')
+      .select('id, collective_amount')
+      .eq('id', req.params.id)
+      .eq('parent_token', parentToken)
+      .single()
+
+    if (!event) return res.status(403).json({ message: 'Non autorizzato' })
+
+    // Get contribution
+    const { data: contribution } = await supabase
+      .from('contributions')
+      .select('id, amount, status')
+      .eq('id', req.params.cid)
+      .eq('event_id', req.params.id)
+      .single()
+
+    if (!contribution) return res.status(404).json({ message: 'Contributo non trovato' })
+    if (contribution.status === 'completed') return res.json({ ok: true }) // già confermato
+
     await supabase
       .from('contributions')
       .update({ status: 'completed' })
-      .eq('id', data.id)
+      .eq('id', req.params.cid)
 
     await supabase
       .from('events')
-      .update({ collective_amount: event.collective_amount + parseFloat(amount) })
+      .update({ collective_amount: event.collective_amount + parseFloat(contribution.amount) })
       .eq('id', req.params.id)
 
-    res.status(201).json({ ...data, status: 'completed' })
+    res.json({ ok: true })
   } catch (err) {
     next(err)
   }
