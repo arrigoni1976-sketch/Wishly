@@ -17,6 +17,7 @@ export default function CollectiveGiftPage() {
   const [error, setError] = useState('')
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
+  const [myContribution, setMyContribution] = useState(null)
 
   const fetchEvent = async () => {
     try {
@@ -31,15 +32,25 @@ export default function CollectiveGiftPage() {
 
   useEffect(() => { fetchEvent() }, [collectiveToken])
 
+  // Auto-detect if this user already contributed
+  useEffect(() => {
+    if (!event) return
+    const storedName = localStorage.getItem('piky_guest_name')
+    if (!storedName) return
+    const found = (event.contributions || []).find(
+      (c) => c.contributor_name?.toLowerCase() === storedName.toLowerCase()
+    )
+    if (found) setMyContribution(found)
+  }, [event])
+
   const handleContribute = async ({ method, amount, name }) => {
-    const res = await createContribution(event.id, {
+    await createContribution(event.id, {
       contributorName: name,
       amount,
       paymentMethod: method,
       collectiveToken,
     })
-    // In a real app, redirect to payment provider here
-    // For now simulate success
+    localStorage.setItem('piky_guest_name', name)
     await fetchEvent()
     const msg = method === 'paypal'
       ? `Grazie ${name}! 🎉 Il tuo contributo di €${amount.toFixed(2)} è stato registrato. Il totale si aggiornerà non appena Piky avrà ricevuto la conferma del pagamento PayPal.`
@@ -132,7 +143,12 @@ export default function CollectiveGiftPage() {
               </p>
             </div>
           ) : (
-            <div className="mt-4">
+            <div className="mt-4 space-y-3">
+              {myContribution && (
+                <div className="bg-cipria/20 border border-cipria rounded-2xl px-4 py-3 text-sm text-gray-700 text-center">
+                  Hai già contribuito con <span className="font-semibold">€{parseFloat(myContribution.amount).toFixed(2)}</span> — puoi aggiungere un altro contributo se vuoi.
+                </div>
+              )}
               <button
                 onClick={() => setPaymentOpen(true)}
                 className="btn-primary w-full py-3.5 text-base flex items-center justify-center gap-2"
@@ -142,7 +158,7 @@ export default function CollectiveGiftPage() {
                   ? `Paga la quota di €${parseFloat(event.collective_fixed_quota).toFixed(2)}`
                   : 'Contribuisci al regalo'}
               </button>
-              <p className="text-xs text-center text-gray-400 mt-2">
+              <p className="text-xs text-center text-gray-400">
                 {event.collective_fixed_quota
                   ? `Quota fissa per persona · Massimo disponibile €${remaining.toFixed(0)}`
                   : `Importo minimo €10 · Massimo €${remaining.toFixed(0)}`}
