@@ -191,6 +191,13 @@ export default function CollectiveGiftPage() {
           </div>
         )}
 
+        {/* ── Nota PayPal (solo se attivo) ────────────────────────────── */}
+        {event?.paypal_email && !isComplete && (
+          <p className="text-xs text-center text-gray-400">
+            Puoi anche pagare direttamente tramite PayPal usando il pulsante qui sopra.
+          </p>
+        )}
+
         {/* ── Torna alla lista ─────────────────────────────────────────── */}
         <button
           onClick={() => window.history.back()}
