@@ -589,7 +589,7 @@ export default function HomePage() {
           <h2 className="font-display text-4xl font-bold mb-4">
             Pronto a creare la lista?
           </h2>
-          <p className="text-white/80 text-lg mb-8 leading-relaxed">
+          <p className="text-white/80 text-base mb-8 leading-relaxed">
             Ci vogliono meno di 5 minuti. Aggiungi i regali, copia il link e mandalo su WhatsApp.
           </p>
           <div className="flex flex-col items-center gap-5">
