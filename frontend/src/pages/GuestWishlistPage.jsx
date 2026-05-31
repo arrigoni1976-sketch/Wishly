@@ -112,7 +112,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [] }) {
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-gray-800">
-              {saved ? 'RSVP salvato!' : `Ciao, ${existingRsvp?.guest_name}`}
+              {`Ciao, ${guestName || existingRsvp?.guest_name}!`}
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
               Hai risposto:{' '}
