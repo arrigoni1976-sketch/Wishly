@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Calendar, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2 } from 'lucide-react'
+import { Calendar, CalendarPlus, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2 } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
 import GiftIcon from '../components/GiftIcon'
@@ -24,8 +24,51 @@ import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import clsx from 'clsx'
 
+// ─── Calendar helper ───────────────────────────────────────────────────────
+function downloadIcs({ childName, partyDate, partyTime, location }) {
+  const pad = (n) => String(n).padStart(2, '0')
+
+  let dtStart, dtEnd
+  if (partyTime) {
+    const [h, m] = partyTime.split(':').map(Number)
+    const d = new Date(partyDate)
+    dtStart = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(h)}${pad(m)}00`
+    const end = new Date(d)
+    end.setHours(h + 3, m)
+    dtEnd = `${end.getFullYear()}${pad(end.getMonth() + 1)}${pad(end.getDate())}T${pad(end.getHours())}${pad(end.getMinutes())}00`
+  } else {
+    const d = new Date(partyDate)
+    const next = new Date(d); next.setDate(next.getDate() + 1)
+    dtStart = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`
+    dtEnd = `${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`
+  }
+
+  const isAllDay = !partyTime
+  const ics = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Piky//Piky App//IT',
+    'BEGIN:VEVENT',
+    `SUMMARY:Compleanno di ${childName}`,
+    isAllDay ? `DTSTART;VALUE=DATE:${dtStart}` : `DTSTART:${dtStart}`,
+    isAllDay ? `DTEND;VALUE=DATE:${dtEnd}` : `DTEND:${dtEnd}`,
+    location ? `LOCATION:${location}` : '',
+    'DESCRIPTION:Evento salvato da Piky',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].filter(Boolean).join('\r\n')
+
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `compleanno-${childName.toLowerCase().replace(/\s+/g, '-')}.ics`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 // ─── RSVP Form ─────────────────────────────────────────────────────────────
-function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [] }) {
+function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eventData = null }) {
   const [step, setStep] = useState(existingRsvp ? 'done' : 'prompt') // 'prompt' | 'form' | 'done' | 'recover'
   const [guestName, setGuestName] = useState(existingRsvp?.guest_name || '')
   const [guestEmail, setGuestEmail] = useState(existingRsvp?.guest_email || '')
@@ -108,7 +151,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [] }) {
 
   if (step === 'done') {
     return (
-      <div className="bg-white rounded-3xl border border-avorio-dark p-5">
+      <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-gray-800">
@@ -132,6 +175,20 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [] }) {
             Modifica
           </button>
         </div>
+        {(status === 'yes' || status === 'maybe') && eventData && (
+          <button
+            onClick={() => downloadIcs({
+              childName: eventData.child_name,
+              partyDate: eventData.party_date,
+              partyTime: eventData.party_time,
+              location: eventData.location,
+            })}
+            className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-salvia border border-salvia/30 rounded-2xl hover:bg-salvia/5 transition-colors"
+          >
+            <CalendarPlus className="w-4 h-4" />
+            Aggiungi al calendario
+          </button>
+        )}
       </div>
     )
   }
@@ -567,6 +624,7 @@ export default function GuestWishlistPage() {
           existingRsvp={myRsvp}
           onRsvpSaved={handleRsvpSaved}
           serverRsvps={event.rsvp || []}
+          eventData={event}
         />
 
         {/* ── Collettivo promo ─────────────────────────────────────────── */}
