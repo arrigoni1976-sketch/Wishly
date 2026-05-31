@@ -195,7 +195,7 @@ export default function HomePage() {
 
           <div className="flex flex-row gap-3 justify-center">
             <Link to="/crea" className="btn-primary text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]">
-              <span>Crea la lista gratis</span>
+              <span>Crea la lista</span>
               <span>→</span>
             </Link>
             <a
@@ -597,7 +597,7 @@ export default function HomePage() {
               to="/crea"
               className="inline-flex items-center gap-2 bg-white text-salvia font-semibold text-base px-7 py-3.5 rounded-2xl hover:bg-avorio transition-colors duration-200 justify-center"
             >
-              Crea la lista gratis
+              Crea la lista
               <GiftIcon size={18} />
             </Link>
             <div className="flex items-center gap-1 text-white/60 text-sm">
