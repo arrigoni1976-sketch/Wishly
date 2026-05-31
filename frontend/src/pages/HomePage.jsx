@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw, Calendar, MapPin } from 'lucide-react'
 import { syncFromServer } from '../lib/sync'
+import { removeUserKeyLink } from '../lib/api'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -146,6 +147,7 @@ export default function HomePage() {
     setMyEvents(updated)
     localStorage.setItem('piky_events', JSON.stringify(updated))
     addToHidden(parentToken)
+    if (userKey) removeUserKeyLink(userKey, parentToken).catch(() => {})
   }
 
   const removeInvite = (guestToken) => {
@@ -153,6 +155,7 @@ export default function HomePage() {
     setMyInvites(updated)
     localStorage.setItem('piky_invites', JSON.stringify(updated))
     addToHidden(guestToken)
+    if (userKey) removeUserKeyLink(userKey, guestToken).catch(() => {})
   }
 
   const hasContent = myEvents.length > 0 || myInvites.length > 0

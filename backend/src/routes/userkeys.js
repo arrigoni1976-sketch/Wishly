@@ -92,4 +92,24 @@ router.post('/:key/link', async (req, res, next) => {
   }
 })
 
+// DELETE /api/user-keys/:key/link/:token — Remove a link from a key
+router.delete('/:key/link/:token', async (req, res, next) => {
+  try {
+    const normalized = req.params.key.trim().toLowerCase()
+    const { token } = req.params
+
+    const { error } = await supabase
+      .from('user_key_links')
+      .delete()
+      .eq('user_key', normalized)
+      .eq('token', token)
+
+    if (error) throw error
+
+    res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
 export default router

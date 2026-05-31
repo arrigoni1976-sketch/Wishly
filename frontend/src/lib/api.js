@@ -41,6 +41,7 @@ export const initSatispay = (data) => api.post('/payments/satispay/init', data)
 export const registerUserKey = (key) => api.post('/user-keys/register', { key })
 export const getUserKeyLinks = (key) => api.get(`/user-keys/${encodeURIComponent(key)}`)
 export const addUserKeyLink = (key, data) => api.post(`/user-keys/${encodeURIComponent(key)}/link`, data)
+export const removeUserKeyLink = (key, token) => api.delete(`/user-keys/${encodeURIComponent(key)}/link/${encodeURIComponent(token)}`)
 
 // ─── Error helper ──────────────────────────────────────────────────────────
 
