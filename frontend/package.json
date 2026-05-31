@@ -10,9 +10,9 @@
     "generate-icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
-    "@vercel/edge": "^1.1.1",
     "@supabase/supabase-js": "^2.43.4",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/edge": "^1.1.1",
     "axios": "^1.7.2",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
@@ -28,6 +28,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.39",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.4",
     "vite": "^5.3.1",
     "vite-plugin-pwa": "^0.20.0",
