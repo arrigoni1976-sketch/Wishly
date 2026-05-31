@@ -201,6 +201,17 @@ export default function CollectiveGiftPage() {
         paypalEmail={event?.paypal_email}
         fixedAmount={event?.collective_fixed_quota}
       />
+
+      {/* ── Bottone fisso "Torna alla lista" ─────────────────────────── */}
+      <div className="fixed bottom-6 left-0 right-0 flex justify-center z-40 pointer-events-none">
+        <button
+          onClick={() => window.history.back()}
+          className="pointer-events-auto flex items-center gap-2 bg-white border border-avorio-dark text-gray-600 text-sm font-medium px-5 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:text-salvia hover:border-salvia transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Torna alla lista
+        </button>
+      </div>
     </Layout>
   )
 }
