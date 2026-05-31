@@ -388,7 +388,7 @@ export default function HomePage() {
             <div className="bg-avorio rounded-3xl shadow-lg shadow-gray-100 p-6 border border-avorio-dark">
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-12 h-12 bg-cipria rounded-2xl flex items-center justify-center">
-                  <BalloonIcon size={28} />
+                  <HeartRibbonIcon size={28} />
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-gray-900">Compleanno di Bianca</h3>
