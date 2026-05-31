@@ -38,11 +38,16 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
     if (!isValid) return
     setError('')
     setLoading(true)
+    // Apre la finestra subito (gesto diretto utente) — altrimenti iOS la blocca
+    const paypalWindow = window.open('', '_blank')
     try {
       await onSubmit({ method: 'paypal', amount: numAmount, name: name.trim() })
-      window.open(`https://paypal.me/${paypalEmail}/${numAmount}`, '_blank')
+      if (paypalWindow) {
+        paypalWindow.location.href = `https://paypal.me/${paypalEmail}/${numAmount}`
+      }
       onClose()
     } catch (e) {
+      if (paypalWindow) paypalWindow.close()
       setError(e.message || 'Errore. Riprova.')
     } finally {
       setLoading(false)
