@@ -25,14 +25,16 @@ import { it } from 'date-fns/locale'
 import clsx from 'clsx'
 
 // ─── RSVP Form ─────────────────────────────────────────────────────────────
-function RsvpSection({ eventId, existingRsvp, onRsvpSaved }) {
-  const [step, setStep] = useState(existingRsvp ? 'done' : 'prompt') // 'prompt' | 'form' | 'done'
+function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [] }) {
+  const [step, setStep] = useState(existingRsvp ? 'done' : 'prompt') // 'prompt' | 'form' | 'done' | 'recover'
   const [guestName, setGuestName] = useState(existingRsvp?.guest_name || '')
   const [guestEmail, setGuestEmail] = useState(existingRsvp?.guest_email || '')
   const [status, setStatus] = useState(existingRsvp?.status || '')
   const [childrenCount, setChildrenCount] = useState(existingRsvp?.children_count || 0)
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [recoverName, setRecoverName] = useState('')
+  const [recoverError, setRecoverError] = useState('')
 
   const handleSubmit = async () => {
     if (!guestName.trim() || !status) return
@@ -57,6 +59,51 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleRecover = () => {
+    const name = recoverName.trim().toLowerCase()
+    if (!name) return
+    const found = serverRsvps.find((r) => r.guest_name?.toLowerCase() === name)
+    if (found) {
+      onRsvpSaved(found)
+      setStatus(found.status)
+      setChildrenCount(found.children_count || 0)
+      setStep('done')
+    } else {
+      setRecoverError('Nessuna risposta trovata con questo nome.')
+    }
+  }
+
+  if (step === 'recover') {
+    return (
+      <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-4 animate-fade-in">
+        <h3 className="font-display font-bold text-gray-900">Ritrova la tua risposta</h3>
+        <div>
+          <label className="label">Il tuo nome</label>
+          <input
+            value={recoverName}
+            onChange={(e) => { setRecoverName(e.target.value); setRecoverError('') }}
+            placeholder="Nome Cognome"
+            className="input"
+            onKeyDown={(e) => e.key === 'Enter' && handleRecover()}
+          />
+          {recoverError && <p className="text-xs text-red-500 mt-1">{recoverError}</p>}
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => setStep('prompt')} className="flex-1 btn-outline text-sm py-2.5">
+            Annulla
+          </button>
+          <button
+            onClick={handleRecover}
+            disabled={!recoverName.trim()}
+            className="flex-1 btn-primary text-sm py-2.5"
+          >
+            Cerca
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (step === 'done') {
@@ -100,6 +147,14 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved }) {
         >
           Conferma la tua presenza
         </button>
+        {serverRsvps.length > 0 && (
+          <button
+            onClick={() => setStep('recover')}
+            className="block w-full mt-3 text-xs text-gray-400 hover:text-salvia transition-colors"
+          >
+            Hai già risposto? Ritrova la tua risposta →
+          </button>
+        )}
       </div>
     )
   }
@@ -484,6 +539,7 @@ export default function GuestWishlistPage() {
           eventId={event.id}
           existingRsvp={myRsvp}
           onRsvpSaved={handleRsvpSaved}
+          serverRsvps={event.rsvp || []}
         />
 
         {/* ── Collettivo promo ─────────────────────────────────────────── */}
