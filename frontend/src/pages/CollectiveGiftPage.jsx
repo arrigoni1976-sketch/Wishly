@@ -41,7 +41,10 @@ export default function CollectiveGiftPage() {
     // In a real app, redirect to payment provider here
     // For now simulate success
     await fetchEvent()
-    setSuccessMsg(`Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa!`)
+    const msg = method === 'paypal'
+      ? `Grazie ${name}! Hai pagato €${amount.toFixed(2)} tramite PayPal.`
+      : `Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa!`
+    setSuccessMsg(msg)
     setTimeout(() => setSuccessMsg(''), 6000)
   }
 
