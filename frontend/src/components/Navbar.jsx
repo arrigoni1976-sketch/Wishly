@@ -20,6 +20,7 @@ export default function Navbar() {
           <span className="font-display text-xl font-bold text-salvia group-hover:text-salvia-dark transition-colors">
             Piky
           </span>
+          <span className="text-[10px] font-medium text-gray-300 tracking-wide">beta</span>
         </Link>
 
         <nav className="flex items-center gap-3">
