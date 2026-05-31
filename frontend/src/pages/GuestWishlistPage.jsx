@@ -18,6 +18,7 @@ import {
   submitRsvp,
   updateRsvp,
   addUserKeyLink,
+  getUserKeyLinks,
 } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -191,6 +192,12 @@ export default function GuestWishlistPage() {
   const [myReservations, setMyReservations] = useState([]) // gift IDs
   const [viewTracked, setViewTracked] = useState(false)
   const [showRsvpModal, setShowRsvpModal] = useState(false)
+  const [userKey] = useState(() => localStorage.getItem('piky_user_key') || null)
+  const [keyPromptDismissed, setKeyPromptDismissed] = useState(false)
+  const [keyInput, setKeyInput] = useState('')
+  const [keyLoading, setKeyLoading] = useState(false)
+  const [keyError, setKeyError] = useState('')
+  const [keyLinked, setKeyLinked] = useState(false)
 
   const baseUrl = window.location.origin
 
@@ -243,6 +250,32 @@ export default function GuestWishlistPage() {
     }, 2000)
     return () => clearTimeout(timer)
   }, [event, viewTracked])
+
+  const handleLinkKey = async () => {
+    const key = keyInput.trim().toUpperCase()
+    if (!key) return
+    setKeyLoading(true)
+    setKeyError('')
+    try {
+      await getUserKeyLinks(key)
+      localStorage.setItem('piky_user_key', key.toLowerCase())
+      await addUserKeyLink(key.toLowerCase(), {
+        linkType: 'invite',
+        token: guestToken,
+        childName: event?.child_name,
+        partyDate: event?.party_date,
+      })
+      setKeyLinked(true)
+    } catch (e) {
+      if (e?.response?.status === 404) {
+        setKeyError('Codice non trovato. Controlla di averlo inserito correttamente.')
+      } else {
+        setKeyError('Errore. Riprova.')
+      }
+    } finally {
+      setKeyLoading(false)
+    }
+  }
 
   const handleRsvpSaved = (rsvp) => {
     setMyRsvp(rsvp)
@@ -355,6 +388,49 @@ export default function GuestWishlistPage() {
           )}
 
         </div>
+
+        {/* ── Prompt codice personale ─────────────────────────────────── */}
+        {!userKey && !keyPromptDismissed && !keyLinked && (
+          <div className="bg-avorio rounded-2xl border border-avorio-dark p-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-700">Salva questo invito sul tuo Piky</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Hai già un codice personale? Inseriscilo per ritrovare questo invito dall'app su qualsiasi dispositivo.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
+                placeholder="Es. MARCO-7X2Q"
+                className="input flex-1 font-mono tracking-wider text-sm py-2"
+                onKeyDown={(e) => e.key === 'Enter' && handleLinkKey()}
+              />
+              <button
+                onClick={handleLinkKey}
+                disabled={!keyInput.trim() || keyLoading}
+                className="btn-primary px-4 py-2 text-sm whitespace-nowrap"
+              >
+                {keyLoading ? '...' : 'Collega'}
+              </button>
+            </div>
+            {keyError && <p className="text-xs text-red-500">{keyError}</p>}
+            <button
+              onClick={() => setKeyPromptDismissed(true)}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Non ora
+            </button>
+          </div>
+        )}
+
+        {keyLinked && (
+          <div className="bg-salvia/10 border border-salvia/30 rounded-2xl p-3 text-center">
+            <p className="text-sm text-salvia font-semibold">✓ Invito collegato al tuo codice Piky!</p>
+            <p className="text-xs text-gray-500 mt-0.5">Lo troverai nella home dell'app.</p>
+          </div>
+        )}
 
         {/* ── Welcome / invitation message ────────────────────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark p-6 space-y-4">
