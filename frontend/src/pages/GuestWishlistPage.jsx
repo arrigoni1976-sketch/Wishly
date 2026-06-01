@@ -497,6 +497,14 @@ export default function GuestWishlistPage() {
     my_reservation: myReservations.includes(g.id),
   }))
 
+  const guestName = myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''
+  const myCollectiveContributions = guestName
+    ? (event?.contributions || []).filter(
+        (c) => c.contributor_name?.toLowerCase() === guestName.toLowerCase() && c.status === 'completed'
+      )
+    : []
+  const myCollectiveTotal = myCollectiveContributions.reduce((acc, c) => acc + parseFloat(c.amount), 0)
+
   const rsvpYesCount = event?.rsvp?.filter((r) => r.status === 'yes').length || 0
   const totalChildren = event?.rsvp?.filter((r) => r.status === 'yes')
     .reduce((acc, r) => acc + (r.children_count || 0), 0) || 0
@@ -688,10 +696,27 @@ export default function GuestWishlistPage() {
             <div className="flex items-start gap-3">
               <HeartRibbonIcon size={24} />
               <div className="flex-1">
-                <p className="font-semibold text-gray-800">Regalo collettivo</p>
-                <p className="text-sm text-gray-500 mt-0.5 mb-3">
-                  Puoi contribuire al regalo collettivo con il link dedicato
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-gray-800">Regalo collettivo</p>
+                  {myCollectiveTotal > 0 && (
+                    <a
+                      href={`${baseUrl}/collettivo/${event.collective_token}`}
+                      className="text-sm text-salvia hover:underline font-medium"
+                    >
+                      Modifica
+                    </a>
+                  )}
+                </div>
+                {myCollectiveTotal > 0 ? (
+                  <p className="text-sm text-gray-600 mt-0.5 mb-3">
+                    Hai contribuito con <span className="font-semibold text-salvia">€{myCollectiveTotal.toFixed(2)}</span>
+                    {myCollectiveContributions.length > 1 && ` (${myCollectiveContributions.length} versamenti)`}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 mt-0.5 mb-3">
+                    Puoi contribuire al regalo collettivo con il link dedicato
+                  </p>
+                )}
                 {(event.collective_amount > 0 || event.collective_goal > 0) && (
                   <>
                     <div className="h-2 bg-white/60 rounded-full overflow-hidden mb-2">
@@ -707,12 +732,14 @@ export default function GuestWishlistPage() {
                     </p>
                   </>
                 )}
-                <a
-                  href={`${baseUrl}/collettivo/${event.collective_token}`}
-                  className="btn-primary text-sm py-2 px-4 inline-block"
-                >
-                  Contribuisci
-                </a>
+                {myCollectiveTotal === 0 && (
+                  <a
+                    href={`${baseUrl}/collettivo/${event.collective_token}`}
+                    className="btn-primary text-sm py-2 px-4 inline-block"
+                  >
+                    Contribuisci
+                  </a>
+                )}
               </div>
             </div>
           </div>
