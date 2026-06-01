@@ -27,7 +27,7 @@ const FEATURES = [
     icon: Users,
     emoji: null,
     customIcon: <CelebrationIcon size={28} />,
-    title: 'Conferma presenza integrata',
+    title: 'Conferma presenza',
     description:
       'Gli invitati confermano la loro presenza (ci sarò / forse / non vengo) direttamente nella lista.',
   },
