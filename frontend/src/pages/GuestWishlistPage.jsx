@@ -208,7 +208,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
           </div>
           <button
             onClick={() => setStep('form')}
-            className="text-salvia hover:text-salvia-dark transition-colors p-1"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
           >
             <Pencil className="w-4 h-4" />
           </button>
