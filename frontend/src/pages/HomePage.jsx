@@ -53,7 +53,7 @@ const FEATURES = [
     customIcon: <Bell size={24} className="text-salvia" />,
     title: 'Promemoria automatici',
     description:
-      'Email automatica agli invitati 2 giorni prima. Riepilogo finale al genitore alla chiusura.',
+      'Email automatica agli invitati 2 giorni prima. Riepilogo finale al genitore alla chiusura dell\'evento.',
   },
   {
     icon: Star,
