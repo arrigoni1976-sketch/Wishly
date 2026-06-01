@@ -17,17 +17,31 @@ export default function CollectiveGiftPage() {
   const [error, setError] = useState('')
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
-  const [myContribution, setMyContribution] = useState(null)
-  const [editing, setEditing] = useState(false)
+  const [myContributions, setMyContributions] = useState([])
+  const [editingId, setEditingId] = useState(null)
   const [editName, setEditName] = useState('')
   const [editAmount, setEditAmount] = useState('')
   const [editError, setEditError] = useState('')
   const [editLoading, setEditLoading] = useState(false)
+  const [recovering, setRecovering] = useState(false)
+  const [recoverName, setRecoverName] = useState('')
+  const [recoverError, setRecoverError] = useState('')
+
+  const findMyContributions = (contributions, name) =>
+    (contributions || []).filter(
+      (c) => c.contributor_name?.toLowerCase() === name.toLowerCase()
+    )
 
   const fetchEvent = async () => {
     try {
       const res = await getEventByCollectiveToken(collectiveToken)
-      setEvent(res.data)
+      const data = res.data
+      setEvent(data)
+      // Re-apply stored name after every fetch to keep list in sync
+      const storedName = localStorage.getItem('piky_guest_name')
+      if (storedName) {
+        setMyContributions(findMyContributions(data.contributions, storedName))
+      }
     } catch {
       setError('Pagina non trovata o link non valido.')
     } finally {
@@ -36,17 +50,6 @@ export default function CollectiveGiftPage() {
   }
 
   useEffect(() => { fetchEvent() }, [collectiveToken])
-
-  // Auto-detect if this user already contributed
-  useEffect(() => {
-    if (!event) return
-    const storedName = localStorage.getItem('piky_guest_name')
-    if (!storedName) return
-    const found = (event.contributions || []).find(
-      (c) => c.contributor_name?.toLowerCase() === storedName.toLowerCase()
-    )
-    if (found) setMyContribution(found)
-  }, [event])
 
   const handleContribute = async ({ method, amount, name }) => {
     await createContribution(event.id, {
@@ -64,11 +67,11 @@ export default function CollectiveGiftPage() {
     setTimeout(() => setSuccessMsg(''), 10000)
   }
 
-  const handleEditOpen = () => {
-    setEditName(myContribution.contributor_name)
-    setEditAmount(parseFloat(myContribution.amount).toFixed(2))
+  const handleEditOpen = (contribution) => {
+    setEditingId(contribution.id)
+    setEditName(contribution.contributor_name)
+    setEditAmount(parseFloat(contribution.amount).toFixed(2))
     setEditError('')
-    setEditing(true)
   }
 
   const handleEditSave = async () => {
@@ -78,14 +81,14 @@ export default function CollectiveGiftPage() {
     setEditLoading(true)
     setEditError('')
     try {
-      await updateContribution(event.id, myContribution.id, {
+      await updateContribution(event.id, editingId, {
         contributorName: editName.trim(),
         amount,
         collectiveToken,
       })
       localStorage.setItem('piky_guest_name', editName.trim())
       await fetchEvent()
-      setEditing(false)
+      setEditingId(null)
       setSuccessMsg(`Contributo aggiornato a €${amount.toFixed(2)}. Grazie!`)
       setTimeout(() => setSuccessMsg(''), 6000)
     } catch (e) {
@@ -95,9 +98,28 @@ export default function CollectiveGiftPage() {
     }
   }
 
+  const handleRecover = () => {
+    const name = recoverName.trim()
+    if (!name) return
+    const found = findMyContributions(event.contributions, name)
+    if (found.length > 0) {
+      localStorage.setItem('piky_guest_name', name)
+      setMyContributions(found)
+      setRecovering(false)
+      setRecoverName('')
+      setRecoverError('')
+    } else {
+      setRecoverError('Nessun contributo trovato con questo nome.')
+    }
+  }
+
   const isComplete = event
     ? (event.collective_amount || 0) >= (event.collective_goal || 0)
     : false
+
+  const myTotal = myContributions
+    .filter((c) => c.status === 'completed')
+    .reduce((acc, c) => acc + parseFloat(c.amount), 0)
 
   if (loading) {
     return (
@@ -180,25 +202,39 @@ export default function CollectiveGiftPage() {
             </div>
           ) : (
             <div className="mt-4 space-y-3">
-              {myContribution && !editing && (
-                <div className="bg-cipria/20 border border-cipria rounded-2xl px-4 py-3 text-sm text-gray-700">
-                  <div className="flex items-center justify-between">
-                    <span>Hai contribuito con <span className="font-semibold">€{parseFloat(myContribution.amount).toFixed(2)}</span></span>
-                    {myContribution.status === 'completed' && (
-                      <button
-                        onClick={handleEditOpen}
-                        className="text-xs text-salvia hover:underline font-medium ml-3 flex-shrink-0"
-                      >
-                        Modifica
-                      </button>
-                    )}
-                  </div>
+
+              {/* Contributi già fatti da questa persona */}
+              {myContributions.length > 0 && editingId === null && (
+                <div className="bg-cipria/20 border border-cipria rounded-2xl px-4 py-3 text-sm text-gray-700 space-y-2">
+                  <p className="font-semibold">
+                    Hai contribuito con <span className="text-salvia">€{myTotal.toFixed(2)}</span> in totale
+                    {myContributions.length > 1 && ` (${myContributions.length} versamenti)`}
+                  </p>
+                  {myContributions.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between text-xs text-gray-500">
+                      <span>
+                        €{parseFloat(c.amount).toFixed(2)}
+                        {' · '}
+                        {format(new Date(c.created_at), "d MMM", { locale: it })}
+                        {c.status === 'pending' && ' · in attesa'}
+                      </span>
+                      {c.status === 'completed' && (
+                        <button
+                          onClick={() => handleEditOpen(c)}
+                          className="text-salvia hover:underline font-medium ml-3"
+                        >
+                          Modifica
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
 
-              {editing && (
+              {/* Form modifica contributo */}
+              {editingId !== null && (
                 <div className="bg-white border border-avorio-dark rounded-2xl p-4 space-y-3 animate-fade-in">
-                  <p className="text-sm font-semibold text-gray-800">Modifica il tuo contributo</p>
+                  <p className="text-sm font-semibold text-gray-800">Modifica il contributo</p>
                   <div>
                     <label className="label">Il tuo nome</label>
                     <input
@@ -223,7 +259,7 @@ export default function CollectiveGiftPage() {
                   {editError && <p className="text-xs text-red-500">{editError}</p>}
                   <div className="flex gap-3">
                     <button
-                      onClick={() => setEditing(false)}
+                      onClick={() => setEditingId(null)}
                       className="flex-1 btn-outline text-sm py-2.5"
                     >
                       Annulla
@@ -238,20 +274,58 @@ export default function CollectiveGiftPage() {
                   </div>
                 </div>
               )}
-              <button
-                onClick={() => setPaymentOpen(true)}
-                className="btn-primary w-full py-3.5 text-base flex items-center justify-center gap-2"
-              >
-                <Heart className="w-5 h-5" />
-                {event.collective_fixed_quota
-                  ? `Paga la quota di €${parseFloat(event.collective_fixed_quota).toFixed(2)}`
-                  : 'Contribuisci al regalo'}
-              </button>
-              <p className="text-xs text-center text-gray-400">
-                {event.collective_fixed_quota
-                  ? `Quota fissa per persona · Massimo disponibile €${remaining.toFixed(0)}`
-                  : `Importo minimo €10 · Massimo €${remaining.toFixed(0)}`}
-              </p>
+
+              {/* Recupero manuale per nome */}
+              {recovering ? (
+                <div className="bg-white border border-avorio-dark rounded-2xl p-4 space-y-3 animate-fade-in">
+                  <p className="text-sm font-semibold text-gray-800">Ritrova il tuo contributo</p>
+                  <input
+                    value={recoverName}
+                    onChange={(e) => { setRecoverName(e.target.value); setRecoverError('') }}
+                    className="input"
+                    placeholder="Nome Cognome"
+                    onKeyDown={(e) => e.key === 'Enter' && handleRecover()}
+                  />
+                  {recoverError && <p className="text-xs text-red-500">{recoverError}</p>}
+                  <div className="flex gap-3">
+                    <button onClick={() => setRecovering(false)} className="flex-1 btn-outline text-sm py-2.5">
+                      Annulla
+                    </button>
+                    <button
+                      onClick={handleRecover}
+                      disabled={!recoverName.trim()}
+                      className="flex-1 btn-primary text-sm py-2.5"
+                    >
+                      Cerca
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setPaymentOpen(true)}
+                    className="btn-primary w-full py-3.5 text-base flex items-center justify-center gap-2"
+                  >
+                    <Heart className="w-5 h-5" />
+                    {event.collective_fixed_quota
+                      ? `Paga la quota di €${parseFloat(event.collective_fixed_quota).toFixed(2)}`
+                      : 'Contribuisci al regalo'}
+                  </button>
+                  <p className="text-xs text-center text-gray-400">
+                    {event.collective_fixed_quota
+                      ? `Quota fissa per persona · Massimo disponibile €${remaining.toFixed(0)}`
+                      : `Importo minimo €10 · Massimo €${remaining.toFixed(0)}`}
+                  </p>
+                  {myContributions.length === 0 && (
+                    <button
+                      onClick={() => setRecovering(true)}
+                      className="block w-full text-xs text-center text-gray-400 hover:text-salvia transition-colors"
+                    >
+                      Hai già contribuito? Ritrova il tuo contributo →
+                    </button>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>
