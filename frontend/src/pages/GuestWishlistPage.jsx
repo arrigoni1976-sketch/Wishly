@@ -25,8 +25,9 @@ import { it } from 'date-fns/locale'
 import clsx from 'clsx'
 
 // ─── Calendar helper ───────────────────────────────────────────────────────
-function downloadIcs({ childName, partyDate, partyTime, location, inviteUrl }) {
+function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl }) {
   const pad = (n) => String(n).padStart(2, '0')
+  const isAndroid = /android/i.test(navigator.userAgent)
 
   let dtStart, dtEnd
   if (partyTime) {
@@ -43,6 +44,19 @@ function downloadIcs({ childName, partyDate, partyTime, location, inviteUrl }) {
     dtEnd = `${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`
   }
 
+  if (isAndroid) {
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: `Compleanno di ${childName}`,
+      dates: `${dtStart}/${dtEnd}`,
+      details: inviteUrl ? `Evento salvato da Piky\nLink invito: ${inviteUrl}` : 'Evento salvato da Piky',
+    })
+    if (location) params.set('location', location)
+    window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank')
+    return
+  }
+
+  // iOS / desktop: download .ics
   const isAllDay = !partyTime
   const description = inviteUrl
     ? `Evento salvato da Piky\\nLink invito: ${inviteUrl}`
@@ -195,7 +209,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
         </div>
         {(status === 'yes' || status === 'maybe') && eventData && (
           <button
-            onClick={() => downloadIcs({
+            onClick={() => addToCalendar({
               childName: eventData.child_name,
               partyDate: eventData.party_date,
               partyTime: eventData.party_time,
