@@ -7,6 +7,7 @@ import PaymentModal from '../components/PaymentModal'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByCollectiveToken, createContribution, updateContribution } from '../lib/api'
+import { syncFromServer } from '../lib/sync'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -37,8 +38,19 @@ export default function CollectiveGiftPage() {
       const res = await getEventByCollectiveToken(collectiveToken)
       const data = res.data
       setEvent(data)
-      // Re-apply stored name after every fetch to keep list in sync
-      const storedName = localStorage.getItem('piky_guest_name')
+
+      // Try to resolve guest name: localStorage first, then user key sync
+      let storedName = localStorage.getItem('piky_guest_name')
+      if (!storedName) {
+        const userKey = localStorage.getItem('piky_user_key')
+        if (userKey) {
+          try {
+            const synced = await syncFromServer(userKey)
+            storedName = localStorage.getItem('piky_guest_name')
+          } catch { /* sync failed silently */ }
+        }
+      }
+
       if (storedName) {
         setMyContributions(findMyContributions(data.contributions, storedName))
       }
