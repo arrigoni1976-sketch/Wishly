@@ -700,10 +700,10 @@ export default function GuestWishlistPage() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-gray-800">Regalo collettivo</p>
-                    {event.collective_description && (
-                      <p className="text-xs text-gray-800 mt-0.5">{event.collective_description}</p>
-                    )}
+                    <p className="text-xs font-medium text-salvia uppercase tracking-wide mb-0.5">Regalo collettivo</p>
+                    <p className="font-display font-bold text-gray-900 text-lg leading-tight">
+                      {event.collective_description || 'Regalo di gruppo'}
+                    </p>
                   </div>
                   {myCollectiveTotal > 0 && (
                     <a
@@ -720,8 +720,8 @@ export default function GuestWishlistPage() {
                     {myCollectiveContributions.length > 1 && ` (${myCollectiveContributions.length} versamenti)`}
                   </p>
                 ) : (
-                  <p className="text-sm text-gray-500 mt-0.5 mb-3">
-                    Unisciti agli altri invitati e contribuisci al regalo di gruppo
+                  <p className="text-sm text-gray-500 mt-1 mb-3">
+                    Unisciti agli altri invitati per completare la raccolta
                   </p>
                 )}
                 {(event.collective_amount > 0 || event.collective_goal > 0) && (
