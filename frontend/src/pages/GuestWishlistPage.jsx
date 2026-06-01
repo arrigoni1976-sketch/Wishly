@@ -636,7 +636,7 @@ export default function GuestWishlistPage() {
           </div>
         )}
 
-        {/* ── Welcome / invitation message ────────────────────────────── */}
+        {/* ── Welcome / invitation message — prima parte ──────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark p-6 space-y-4">
           {/* Greeting row */}
           <div className="flex items-center gap-3">
@@ -665,22 +665,9 @@ export default function GuestWishlistPage() {
             )}
           </div>
 
-          {/* Invitation text */}
           <p className="text-sm text-gray-600 leading-relaxed">
-            Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci con la tua risposta qui sotto.
+            Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci.
           </p>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            Se hai voglia, trovi anche la lista dei desideri di{' '}
-            <span className="font-semibold text-gray-800">{event.child_name}</span>:
-            ogni regalo è in esclusiva, così nessuno si sovrappone.{' '}
-            Nessun obbligo, naturalmente!
-          </p>
-
-          {/* Sign-off */}
-          <div className="flex items-center gap-2 pt-1">
-            <BalloonIcon size={18} />
-            <span className="text-sm font-semibold text-salvia">A presto!</span>
-          </div>
         </div>
 
         {/* ── RSVP ────────────────────────────────────────────────────── */}
@@ -691,6 +678,20 @@ export default function GuestWishlistPage() {
           serverRsvps={event.rsvp || []}
           eventData={event}
         />
+
+        {/* ── Welcome / invitation message — seconda parte ─────────────── */}
+        <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark px-6 py-4 space-y-3">
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Se hai voglia, trovi anche la lista dei desideri di{' '}
+            <span className="font-semibold text-gray-800">{event.child_name}</span>:
+            ogni regalo è in esclusiva, così nessuno si sovrappone.{' '}
+            Nessun obbligo, naturalmente!
+          </p>
+          <div className="flex items-center gap-2">
+            <BalloonIcon size={18} />
+            <span className="text-sm font-semibold text-salvia">A presto!</span>
+          </div>
+        </div>
 
         {/* ── Collettivo promo ─────────────────────────────────────────── */}
         {event.collective_enabled && (
