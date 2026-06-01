@@ -64,6 +64,11 @@ function downloadIcs({ childName, partyDate, partyTime, location, inviteUrl }) {
     'ACTION:DISPLAY',
     `DESCRIPTION:Domani è il compleanno di ${childName}! 🎉`,
     'END:VALARM',
+    'BEGIN:VALARM',
+    'TRIGGER:-PT2H',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:Tra 2 ore inizia il compleanno di ${childName}! 🎂`,
+    'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR',
   ].filter(Boolean).join('\r\n')
