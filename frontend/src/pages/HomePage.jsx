@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw, Calendar, MapPin } from 'lucide-react'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw, Calendar, MapPin, Copy, Check } from 'lucide-react'
 import { syncFromServer } from '../lib/sync'
 import { removeUserKeyLink } from '../lib/api'
 import GiftIcon from '../components/GiftIcon'
@@ -96,6 +96,7 @@ export default function HomePage() {
   const [myEvents, setMyEvents] = useState([])
   const [myInvites, setMyInvites] = useState([])
   const [showKeyModal, setShowKeyModal] = useState(false)
+  const [keyCopied, setKeyCopied] = useState(false)
   const [keyModalMode, setKeyModalMode] = useState('create')
   const [pendingDelete, setPendingDelete] = useState(null) // token dell'elemento da rimuovere
   const { userKey, saveKey } = useUserKey()
@@ -219,12 +220,25 @@ export default function HomePage() {
                     </span>
                   </span>
                 </div>
-                <button
-                  onClick={() => openKeyModal('create')}
-                  className="text-xs text-salvia hover:underline font-medium"
-                >
-                  Cambia
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(userKey.toUpperCase()).catch(() => {})
+                      setKeyCopied(true)
+                      setTimeout(() => setKeyCopied(false), 2000)
+                    }}
+                    className="text-gray-400 hover:text-salvia transition-colors"
+                    title="Copia codice"
+                  >
+                    {keyCopied ? <Check className="w-4 h-4 text-salvia" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={() => openKeyModal('create')}
+                    className="text-xs text-salvia hover:underline font-medium"
+                  >
+                    Cambia
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-3 shadow-sm">
