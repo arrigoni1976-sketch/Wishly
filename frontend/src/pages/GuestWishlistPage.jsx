@@ -700,7 +700,7 @@ export default function GuestWishlistPage() {
                   <div>
                     <p className="font-semibold text-gray-800">Regalo collettivo</p>
                     {event.collective_description && (
-                      <p className="text-xs text-gray-500 mt-0.5">{event.collective_description}</p>
+                      <p className="text-xs text-gray-800 mt-0.5">{event.collective_description}</p>
                     )}
                   </div>
                   {myCollectiveTotal > 0 && (
