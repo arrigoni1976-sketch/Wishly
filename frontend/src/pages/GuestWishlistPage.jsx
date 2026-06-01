@@ -697,7 +697,12 @@ export default function GuestWishlistPage() {
               <HeartRibbonIcon size={24} />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-gray-800">Regalo collettivo</p>
+                  <div>
+                    <p className="font-semibold text-gray-800">Regalo collettivo</p>
+                    {event.collective_description && (
+                      <p className="text-xs text-gray-500 mt-0.5">{event.collective_description}</p>
+                    )}
+                  </div>
                   {myCollectiveTotal > 0 && (
                     <a
                       href={`${baseUrl}/collettivo/${event.collective_token}`}
