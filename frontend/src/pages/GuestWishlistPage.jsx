@@ -216,7 +216,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
               location: eventData.location,
               inviteUrl: window.location.href,
             })}
-            className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-salvia border border-salvia/30 rounded-2xl hover:bg-salvia/5 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-salvia bg-salvia/10 border border-salvia/40 rounded-2xl hover:bg-salvia/20 transition-colors"
           >
             <CalendarPlus className="w-4 h-4" />
             Aggiungi al calendario
