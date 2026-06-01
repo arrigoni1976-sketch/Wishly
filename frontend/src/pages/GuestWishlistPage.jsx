@@ -719,7 +719,7 @@ export default function GuestWishlistPage() {
                   </p>
                 ) : (
                   <p className="text-sm text-gray-500 mt-0.5 mb-3">
-                    Puoi contribuire al regalo collettivo con il link dedicato
+                    Unisciti agli altri invitati e contribuisci al regalo di gruppo
                   </p>
                 )}
                 {(event.collective_amount > 0 || event.collective_goal > 0) && (
