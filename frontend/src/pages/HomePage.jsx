@@ -82,7 +82,7 @@ const STEPS = [
     number: '03',
     title: 'Gli invitati prenotano',
     description:
-      'Ogni invitato prenota un regalo in esclusiva. Chi arriva tardi troverà solo ciò che rimane.',
+      'Ogni invitato conferma la presenza e, se vuole, prenota un regalo in esclusiva. Zero doppioni, zero imbarazzo.',
   },
   {
     number: '04',
