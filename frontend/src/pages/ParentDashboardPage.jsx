@@ -264,6 +264,7 @@ export default function ParentDashboardPage() {
   const rsvpMaybe = event.rsvp?.filter((r) => r.status === 'maybe') || []
   const rsvpNo = event.rsvp?.filter((r) => r.status === 'no') || []
   const totalChildren = rsvpYes.reduce((acc, r) => acc + (r.children_count || 0), 0)
+  const totalAdults = rsvpYes.reduce((acc, r) => acc + (r.with_partner ? 2 : 1), 0)
   const reservedCount = event.gifts?.filter((g) => g.reserved_by).length || 0
   const openedCount = event.link_views?.reduce((acc, v) => acc + (v.view_count || 1), 0) || 0
 
@@ -334,7 +335,7 @@ export default function ParentDashboardPage() {
                 onClick={() => { setShowRsvp(true); document.getElementById('rsvp-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                 className="bg-green-50 text-green-700 rounded-xl px-3 py-1.5 text-sm font-medium hover:bg-green-100 transition-colors"
               >
-                <span className="inline-flex items-center gap-1"><CelebrationIcon size={14} /> {rsvpYes.length} confermati</span>
+                <span className="inline-flex items-center gap-1"><CelebrationIcon size={14} /> {rsvpYes.length} confermati · {totalAdults} adulti</span>
               </button>
               {totalChildren > 0 && (
                 <div className="bg-blue-50 text-blue-700 rounded-xl px-3 py-1.5 text-sm font-medium">
@@ -520,6 +521,9 @@ export default function ParentDashboardPage() {
                   <div key={r.id} className="flex items-center justify-between text-sm">
                     <div>
                       <span className="font-medium text-gray-700">{r.guest_name}</span>
+                      {r.with_partner && (
+                        <span className="ml-2 text-gray-400 text-xs">+ partner</span>
+                      )}
                       {r.children_count > 0 && (
                         <span className="ml-2 text-gray-400 text-xs">
                           + {r.children_count} {r.children_count === 1 ? 'bambino' : 'bambini'}

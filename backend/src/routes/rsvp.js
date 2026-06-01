@@ -6,7 +6,7 @@ const router = Router()
 // ─── PUT /api/rsvp/:id — Update RSVP ────────────────────────────────────────
 router.put('/:id', async (req, res, next) => {
   try {
-    const { status, childrenCount } = req.body
+    const { status, childrenCount, withPartner } = req.body
 
     if (!status || !['yes', 'maybe', 'no'].includes(status)) {
       return res.status(400).json({ message: 'Status non valido' })
@@ -17,6 +17,7 @@ router.put('/:id', async (req, res, next) => {
       .update({
         status,
         children_count: childrenCount ?? 0,
+        with_partner: withPartner ?? false,
         updated_at: new Date().toISOString(),
       })
       .eq('id', req.params.id)
