@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
-import { Calendar, CalendarPlus, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2 } from 'lucide-react'
+import { Calendar, CalendarPlus, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
 import GiftIcon from '../components/GiftIcon'
@@ -190,7 +190,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
   if (step === 'done') {
     return (
       <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div>
             <p className="font-semibold text-gray-800">
               {`Ciao, ${guestName || existingRsvp?.guest_name}!`}
@@ -208,9 +208,9 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
           </div>
           <button
             onClick={() => setStep('form')}
-            className="text-sm text-salvia hover:underline font-medium"
+            className="text-salvia hover:text-salvia-dark transition-colors p-1"
           >
-            Modifica
+            <Pencil className="w-4 h-4" />
           </button>
         </div>
         {(status === 'yes' || status === 'maybe') && eventData && (
@@ -699,7 +699,7 @@ export default function GuestWishlistPage() {
             <div className="flex items-start gap-3">
               <HeartRibbonIcon size={24} />
               <div className="flex-1">
-                <div className="flex items-center justify-between">
+                <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-medium text-salvia uppercase tracking-wide mb-0.5">Regalo collettivo</p>
                     <p className="font-display font-bold text-gray-900 text-lg leading-tight">
@@ -709,9 +709,9 @@ export default function GuestWishlistPage() {
                   {myCollectiveTotal > 0 && (
                     <a
                       href={`${baseUrl}/collettivo/${event.collective_token}`}
-                      className="text-sm text-salvia hover:underline font-medium"
+                      className="text-salvia hover:text-salvia-dark transition-colors p-1 flex-shrink-0"
                     >
-                      Modifica
+                      <Pencil className="w-4 h-4" />
                     </a>
                   )}
                 </div>
