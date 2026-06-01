@@ -190,7 +190,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
-            Organizza il compleanno del tuo bambino — o il tuo — in pochi minuti. Condividi un link con gli invitati: la lista dei regali e le conferme di presenza le gestisce Piky.
+            Organizza il compleanno del tuo bambino — o il tuo — in pochi minuti. Condividi il link con gli invitati: la lista dei regali e le conferme di presenza le gestisce Piky.
           </p>
 
           <div className="flex flex-row gap-3 justify-center">
