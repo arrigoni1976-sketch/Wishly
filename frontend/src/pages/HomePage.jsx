@@ -74,9 +74,9 @@ const STEPS = [
   },
   {
     number: '02',
-    title: 'Condividi i link',
+    title: 'Condividi il link',
     description:
-      'Ricevi due link privati: uno per gli invitati, uno per chi vuole contribuire al regalo collettivo in contanti o tramite PayPal.',
+      'Ricevi un link privato da condividere con gli invitati — solo chi lo riceve può vedere la lista e confermare la presenza.',
   },
   {
     number: '03',
