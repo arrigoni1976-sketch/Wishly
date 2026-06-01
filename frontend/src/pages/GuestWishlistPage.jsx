@@ -25,7 +25,7 @@ import { it } from 'date-fns/locale'
 import clsx from 'clsx'
 
 // ─── Calendar helper ───────────────────────────────────────────────────────
-function downloadIcs({ childName, partyDate, partyTime, location }) {
+function downloadIcs({ childName, partyDate, partyTime, location, inviteUrl }) {
   const pad = (n) => String(n).padStart(2, '0')
 
   let dtStart, dtEnd
@@ -44,6 +44,10 @@ function downloadIcs({ childName, partyDate, partyTime, location }) {
   }
 
   const isAllDay = !partyTime
+  const description = inviteUrl
+    ? `Evento salvato da Piky\\nLink invito: ${inviteUrl}`
+    : 'Evento salvato da Piky'
+
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -53,7 +57,13 @@ function downloadIcs({ childName, partyDate, partyTime, location }) {
     isAllDay ? `DTSTART;VALUE=DATE:${dtStart}` : `DTSTART:${dtStart}`,
     isAllDay ? `DTEND;VALUE=DATE:${dtEnd}` : `DTEND:${dtEnd}`,
     location ? `LOCATION:${location}` : '',
-    'DESCRIPTION:Evento salvato da Piky',
+    `DESCRIPTION:${description}`,
+    inviteUrl ? `URL:${inviteUrl}` : '',
+    'BEGIN:VALARM',
+    'TRIGGER:-P1D',
+    'ACTION:DISPLAY',
+    `DESCRIPTION:Domani è il compleanno di ${childName}! 🎉`,
+    'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR',
   ].filter(Boolean).join('\r\n')
@@ -185,6 +195,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
               partyDate: eventData.party_date,
               partyTime: eventData.party_time,
               location: eventData.location,
+              inviteUrl: window.location.href,
             })}
             className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-salvia border border-salvia/30 rounded-2xl hover:bg-salvia/5 transition-colors"
           >
