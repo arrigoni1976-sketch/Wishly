@@ -73,7 +73,7 @@ router.get('/:key', async (req, res, next) => {
 router.post('/:key/link', async (req, res, next) => {
   try {
     const normalized = req.params.key.trim().toLowerCase()
-    const { linkType, token, childName, partyDate } = req.body
+    const { linkType, token, childName, partyDate, guestName } = req.body
 
     if (!linkType || !token) {
       return res.status(400).json({ message: 'linkType e token sono obbligatori' })
@@ -87,6 +87,7 @@ router.post('/:key/link', async (req, res, next) => {
         token,
         child_name: childName || null,
         party_date: partyDate || null,
+        guest_name: guestName || null,
       },
       { onConflict: 'user_key,token' }
     )

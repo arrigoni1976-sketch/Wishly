@@ -450,6 +450,17 @@ export default function GuestWishlistPage() {
     if (rsvp.guest_name) {
       localStorage.setItem('piky_guest_name', rsvp.guest_name)
       trackLinkView(guestToken, { guestName: rsvp.guest_name }).catch(() => {})
+      // Save guest name server-side so other devices can auto-recover RSVP via sync
+      const userKey = localStorage.getItem('piky_user_key')
+      if (userKey) {
+        addUserKeyLink(userKey, {
+          linkType: 'invite',
+          token: guestToken,
+          childName: event?.child_name,
+          partyDate: event?.party_date,
+          guestName: rsvp.guest_name,
+        }).catch(() => {})
+      }
     }
   }
 
