@@ -32,6 +32,7 @@ export const updateRsvp = (rsvpId, data) => api.put(`/rsvp/${rsvpId}`, data)
 
 export const getContributions = (eventId) => api.get(`/events/${eventId}/contributions`)
 export const createContribution = (eventId, data) => api.post(`/events/${eventId}/contributions`, data)
+export const updateContribution = (eventId, cid, data) => api.put(`/events/${eventId}/contributions/${cid}`, data)
 export const confirmContribution = (eventId, cid, parentToken) => api.patch(`/events/${eventId}/contributions/${cid}/confirm`, { parentToken })
 export const createPaymentIntent = (data) => api.post('/payments/stripe/intent', data)
 export const createPayPalOrder = (data) => api.post('/payments/paypal/order', data)

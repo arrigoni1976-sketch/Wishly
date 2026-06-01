@@ -6,7 +6,7 @@ import ProgressBar from '../components/ProgressBar'
 import PaymentModal from '../components/PaymentModal'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByCollectiveToken, createContribution } from '../lib/api'
+import { getEventByCollectiveToken, createContribution, updateContribution } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -18,6 +18,11 @@ export default function CollectiveGiftPage() {
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [successMsg, setSuccessMsg] = useState('')
   const [myContribution, setMyContribution] = useState(null)
+  const [editing, setEditing] = useState(false)
+  const [editName, setEditName] = useState('')
+  const [editAmount, setEditAmount] = useState('')
+  const [editError, setEditError] = useState('')
+  const [editLoading, setEditLoading] = useState(false)
 
   const fetchEvent = async () => {
     try {
@@ -57,6 +62,37 @@ export default function CollectiveGiftPage() {
       : `Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa!`
     setSuccessMsg(msg)
     setTimeout(() => setSuccessMsg(''), 10000)
+  }
+
+  const handleEditOpen = () => {
+    setEditName(myContribution.contributor_name)
+    setEditAmount(parseFloat(myContribution.amount).toFixed(2))
+    setEditError('')
+    setEditing(true)
+  }
+
+  const handleEditSave = async () => {
+    const amount = parseFloat(editAmount)
+    if (!editName.trim()) return setEditError('Inserisci il tuo nome.')
+    if (!amount || amount < 10) return setEditError('Importo minimo €10.')
+    setEditLoading(true)
+    setEditError('')
+    try {
+      await updateContribution(event.id, myContribution.id, {
+        contributorName: editName.trim(),
+        amount,
+        collectiveToken,
+      })
+      localStorage.setItem('piky_guest_name', editName.trim())
+      await fetchEvent()
+      setEditing(false)
+      setSuccessMsg(`Contributo aggiornato a €${amount.toFixed(2)}. Grazie!`)
+      setTimeout(() => setSuccessMsg(''), 6000)
+    } catch (e) {
+      setEditError(e?.response?.data?.message || 'Errore. Riprova.')
+    } finally {
+      setEditLoading(false)
+    }
   }
 
   const isComplete = event
@@ -144,9 +180,62 @@ export default function CollectiveGiftPage() {
             </div>
           ) : (
             <div className="mt-4 space-y-3">
-              {myContribution && (
-                <div className="bg-cipria/20 border border-cipria rounded-2xl px-4 py-3 text-sm text-gray-700 text-center">
-                  Hai già contribuito con <span className="font-semibold">€{parseFloat(myContribution.amount).toFixed(2)}</span> — puoi aggiungere un altro contributo se vuoi.
+              {myContribution && !editing && (
+                <div className="bg-cipria/20 border border-cipria rounded-2xl px-4 py-3 text-sm text-gray-700">
+                  <div className="flex items-center justify-between">
+                    <span>Hai contribuito con <span className="font-semibold">€{parseFloat(myContribution.amount).toFixed(2)}</span></span>
+                    {myContribution.status === 'completed' && (
+                      <button
+                        onClick={handleEditOpen}
+                        className="text-xs text-salvia hover:underline font-medium ml-3 flex-shrink-0"
+                      >
+                        Modifica
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {editing && (
+                <div className="bg-white border border-avorio-dark rounded-2xl p-4 space-y-3 animate-fade-in">
+                  <p className="text-sm font-semibold text-gray-800">Modifica il tuo contributo</p>
+                  <div>
+                    <label className="label">Il tuo nome</label>
+                    <input
+                      value={editName}
+                      onChange={(e) => { setEditName(e.target.value); setEditError('') }}
+                      className="input"
+                      placeholder="Nome Cognome"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Importo (€)</label>
+                    <input
+                      type="number"
+                      min="10"
+                      step="1"
+                      value={editAmount}
+                      onChange={(e) => { setEditAmount(e.target.value); setEditError('') }}
+                      className="input"
+                      placeholder="Es. 25"
+                    />
+                  </div>
+                  {editError && <p className="text-xs text-red-500">{editError}</p>}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setEditing(false)}
+                      className="flex-1 btn-outline text-sm py-2.5"
+                    >
+                      Annulla
+                    </button>
+                    <button
+                      onClick={handleEditSave}
+                      disabled={editLoading}
+                      className="flex-1 btn-primary text-sm py-2.5"
+                    >
+                      {editLoading ? 'Salvo...' : 'Salva'}
+                    </button>
+                  </div>
                 </div>
               )}
               <button

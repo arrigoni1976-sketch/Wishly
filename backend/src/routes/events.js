@@ -417,6 +417,72 @@ router.post('/:id/contributions', async (req, res, next) => {
   }
 })
 
+// ─── PUT /api/events/:id/contributions/:cid — Edit a contribution ───────────
+router.put('/:id/contributions/:cid', async (req, res, next) => {
+  try {
+    const { contributorName, amount, collectiveToken } = req.body
+
+    if (!contributorName || !amount) {
+      return res.status(400).json({ message: 'Dati mancanti' })
+    }
+
+    if (amount < 10) {
+      return res.status(400).json({ message: 'Importo minimo €10' })
+    }
+
+    // Verify collective token matches event
+    const { data: event } = await supabase
+      .from('events')
+      .select('id, collective_goal, collective_amount')
+      .eq('id', req.params.id)
+      .eq('collective_token', collectiveToken)
+      .single()
+
+    if (!event) return res.status(403).json({ message: 'Token non valido' })
+
+    // Get existing contribution
+    const { data: existing } = await supabase
+      .from('contributions')
+      .select('id, amount, status')
+      .eq('id', req.params.cid)
+      .eq('event_id', req.params.id)
+      .single()
+
+    if (!existing) return res.status(404).json({ message: 'Contributo non trovato' })
+    if (existing.status !== 'completed') {
+      return res.status(400).json({ message: 'Solo i contributi completati sono modificabili' })
+    }
+
+    const oldAmount = parseFloat(existing.amount)
+    const newAmount = parseFloat(amount)
+    const remaining = event.collective_goal - event.collective_amount + oldAmount
+
+    if (newAmount > remaining) {
+      return res.status(400).json({ message: `Importo massimo €${remaining.toFixed(2)}` })
+    }
+
+    const { data, error } = await supabase
+      .from('contributions')
+      .update({ contributor_name: contributorName.trim(), amount: newAmount })
+      .eq('id', req.params.cid)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // Adjust event total
+    const newTotal = event.collective_amount - oldAmount + newAmount
+    await supabase
+      .from('events')
+      .update({ collective_amount: newTotal })
+      .eq('id', req.params.id)
+
+    res.json(data)
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ─── PATCH /api/events/:id/contributions/:cid/confirm — Confirm PayPal payment ─
 router.patch('/:id/contributions/:cid/confirm', async (req, res, next) => {
   try {
