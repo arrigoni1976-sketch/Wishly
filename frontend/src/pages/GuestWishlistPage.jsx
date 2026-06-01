@@ -497,12 +497,14 @@ export default function GuestWishlistPage() {
     my_reservation: myReservations.includes(g.id),
   }))
 
-  const guestName = myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''
-  const myCollectiveContributions = guestName
-    ? (event?.contributions || []).filter(
-        (c) => c.contributor_name?.toLowerCase() === guestName.toLowerCase() && c.status === 'completed'
-      )
-    : []
+  const rsvpName = myRsvp?.guest_name?.toLowerCase() || ''
+  const storedName = localStorage.getItem('piky_guest_name')?.toLowerCase() || ''
+  const myCollectiveContributions = (event?.contributions || []).filter((c) => {
+    const name = c.contributor_name?.toLowerCase()
+    return c.status === 'completed' && name && (
+      (rsvpName && name === rsvpName) || (storedName && name === storedName)
+    )
+  })
   const myCollectiveTotal = myCollectiveContributions.reduce((acc, c) => acc + parseFloat(c.amount), 0)
 
   const rsvpYesCount = event?.rsvp?.filter((r) => r.status === 'yes').length || 0
