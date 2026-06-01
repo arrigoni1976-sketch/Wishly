@@ -375,18 +375,38 @@ export default function GuestWishlistPage() {
   const fetchEvent = async () => {
     try {
       const res = await getEventByGuestToken(guestToken)
-      setEvent(res.data)
+      const data = res.data
+      setEvent(data)
+
       // Salva l'invito nel localStorage per ritrovarlo dalla homepage
       const saved = JSON.parse(localStorage.getItem('piky_invites') || '[]')
       const alreadySaved = saved.find((e) => e.guestToken === guestToken)
       if (!alreadySaved) {
         saved.unshift({
-          childName: res.data.child_name,
-          partyDate: res.data.party_date,
+          childName: data.child_name,
+          partyDate: data.party_date,
           guestToken,
           visitedAt: new Date().toISOString(),
         })
         localStorage.setItem('piky_invites', JSON.stringify(saved.slice(0, 20)))
+      }
+
+      // Auto-recover RSVP and gift reservations if guest name is known
+      const storedName = localStorage.getItem('piky_guest_name')
+      if (storedName) {
+        if (!localStorage.getItem(`piky_rsvp_${guestToken}`)) {
+          const found = data.rsvp?.find(
+            (r) => r.guest_name?.toLowerCase() === storedName.toLowerCase()
+          )
+          if (found) {
+            setMyRsvp(found)
+            localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(found))
+          }
+        }
+        const reservedByMe = (data.gifts || [])
+          .filter((g) => g.reserved_by?.toLowerCase() === storedName.toLowerCase())
+          .map((g) => g.id)
+        if (reservedByMe.length > 0) setMyReservations(reservedByMe)
       }
     } catch {
       setError('Lista non trovata o link non valido.')
@@ -396,46 +416,6 @@ export default function GuestWishlistPage() {
   }
 
   useEffect(() => { fetchEvent() }, [guestToken])
-
-  // Register invite under personal key (non-blocking)
-  useEffect(() => {
-    if (!event) return
-    const userKey = localStorage.getItem('piky_user_key')
-    if (userKey) {
-      addUserKeyLink(userKey, {
-        linkType: 'invite',
-        token: guestToken,
-        childName: event.child_name,
-        partyDate: event.party_date,
-      }).catch(() => {})
-    }
-  }, [event])
-
-  // Auto-recover RSVP and gift reservations from server if name is known
-  useEffect(() => {
-    if (!event) return
-    const storedName = localStorage.getItem('piky_guest_name')
-    if (!storedName) return
-
-    // Recover RSVP
-    if (!myRsvp) {
-      const found = event.rsvp?.find(
-        (r) => r.guest_name?.toLowerCase() === storedName.toLowerCase()
-      )
-      if (found) {
-        setMyRsvp(found)
-        localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(found))
-      }
-    }
-
-    // Recover gift reservations
-    const reservedByMe = (event.gifts || [])
-      .filter((g) => g.reserved_by?.toLowerCase() === storedName.toLowerCase())
-      .map((g) => g.id)
-    if (reservedByMe.length > 0) {
-      setMyReservations(reservedByMe)
-    }
-  }, [event])
 
   // Track view silently after 2s — named if RSVP already known
   useEffect(() => {
