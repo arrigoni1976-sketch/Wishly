@@ -70,7 +70,7 @@ const STEPS = [
     number: '01',
     title: 'Crea la lista',
     description:
-      'Inserisci i dettagli della festa: nome del bambino, date, luogo e i regali desiderati con link Amazon o negozio.',
+      'Inserisci i dettagli della festa: nome del festeggiato, date, luogo e i regali desiderati con link Amazon o negozio.',
   },
   {
     number: '02',
