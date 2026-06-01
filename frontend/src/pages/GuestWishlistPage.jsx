@@ -115,7 +115,13 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
     try {
       let res
       if (existingRsvp?.id) {
-        res = await updateRsvp(existingRsvp.id, { status, childrenCount, withPartner })
+        res = await updateRsvp(existingRsvp.id, {
+          status,
+          childrenCount,
+          withPartner,
+          guestName: guestName.trim(),
+          guestEmail: guestEmail.trim(),
+        })
       } else {
         res = await submitRsvp(eventId, {
           guestName: guestName.trim(),
@@ -253,8 +259,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
     <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-4 animate-fade-in">
       <h3 className="font-display font-bold text-gray-900">La tua risposta</h3>
 
-      {!existingRsvp && (
-        <div className="grid sm:grid-cols-2 gap-3">
+      <div className="grid sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Il tuo nome *</label>
             <input
@@ -275,7 +280,6 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
             />
           </div>
         </div>
-      )}
 
       <div>
         <label className="label">Parteciperai?</label>
