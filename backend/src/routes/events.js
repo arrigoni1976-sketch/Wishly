@@ -311,7 +311,7 @@ router.post('/:id/gifts', async (req, res, next) => {
 // ─── POST /api/events/:id/rsvp — Submit RSVP ────────────────────────────────
 router.post('/:id/rsvp', async (req, res, next) => {
   try {
-    const { guestName, guestEmail, status, childrenCount, withPartner } = req.body
+    const { guestName, guestEmail, status, childrenCount, adultsCount } = req.body
 
     if (!guestName || !status) {
       return res.status(400).json({ message: 'guestName e status obbligatori' })
@@ -332,7 +332,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
     if (existing) {
       const { data, error } = await supabase
         .from('rsvp')
-        .update({ status, children_count: childrenCount || 0, with_partner: withPartner ?? false, updated_at: new Date().toISOString() })
+        .update({ status, children_count: childrenCount || 0, adults_count: adultsCount ?? 1, updated_at: new Date().toISOString() })
         .eq('id', existing.id)
         .select()
         .single()
@@ -349,7 +349,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
         guest_email: guestEmail || null,
         status,
         children_count: childrenCount || 0,
-        with_partner: withPartner ?? false,
+        adults_count: adultsCount ?? 1,
       })
       .select()
       .single()

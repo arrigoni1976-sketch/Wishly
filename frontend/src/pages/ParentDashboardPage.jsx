@@ -264,7 +264,7 @@ export default function ParentDashboardPage() {
   const rsvpMaybe = event.rsvp?.filter((r) => r.status === 'maybe') || []
   const rsvpNo = event.rsvp?.filter((r) => r.status === 'no') || []
   const totalChildren = rsvpYes.reduce((acc, r) => acc + (r.children_count || 0), 0)
-  const totalAdults = rsvpYes.reduce((acc, r) => acc + (r.with_partner ? 2 : 1), 0)
+  const totalAdults = rsvpYes.reduce((acc, r) => acc + (r.adults_count || (r.with_partner ? 2 : 1)), 0)
   const reservedCount = event.gifts?.filter((g) => g.reserved_by).length || 0
   const openedCount = event.link_views?.reduce((acc, v) => acc + (v.view_count || 1), 0) || 0
 
@@ -521,8 +521,10 @@ export default function ParentDashboardPage() {
                   <div key={r.id} className="flex items-center justify-between text-sm">
                     <div>
                       <span className="font-medium text-gray-700">{r.guest_name}</span>
-                      {r.with_partner && (
-                        <span className="ml-2 text-gray-400 text-xs">+ partner</span>
+                      {(r.adults_count > 1 || r.with_partner) && (
+                        <span className="ml-2 text-gray-400 text-xs">
+                          {r.adults_count > 1 ? `${r.adults_count} adulti` : '+ partner'}
+                        </span>
                       )}
                       {r.children_count > 0 && (
                         <span className="ml-2 text-gray-400 text-xs">

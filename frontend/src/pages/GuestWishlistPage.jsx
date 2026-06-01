@@ -103,7 +103,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
   const [guestEmail, setGuestEmail] = useState(existingRsvp?.guest_email || '')
   const [status, setStatus] = useState(existingRsvp?.status || '')
   const [childrenCount, setChildrenCount] = useState(existingRsvp?.children_count || 0)
-  const [withPartner, setWithPartner] = useState(existingRsvp?.with_partner || false)
+  const [adultsCount, setAdultsCount] = useState(existingRsvp?.adults_count || 1)
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [recoverName, setRecoverName] = useState('')
@@ -118,7 +118,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
         res = await updateRsvp(existingRsvp.id, {
           status,
           childrenCount,
-          withPartner,
+          adultsCount,
           guestName: guestName.trim(),
           guestEmail: guestEmail.trim(),
         })
@@ -128,7 +128,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
           guestEmail: guestEmail.trim(),
           status,
           childrenCount,
-          withPartner,
+          adultsCount,
         })
       }
       onRsvpSaved(res.data)
@@ -289,47 +289,48 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
       {status === 'yes' && (
         <>
           <div>
-            <label className="label">Vieni con qualcuno?</label>
-            <div className="flex rounded-xl border border-avorio-dark overflow-hidden text-sm">
-              <button
-                type="button"
-                onClick={() => setWithPartner(false)}
-                className={`flex-1 py-2.5 font-medium transition-colors ${
-                  !withPartner ? 'bg-salvia text-white' : 'text-gray-500 hover:bg-avorio'
-                }`}
-              >
-                Solo/a
-              </button>
-              <button
-                type="button"
-                onClick={() => setWithPartner(true)}
-                className={`flex-1 py-2.5 font-medium transition-colors ${
-                  withPartner ? 'bg-salvia text-white' : 'text-gray-500 hover:bg-avorio'
-                }`}
-              >
-                Con il/la mio partner
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="label">Porti bambini? (quanti)</label>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setChildrenCount((n) => Math.max(0, n - 1))}
-                className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
-              >
-                −
-              </button>
-              <span className="text-lg font-bold text-gray-800 w-6 text-center">{childrenCount}</span>
-              <button
-                type="button"
-                onClick={() => setChildrenCount((n) => n + 1)}
-                className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
-              >
-                +
-              </button>
+            <label className="label">In quanti sarete?</label>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Adulti</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setAdultsCount((n) => Math.max(1, n - 1))}
+                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
+                  >
+                    −
+                  </button>
+                  <span className="text-lg font-bold text-gray-800 w-6 text-center">{adultsCount}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAdultsCount((n) => n + 1)}
+                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Bambini</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setChildrenCount((n) => Math.max(0, n - 1))}
+                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
+                  >
+                    −
+                  </button>
+                  <span className="text-lg font-bold text-gray-800 w-6 text-center">{childrenCount}</span>
+                  <button
+                    type="button"
+                    onClick={() => setChildrenCount((n) => n + 1)}
+                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </>
