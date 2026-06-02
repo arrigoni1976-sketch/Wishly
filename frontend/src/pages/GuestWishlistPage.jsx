@@ -507,9 +507,10 @@ export default function GuestWishlistPage() {
   })
   const myCollectiveTotal = myCollectiveContributions.reduce((acc, c) => acc + parseFloat(c.amount), 0)
 
-  const rsvpYesCount = event?.rsvp?.filter((r) => r.status === 'yes').length || 0
-  const totalChildren = event?.rsvp?.filter((r) => r.status === 'yes')
-    .reduce((acc, r) => acc + (r.children_count || 0), 0) || 0
+  const rsvpYes = event?.rsvp?.filter((r) => r.status === 'yes') || []
+  const rsvpYesCount = rsvpYes.length
+  const totalAdults = rsvpYes.reduce((acc, r) => acc + (r.adults_count || (r.with_partner ? 2 : 1)), 0)
+  const totalChildren = rsvpYes.reduce((acc, r) => acc + (r.children_count || 0), 0)
 
   if (loading) {
     return (
@@ -579,9 +580,8 @@ export default function GuestWishlistPage() {
           >
             <Users className="w-4 h-4" />
             {rsvpYesCount > 0
-              ? `${rsvpYesCount} ${rsvpYesCount === 1 ? 'persona confermata' : 'persone confermate'}`
+              ? `${totalAdults + totalChildren} confermati · ${totalAdults} adulti${totalChildren > 0 ? ` · ${totalChildren} bambini` : ''}`
               : 'Nessuna conferma ancora'}
-            {totalChildren > 0 && ` · ${totalChildren} bambini`}
             {rsvpYesCount > 0 && <span className="text-green-500 text-xs ml-1">›</span>}
           </button>
 
@@ -881,8 +881,7 @@ export default function GuestWishlistPage() {
                 ))}
             </ul>
             <p className="text-xs text-gray-400 text-center">
-              {rsvpYesCount} {rsvpYesCount === 1 ? 'persona confermata' : 'persone confermate'}
-              {totalChildren > 0 && ` · ${totalChildren} bambini`}
+              {totalAdults + totalChildren} confermati · {totalAdults} adulti{totalChildren > 0 ? ` · ${totalChildren} bambini` : ''}
             </p>
           </div>
         </div>
