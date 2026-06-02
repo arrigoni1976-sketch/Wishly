@@ -9,9 +9,10 @@ export default function GiftCard({
   onCancelReservation,
   onEdit,
   onDelete,
+  defaultGuestName = '',
 }) {
   const [showReserveForm, setShowReserveForm] = useState(false)
-  const [guestName, setGuestName] = useState('')
+  const [guestName, setGuestName] = useState(defaultGuestName)
   const [loading, setLoading] = useState(false)
   const [reserveError, setReserveError] = useState('')
 

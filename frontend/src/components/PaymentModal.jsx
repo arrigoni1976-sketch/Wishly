@@ -4,11 +4,11 @@ import clsx from 'clsx'
 
 const QUICK_AMOUNTS = [10, 20, 30, 50]
 
-export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit, paypalEmail, fixedAmount }) {
+export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit, paypalEmail, fixedAmount, defaultName = '' }) {
   const remaining = Math.max(0, goal - collected)
   const [amount, setAmount] = useState('')
   const [customAmount, setCustomAmount] = useState(false)
-  const [name, setName] = useState('')
+  const [name, setName] = useState(defaultName)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 

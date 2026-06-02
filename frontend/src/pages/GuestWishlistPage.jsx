@@ -783,6 +783,7 @@ export default function GuestWishlistPage() {
                     mode="guest"
                     onReserve={handleReserve}
                     onCancelReservation={handleCancelReservation}
+                    defaultGuestName={myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''}
                   />
                 ))}
 

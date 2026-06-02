@@ -404,6 +404,7 @@ export default function CollectiveGiftPage() {
         onSubmit={handleContribute}
         paypalEmail={event?.paypal_email}
         fixedAmount={event?.collective_fixed_quota}
+        defaultName={myContributions[0]?.contributor_name || localStorage.getItem('piky_guest_name') || ''}
       />
     </Layout>
   )
