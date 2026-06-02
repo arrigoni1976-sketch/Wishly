@@ -9,7 +9,7 @@ export default function Layout({ children, showNav = true }) {
       <footer className="py-8 text-center text-sm text-gray-400 border-t border-avorio-dark space-y-1">
         <p>
           © {new Date().getFullYear()} Piky — Fatto con{' '}
-          <span className="text-cipria-dark">♥</span> per il compleanno speciale
+          <span className="text-cipria-dark">♥</span> per compleanni speciali
         </p>
         <p className="text-xs text-gray-300">
           <Link to="/privacy" className="underline hover:text-gray-400 transition-colors">
