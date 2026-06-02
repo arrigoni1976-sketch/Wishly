@@ -11,6 +11,9 @@ export default defineConfig({
       workbox: {
         // Cache tutte le pagine e le risorse statiche
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
+        // Serve index.html per qualsiasi route SPA non trovata in cache (essenziale per PWA)
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//],
         // Strategia network-first per le API, cache-first per gli asset
         runtimeCaching: [
           {
@@ -110,6 +113,9 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    target: ['es2015', 'safari13'],
+  },
   server: {
     port: 3000,
     proxy: {
