@@ -343,6 +343,14 @@ export default function ParentDashboardPage() {
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
                 <span className="inline-flex items-center gap-1"><GiftIcon size={14} /> {reservedCount}/{event.gifts?.length || 0} prenotati</span>
               </div>
+              {event.collective_enabled && event.collective_goal > 0 && (
+                <div className="bg-salvia/10 text-salvia rounded-xl px-3 py-1.5 text-sm font-medium">
+                  <span className="inline-flex items-center gap-1">
+                    <HeartRibbonIcon size={14} />
+                    {Math.round(Math.min(100, ((event.collective_amount || 0) / event.collective_goal) * 100))}% collettivo
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
