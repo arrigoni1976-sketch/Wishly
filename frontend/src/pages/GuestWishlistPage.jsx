@@ -740,12 +740,19 @@ export default function GuestWishlistPage() {
                     </p>
                   </>
                 )}
-                {myCollectiveTotal === 0 && (
+                {myCollectiveTotal === 0 ? (
                   <a
                     href={`${baseUrl}/collettivo/${event.collective_token}`}
                     className="btn-primary text-sm py-2 px-4 inline-block"
                   >
                     Contribuisci
+                  </a>
+                ) : (
+                  <a
+                    href={`${baseUrl}/collettivo/${event.collective_token}`}
+                    className="text-xs text-gray-400 hover:text-salvia transition-colors"
+                  >
+                    + Aggiungi un altro contributo
                   </a>
                 )}
               </div>
