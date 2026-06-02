@@ -6,7 +6,7 @@ import ProgressBar from '../components/ProgressBar'
 import PaymentModal from '../components/PaymentModal'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByCollectiveToken, createContribution, updateContribution } from '../lib/api'
+import { getEventByCollectiveToken, createContribution, updateContribution, addUserKeyLink } from '../lib/api'
 import { syncFromServer } from '../lib/sync'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -63,6 +63,17 @@ export default function CollectiveGiftPage() {
 
   useEffect(() => { fetchEvent() }, [collectiveToken])
 
+  const saveNameToKey = (name) => {
+    const userKey = localStorage.getItem('piky_user_key')
+    if (userKey && name) {
+      addUserKeyLink(userKey, {
+        linkType: 'collective',
+        token: collectiveToken,
+        guestName: name,
+      }).catch(() => {})
+    }
+  }
+
   const handleContribute = async ({ method, amount, name }) => {
     await createContribution(event.id, {
       contributorName: name,
@@ -71,6 +82,7 @@ export default function CollectiveGiftPage() {
       collectiveToken,
     })
     localStorage.setItem('piky_guest_name', name)
+    saveNameToKey(name)
     await fetchEvent()
     const msg = method === 'paypal'
       ? `Grazie ${name}! 🎉 Il tuo contributo di €${amount.toFixed(2)} è stato registrato. Il totale si aggiornerà non appena Piky avrà ricevuto la conferma del pagamento PayPal.`
@@ -116,6 +128,7 @@ export default function CollectiveGiftPage() {
     const found = findMyContributions(event.contributions, name)
     if (found.length > 0) {
       localStorage.setItem('piky_guest_name', name)
+      saveNameToKey(name)
       setMyContributions(found)
       setRecovering(false)
       setRecoverName('')

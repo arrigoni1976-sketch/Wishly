@@ -36,8 +36,8 @@ export async function syncFromServer(key) {
       changed = true
     }
 
-    // Restore guest name if saved on server (enables cross-browser RSVP recovery)
-    if (link.link_type === 'invite' && link.guest_name && !localStorage.getItem('piky_guest_name')) {
+    // Restore guest name from any saved link (invite or collective contribution)
+    if ((link.link_type === 'invite' || link.link_type === 'collective') && link.guest_name && !localStorage.getItem('piky_guest_name')) {
       localStorage.setItem('piky_guest_name', link.guest_name)
     }
   }
