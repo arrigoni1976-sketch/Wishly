@@ -3,7 +3,7 @@ import { useParams, Link, useSearchParams } from 'react-router-dom'
 import {
   Gift, Users, Plus, Calendar, MapPin,
   Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
-  Baby, AlertCircle, Share2
+  Baby, AlertCircle, Share2, MessageSquare
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
@@ -150,6 +150,7 @@ export default function ParentDashboardPage() {
   const [showRsvp, setShowRsvp] = useState(true)
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [reminderCopied, setReminderCopied] = useState(false)
   const [collectiveModal, setCollectiveModal] = useState(false)
   const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
@@ -372,6 +373,59 @@ export default function ParentDashboardPage() {
             <Share2 className="w-4 h-4" />
             {copied ? 'Link copiato!' : 'Condividi invito'}
           </button>
+        </div>
+
+        {/* ── Promemoria invitati ──────────────────────────────────────── */}
+        <div className="card">
+          <div className="flex items-center gap-2 mb-1">
+            <MessageSquare className="w-5 h-5 text-salvia" />
+            <h2 className="font-display font-bold text-lg text-gray-900">Promemoria invitati</h2>
+          </div>
+          <p className="text-sm text-gray-500 mb-4">
+            Manda questo messaggio a chi non ha ancora risposto.
+          </p>
+          <div className="bg-avorio rounded-2xl border border-avorio-dark p-4 text-sm text-gray-700 leading-relaxed mb-4 whitespace-pre-line">{(() => {
+            const link = `${baseUrl}/lista/${event.guest_token}`
+            const dateStr = event.party_date
+              ? format(new Date(event.party_date), "d MMMM", { locale: it })
+              : ''
+            const timeStr = event.party_time ? ` alle ${event.party_time.slice(0, 5)}` : ''
+            const locationStr = event.location ? ` — ${event.location}` : ''
+            return `Ciao! Ti ricordo il compleanno di ${event.child_name} il ${dateStr}${timeStr}${locationStr}.\n\nSe non hai ancora risposto, puoi farlo qui:\n${link}`
+          })()}</div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                const link = `${baseUrl}/lista/${event.guest_token}`
+                const dateStr = event.party_date ? format(new Date(event.party_date), "d MMMM", { locale: it }) : ''
+                const timeStr = event.party_time ? ` alle ${event.party_time.slice(0, 5)}` : ''
+                const locationStr = event.location ? ` — ${event.location}` : ''
+                const msg = `Ciao! Ti ricordo il compleanno di ${event.child_name} il ${dateStr}${timeStr}${locationStr}.\n\nSe non hai ancora risposto, puoi farlo qui:\n${link}`
+                navigator.clipboard.writeText(msg).catch(() => {})
+                setReminderCopied(true)
+                setTimeout(() => setReminderCopied(false), 2500)
+              }}
+              className="flex-1 btn-outline text-sm py-2.5 flex items-center justify-center gap-2"
+            >
+              {reminderCopied ? <><Check className="w-4 h-4 text-salvia" /> Copiato!</> : 'Copia messaggio'}
+            </button>
+            <a
+              href={(() => {
+                const link = `${baseUrl}/lista/${event.guest_token}`
+                const dateStr = event.party_date ? format(new Date(event.party_date), "d MMMM", { locale: it }) : ''
+                const timeStr = event.party_time ? ` alle ${event.party_time.slice(0, 5)}` : ''
+                const locationStr = event.location ? ` — ${event.location}` : ''
+                const msg = `Ciao! Ti ricordo il compleanno di ${event.child_name} il ${dateStr}${timeStr}${locationStr}.\n\nSe non hai ancora risposto, puoi farlo qui:\n${link}`
+                return `https://wa.me/?text=${encodeURIComponent(msg)}`
+              })()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 bg-[#25D366] text-white text-sm font-medium py-2.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-[#1ebe5d] transition-colors"
+            >
+              <MessageSquare className="w-4 h-4" />
+              WhatsApp
+            </a>
+          </div>
         </div>
 
         {/* ── Regalo collettivo ────────────────────────────────────────── */}
