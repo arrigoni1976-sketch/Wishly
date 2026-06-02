@@ -303,12 +303,15 @@ export default function CollectiveGiftPage() {
               {/* Recupero manuale per nome */}
               {recovering ? (
                 <div className="bg-white border border-avorio-dark rounded-2xl p-4 space-y-3 animate-fade-in">
-                  <p className="text-sm font-semibold text-gray-800">Ritrova il tuo contributo</p>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">Ritrova il tuo contributo</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Inserisci il nome che hai usato quando hai contribuito (non il codice chiave)</p>
+                  </div>
                   <input
                     value={recoverName}
                     onChange={(e) => { setRecoverName(e.target.value); setRecoverError('') }}
                     className="input"
-                    placeholder="Nome Cognome"
+                    placeholder="Es. Mario Rossi"
                     onKeyDown={(e) => e.key === 'Enter' && handleRecover()}
                   />
                   {recoverError && <p className="text-xs text-red-500">{recoverError}</p>}
