@@ -335,8 +335,7 @@ export default function ParentDashboardPage() {
               >
                 <span className="inline-flex items-center gap-1">
                   <CelebrationIcon size={14} />
-                  {rsvpYes.length} confermati · {totalAdults} adulti
-                  {totalChildren > 0 && <> · <Baby className="w-3.5 h-3.5 inline" /> {totalChildren} bambini</>}
+                  {rsvpYes.length} confermati · {totalAdults + totalChildren} persone
                 </span>
               </button>
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
