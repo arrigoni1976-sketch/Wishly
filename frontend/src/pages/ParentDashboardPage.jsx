@@ -333,13 +333,12 @@ export default function ParentDashboardPage() {
                 onClick={() => { setShowRsvp(true); document.getElementById('rsvp-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
                 className="bg-green-50 text-green-700 rounded-xl px-3 py-1.5 text-sm font-medium hover:bg-green-100 transition-colors"
               >
-                <span className="inline-flex items-center gap-1"><CelebrationIcon size={14} /> {rsvpYes.length} confermati · {totalAdults} adulti</span>
+                <span className="inline-flex items-center gap-1">
+                  <CelebrationIcon size={14} />
+                  {rsvpYes.length} confermati · {totalAdults} adulti
+                  {totalChildren > 0 && <> · <Baby className="w-3.5 h-3.5 inline" /> {totalChildren} bambini</>}
+                </span>
               </button>
-              {totalChildren > 0 && (
-                <div className="bg-blue-50 text-blue-700 rounded-xl px-3 py-1.5 text-sm font-medium">
-                  <span className="inline-flex items-center gap-1"><Baby className="w-3.5 h-3.5" /> {totalChildren} bambini</span>
-                </div>
-              )}
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
                 <span className="inline-flex items-center gap-1"><GiftIcon size={14} /> {reservedCount}/{event.gifts?.length || 0} prenotati</span>
               </div>
