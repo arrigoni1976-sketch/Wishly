@@ -10,6 +10,7 @@ export default function GiftCard({
   onEdit,
   onDelete,
   defaultGuestName = '',
+  hasRsvp = true,
 }) {
   const [showReserveForm, setShowReserveForm] = useState(false)
   const [guestName, setGuestName] = useState(defaultGuestName)
@@ -157,6 +158,14 @@ export default function GiftCard({
             </button>
           ) : (
             <div className="space-y-3 animate-fade-in">
+              {!hasRsvp && (
+                <div className="bg-cipria/30 border border-cipria rounded-xl px-3 py-2.5 text-xs text-gray-600">
+                  <span className="font-semibold">Prima di prenotare</span>, facci sapere se riesci a venire!{' '}
+                  <a href="#rsvp" className="text-salvia font-medium underline underline-offset-2">
+                    Conferma la presenza →
+                  </a>
+                </div>
+              )}
               <input
                 type="text"
                 value={guestName}

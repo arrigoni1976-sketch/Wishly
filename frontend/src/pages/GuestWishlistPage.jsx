@@ -671,6 +671,7 @@ export default function GuestWishlistPage() {
         </div>
 
         {/* ── RSVP ────────────────────────────────────────────────────── */}
+        <div id="rsvp">
         <RsvpSection
           eventId={event.id}
           existingRsvp={myRsvp}
@@ -678,6 +679,7 @@ export default function GuestWishlistPage() {
           serverRsvps={event.rsvp || []}
           eventData={event}
         />
+        </div>
 
         {/* ── Welcome / invitation message — seconda parte ─────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark px-6 py-4 space-y-3">
@@ -784,6 +786,7 @@ export default function GuestWishlistPage() {
                     onReserve={handleReserve}
                     onCancelReservation={handleCancelReservation}
                     defaultGuestName={myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''}
+                    hasRsvp={!!myRsvp}
                   />
                 ))}
 
