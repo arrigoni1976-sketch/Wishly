@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import {
-  Gift, Users, Eye, EyeOff, Plus, Calendar, MapPin,
+  Gift, Users, Plus, Calendar, MapPin,
   Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
   Baby, AlertCircle, Share2
 } from 'lucide-react'
@@ -148,7 +148,6 @@ export default function ParentDashboardPage() {
   const [error, setError] = useState('')
   const [giftModal, setGiftModal] = useState({ open: false, data: null })
   const [showRsvp, setShowRsvp] = useState(true)
-  const [showViews, setShowViews] = useState(false)
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
   const [collectiveModal, setCollectiveModal] = useState(false)
@@ -266,7 +265,6 @@ export default function ParentDashboardPage() {
   const totalChildren = rsvpYes.reduce((acc, r) => acc + (r.children_count || 0), 0)
   const totalAdults = rsvpYes.reduce((acc, r) => acc + (r.adults_count || (r.with_partner ? 2 : 1)), 0)
   const reservedCount = event.gifts?.filter((g) => g.reserved_by).length || 0
-  const openedCount = event.link_views?.reduce((acc, v) => acc + (v.view_count || 1), 0) || 0
 
   return (
     <Layout>
@@ -344,9 +342,6 @@ export default function ParentDashboardPage() {
               )}
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
                 <span className="inline-flex items-center gap-1"><GiftIcon size={14} /> {reservedCount}/{event.gifts?.length || 0} prenotati</span>
-              </div>
-              <div className="bg-avorio-dark text-gray-600 rounded-xl px-3 py-1.5 text-sm font-medium">
-                <span className="inline-flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {openedCount} hanno aperto</span>
               </div>
             </div>
           </div>
@@ -542,39 +537,6 @@ export default function ParentDashboardPage() {
           )}
         </div>
 
-        {/* ── Chi ha aperto il link ────────────────────────────────────── */}
-        <div className="card">
-          <button
-            onClick={() => setShowViews((v) => !v)}
-            className="w-full flex items-center justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <h2 className="font-display font-bold text-lg text-gray-900">Accessi al link</h2>
-              <span className="text-sm text-gray-400">{openedCount} invitati hanno aperto</span>
-            </div>
-            {showViews ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
-          </button>
-
-          {showViews && (
-            <div className="mt-4 border-t border-avorio-dark pt-4 space-y-2">
-              {event.link_views?.length > 0 ? (
-                event.link_views.map((v) => (
-                  <div key={v.id} className="flex items-center justify-between text-sm">
-                    <span className={v.guest_name ? 'font-medium text-gray-700' : 'text-gray-400 italic text-xs'}>
-                      {v.guest_name || 'Visitatori anonimi'}
-                    </span>
-                    <div className="flex items-center gap-3 text-gray-400 text-xs">
-                      <span>{v.view_count}x</span>
-                      <span>{format(new Date(v.last_viewed_at), 'd MMM · HH:mm', { locale: it })}</span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-400 text-center py-2">Nessuna visualizzazione ancora</p>
-              )}
-            </div>
-          )}
-        </div>
       </div>
 
       {/* ── Gift Modal ──────────────────────────────────────────────────── */}
