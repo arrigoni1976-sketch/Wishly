@@ -106,28 +106,30 @@ export async function sendEventCreatedEmail({
 // ─── Email: promemoria 2 giorni prima ────────────────────────────────────────
 
 export async function sendPartyReminderEmail({ to, childName, partyDate, partyTime, location, guestToken }) {
-  const subject = `🎈 Wishly — La festa di ${childName} è fra 2 giorni!`
+  const subject = `Piky — Mancano solo 2 giorni al compleanno di ${childName}!`
   const html = `
     <div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
       <div style="background: #E8C4B8; padding: 32px; border-radius: 16px 16px 0 0; text-align: center;">
-        <h1 style="color: #1a1a1a; font-size: 28px; margin: 0; font-family: Georgia, serif;">
-          🎈 Mancano 2 giorni!
+        <p style="font-size: 13px; font-weight: 600; color: #4A7A50; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 12px;">Piky</p>
+        <h1 style="color: #1a1a1a; font-size: 24px; margin: 0; font-family: Georgia, serif; line-height: 1.4;">
+          Ricordi? Mancano solo 2 giorni<br>al compleanno di ${childName}.
         </h1>
       </div>
       <div style="background: #FAF7F2; padding: 32px; border-radius: 0 0 16px 16px; border: 1px solid #F0EBE3;">
-        <h2 style="font-family: Georgia, serif; font-size: 22px; margin: 0 0 8px;">
-          Compleanno di ${childName}
-        </h2>
-        <p style="color: #666; margin: 0 0 24px;">
+        <p style="color: #444; font-size: 15px; margin: 0 0 8px; line-height: 1.6;">
+          Non vediamo l'ora di vederti e festeggiare insieme.
+        </p>
+        <p style="color: #444; font-size: 15px; margin: 0 0 24px;">A presto!</p>
+        <p style="color: #666; font-size: 14px; margin: 0 0 28px;">
           ${formatDate(partyDate)}${partyTime ? ` · ${partyTime.slice(0,5)}` : ''}${location ? `<br>${location}` : ''}
         </p>
         <a href="${BASE}/lista/${guestToken}"
            style="background: #4A7A50; color: white; padding: 14px 28px; border-radius: 12px;
                   text-decoration: none; font-weight: 600; display: inline-block;">
-          Vedi la lista 🎁
+          Vedi la lista regali
         </a>
-        <p style="color: #999; font-size: 13px; margin: 24px 0 0;">
-          Hai ancora tempo per prenotare un regalo!
+        <p style="color: #bbb; font-size: 11px; margin: 20px 0 0; font-style: italic;">
+          Hai ancora tempo per prenotare un regalo.
         </p>
       </div>
     </div>
