@@ -5,15 +5,15 @@ import { supabase } from '../lib/supabase.js'
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: parseInt(process.env.SMTP_PORT || '465') === 465,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
 })
 
-const FROM = process.env.SMTP_FROM || 'Wishly 🎁 <noreply@wishly.app>'
+const FROM = process.env.SMTP_FROM || 'Piky <noreply@pikyapp.it>'
 const BASE = process.env.FRONTEND_URL || 'http://localhost:3000'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
