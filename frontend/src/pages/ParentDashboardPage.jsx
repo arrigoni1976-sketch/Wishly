@@ -546,22 +546,16 @@ export default function ParentDashboardPage() {
           )}
         </div>
 
-        {/* ── Ringraziamenti post-festa ────────────────────────────────── */}
-        {(() => {
-          if (!event.party_date) return null
-          const timeStr = event.party_time ? event.party_time.slice(0, 5) : '00:00'
-          const partyEnd = new Date(`${event.party_date}T${timeStr}:00`)
-          partyEnd.setHours(partyEnd.getHours() + 3)
-          if (false && partyEnd > new Date()) return null // temp: always visible for preview
-          return (
-            <div className="card">
-              <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
-                <CelebrationIcon size={20} />
-                Ringrazia gli invitati
-              </h2>
-              <p className="text-sm text-gray-500 mb-4">
-                Scrivi un messaggio e condividilo su WhatsApp con i tuoi ospiti.
-              </p>
+        {/* ── Ringraziamenti ───────────────────────────────────────────── */}
+        {event.party_date && (
+          <div className="card">
+            <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
+              <CelebrationIcon size={20} />
+              Ringrazia gli invitati
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Ricordati di ringraziare chi ha partecipato alla festa, scrivi un messaggio e condividilo su WhatsApp.
+            </p>
               <div className="space-y-3">
                 <textarea
                   value={thankYouMsg}
@@ -596,8 +590,8 @@ export default function ParentDashboardPage() {
                 </div>
               </div>
             </div>
-          )
-        })()}
+          </div>
+        )}
 
       </div>
 
