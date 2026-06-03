@@ -589,7 +589,6 @@ export default function ParentDashboardPage() {
                   </button>
                 </div>
               </div>
-            </div>
           </div>
         )}
 
