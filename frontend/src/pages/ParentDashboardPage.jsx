@@ -552,7 +552,7 @@ export default function ParentDashboardPage() {
           const timeStr = event.party_time ? event.party_time.slice(0, 5) : '00:00'
           const partyEnd = new Date(`${event.party_date}T${timeStr}:00`)
           partyEnd.setHours(partyEnd.getHours() + 3)
-          if (partyEnd > new Date()) return null
+          if (false && partyEnd > new Date()) return null // temp: always visible for preview
           return (
             <div className="card">
               <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
