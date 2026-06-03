@@ -3,7 +3,7 @@ import { useParams, Link, useSearchParams } from 'react-router-dom'
 import {
   Gift, Users, Plus, Calendar, MapPin,
   Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
-  Baby, AlertCircle, Share2
+  Baby, AlertCircle, Share2, MessageCircle, Copy
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
@@ -154,8 +154,7 @@ export default function ParentDashboardPage() {
   const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
   const [thankYouMsg, setThankYouMsg] = useState('')
-  const [thankYouSending, setThankYouSending] = useState(false)
-  const [thankYouResult, setThankYouResult] = useState(null)
+  const [msgCopied, setMsgCopied] = useState(false)
 
   const baseUrl = window.location.origin
 
@@ -183,23 +182,6 @@ export default function ParentDashboardPage() {
       console.error(e)
     } finally {
       setCollectiveSaving(false)
-    }
-  }
-
-  const handleSendThankYou = async () => {
-    if (!thankYouMsg.trim()) return
-    setThankYouSending(true)
-    setThankYouResult(null)
-    try {
-      const res = await sendThankYouEmails(event.id, {
-        parentToken,
-        message: thankYouMsg.trim(),
-      })
-      setThankYouResult(res.data)
-    } catch {
-      setThankYouResult({ error: true })
-    } finally {
-      setThankYouSending(false)
     }
   }
 
@@ -565,45 +547,57 @@ export default function ParentDashboardPage() {
         </div>
 
         {/* ── Ringraziamenti post-festa ────────────────────────────────── */}
-        {event.party_date && new Date(event.party_date) < new Date() && (
-          <div className="card">
-            <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
-              <Mail className="w-5 h-5 text-cipria-dark" />
-              Invia un ringraziamento
-            </h2>
-            <p className="text-sm text-gray-500 mb-4">
-              Scrivi un messaggio di ringraziamento — verrà inviato via email a tutti gli ospiti che hanno confermato la presenza e lasciato la propria email.
-            </p>
-
-            {thankYouResult ? (
-              <div className={`rounded-2xl px-4 py-3 text-sm font-medium ${thankYouResult.error ? 'bg-red-50 text-red-600' : 'bg-salvia/10 text-salvia'}`}>
-                {thankYouResult.error
-                  ? 'Errore durante l\'invio. Riprova.'
-                  : thankYouResult.sent === 0
-                  ? 'Nessun ospite ha lasciato un\'email — non è stato inviato nulla.'
-                  : `Inviato a ${thankYouResult.sent} ospite${thankYouResult.sent !== 1 ? 'i' : ''}${thankYouResult.failed > 0 ? ` · ${thankYouResult.failed} falliti` : ''}. Grazie!`}
-              </div>
-            ) : (
+        {(() => {
+          if (!event.party_date) return null
+          const timeStr = event.party_time ? event.party_time.slice(0, 5) : '00:00'
+          const partyEnd = new Date(`${event.party_date}T${timeStr}:00`)
+          partyEnd.setHours(partyEnd.getHours() + 3)
+          if (partyEnd > new Date()) return null
+          return (
+            <div className="card">
+              <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-cipria-dark" />
+                Ringrazia gli invitati
+              </h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Scrivi un messaggio e condividilo su WhatsApp con i tuoi ospiti.
+              </p>
               <div className="space-y-3">
                 <textarea
                   value={thankYouMsg}
                   onChange={(e) => setThankYouMsg(e.target.value)}
-                  placeholder={`Caro/a [nome],\n\nGrazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}!`}
-                  rows={5}
+                  placeholder={`Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`}
+                  rows={4}
                   className="input resize-none text-sm"
                 />
-                <button
-                  onClick={handleSendThankYou}
-                  disabled={!thankYouMsg.trim() || thankYouSending}
-                  className="btn-primary w-full py-3 flex items-center justify-center gap-2"
-                >
-                  <Mail className="w-4 h-4" />
-                  {thankYouSending ? 'Invio in corso...' : 'Invia ringraziamenti'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      const text = thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+                    }}
+                    className="flex-1 btn-primary py-3 flex items-center justify-center gap-2"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Apri su WhatsApp
+                  </button>
+                  <button
+                    onClick={() => {
+                      const text = thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`
+                      navigator.clipboard.writeText(text)
+                      setMsgCopied(true)
+                      setTimeout(() => setMsgCopied(false), 2000)
+                    }}
+                    className="px-4 py-3 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center gap-2 transition-colors"
+                  >
+                    {msgCopied ? <Check className="w-4 h-4 text-salvia" /> : <Copy className="w-4 h-4" />}
+                    {msgCopied ? 'Copiato!' : 'Copia'}
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )
+        })()}
 
       </div>
 
