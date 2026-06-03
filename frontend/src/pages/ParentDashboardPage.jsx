@@ -550,7 +550,7 @@ export default function ParentDashboardPage() {
         {event.party_date && (
           <div className="card">
             <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
-              <CelebrationIcon size={20} />
+              <MessageCircle className="w-5 h-5 text-cipria-dark" />
               Ringrazia gli invitati
             </h2>
             <p className="text-sm text-gray-500 mb-4">
@@ -572,7 +572,7 @@ export default function ParentDashboardPage() {
                     }}
                     className="flex-1 btn-primary py-3 flex items-center justify-center gap-2"
                   >
-                    <MessageCircle className="w-4 h-4" />
+                    <CelebrationIcon size={16} />
                     Apri su WhatsApp
                   </button>
                   <button
