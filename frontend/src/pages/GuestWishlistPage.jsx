@@ -149,7 +149,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
       onRsvpSaved(found)
       setStatus(found.status)
       setChildrenCount(found.children_count || 0)
-      setWithPartner(found.with_partner || false)
+      setAdultsCount(found.adults_count || (found.with_partner ? 2 : 1))
       setStep('done')
     } else {
       setRecoverError('Nessuna risposta trovata con questo nome.')

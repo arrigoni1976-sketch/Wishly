@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { v4 as uuid } from 'uuid'
 import { supabase } from '../lib/supabase.js'
-import { sendEventCreatedEmail } from '../services/email.js'
+import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
 
 const router = Router()
 
@@ -521,6 +521,46 @@ router.patch('/:id/contributions/:cid/confirm', async (req, res, next) => {
       .eq('id', req.params.id)
 
     res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── POST /api/events/:id/thank-you — Send thank-you emails to guests ────────
+router.post('/:id/thank-you', async (req, res, next) => {
+  try {
+    const { parentToken, message } = req.body
+
+    if (!parentToken || !message?.trim()) {
+      return res.status(400).json({ message: 'parentToken e message sono obbligatori' })
+    }
+
+    const { data: event, error } = await supabase
+      .from('events')
+      .select('*, rsvp(*)')
+      .eq('id', req.params.id)
+      .eq('parent_token', parentToken)
+      .single()
+
+    if (error || !event) return res.status(403).json({ message: 'Non autorizzato' })
+
+    const guests = (event.rsvp || []).filter((r) => r.status === 'yes' && r.guest_email)
+
+    const results = await Promise.allSettled(
+      guests.map((g) =>
+        sendThankYouEmail({
+          to: g.guest_email,
+          guestName: g.guest_name,
+          childName: event.child_name,
+          message: message.trim(),
+        })
+      )
+    )
+
+    const sent = results.filter((r) => r.status === 'fulfilled').length
+    const failed = results.filter((r) => r.status === 'rejected').length
+
+    res.json({ sent, failed, total: guests.length })
   } catch (err) {
     next(err)
   }

@@ -38,6 +38,8 @@ export const createPaymentIntent = (data) => api.post('/payments/stripe/intent',
 export const createPayPalOrder = (data) => api.post('/payments/paypal/order', data)
 export const initSatispay = (data) => api.post('/payments/satispay/init', data)
 
+export const sendThankYouEmails = (eventId, data) => api.post(`/events/${eventId}/thank-you`, data)
+
 // ─── User keys ─────────────────────────────────────────────────────────────
 
 export const registerUserKey = (key, email = null) => api.post('/user-keys/register', { key, email })

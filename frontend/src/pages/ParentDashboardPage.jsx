@@ -13,7 +13,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, sendThankYouEmails } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -153,6 +153,9 @@ export default function ParentDashboardPage() {
   const [collectiveModal, setCollectiveModal] = useState(false)
   const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
+  const [thankYouMsg, setThankYouMsg] = useState('')
+  const [thankYouSending, setThankYouSending] = useState(false)
+  const [thankYouResult, setThankYouResult] = useState(null)
 
   const baseUrl = window.location.origin
 
@@ -180,6 +183,23 @@ export default function ParentDashboardPage() {
       console.error(e)
     } finally {
       setCollectiveSaving(false)
+    }
+  }
+
+  const handleSendThankYou = async () => {
+    if (!thankYouMsg.trim()) return
+    setThankYouSending(true)
+    setThankYouResult(null)
+    try {
+      const res = await sendThankYouEmails(event.id, {
+        parentToken,
+        message: thankYouMsg.trim(),
+      })
+      setThankYouResult(res.data)
+    } catch {
+      setThankYouResult({ error: true })
+    } finally {
+      setThankYouSending(false)
     }
   }
 
@@ -544,6 +564,47 @@ export default function ParentDashboardPage() {
           )}
         </div>
 
+        {/* ── Ringraziamenti post-festa ────────────────────────────────── */}
+        {event.party_date && new Date(event.party_date) < new Date() && (
+          <div className="card">
+            <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
+              <Mail className="w-5 h-5 text-cipria-dark" />
+              Invia un ringraziamento
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Scrivi un messaggio di ringraziamento — verrà inviato via email a tutti gli ospiti che hanno confermato la presenza e lasciato la propria email.
+            </p>
+
+            {thankYouResult ? (
+              <div className={`rounded-2xl px-4 py-3 text-sm font-medium ${thankYouResult.error ? 'bg-red-50 text-red-600' : 'bg-salvia/10 text-salvia'}`}>
+                {thankYouResult.error
+                  ? 'Errore durante l\'invio. Riprova.'
+                  : thankYouResult.sent === 0
+                  ? 'Nessun ospite ha lasciato un\'email — non è stato inviato nulla.'
+                  : `Inviato a ${thankYouResult.sent} ospite${thankYouResult.sent !== 1 ? 'i' : ''}${thankYouResult.failed > 0 ? ` · ${thankYouResult.failed} falliti` : ''}. Grazie!`}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <textarea
+                  value={thankYouMsg}
+                  onChange={(e) => setThankYouMsg(e.target.value)}
+                  placeholder={`Caro/a [nome],\n\nGrazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}!`}
+                  rows={5}
+                  className="input resize-none text-sm"
+                />
+                <button
+                  onClick={handleSendThankYou}
+                  disabled={!thankYouMsg.trim() || thankYouSending}
+                  className="btn-primary w-full py-3 flex items-center justify-center gap-2"
+                >
+                  <Mail className="w-4 h-4" />
+                  {thankYouSending ? 'Invio in corso...' : 'Invia ringraziamenti'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
 
       {/* ── Gift Modal ──────────────────────────────────────────────────── */}
@@ -591,12 +652,12 @@ export default function ParentDashboardPage() {
                 />
               </div>
               <div>
-                <label className="label">Email PayPal (opzionale)</label>
+                <label className="label">Username PayPal.me (opzionale)</label>
                 <input
-                  type="email"
+                  type="text"
                   value={collectiveForm.paypal_email}
                   onChange={(e) => setCollectiveForm((f) => ({ ...f, paypal_email: e.target.value }))}
-                  placeholder="tua@email.com"
+                  placeholder="tuousername"
                   className="input"
                 />
               </div>

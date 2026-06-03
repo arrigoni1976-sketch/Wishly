@@ -191,7 +191,7 @@ export default function GiftCard({
                   disabled={!guestName.trim() || loading}
                   className="flex-1 btn-primary text-sm py-2"
                 >
-                  {loading ? 'Confermo...' : 'Prenota'}
+                  {loading ? 'Prenoto...' : 'Prenota'}
                 </button>
               </div>
             </div>

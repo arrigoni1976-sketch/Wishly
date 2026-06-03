@@ -6,7 +6,7 @@ export default function PrivacyPolicyPage() {
       <div className="max-w-2xl mx-auto px-4 py-12 space-y-8 text-gray-700">
         <div>
           <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">Privacy Policy</h1>
-          <p className="text-sm text-gray-400">Ultimo aggiornamento: giugno 2025</p>
+          <p className="text-sm text-gray-400">Ultimo aggiornamento: giugno 2026</p>
         </div>
 
         <section className="space-y-3">
