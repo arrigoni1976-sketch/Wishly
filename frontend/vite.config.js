@@ -14,6 +14,9 @@ export default defineConfig({
         // Serve index.html per qualsiasi route SPA non trovata in cache (essenziale per PWA)
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/api\//],
+        // Forza il nuovo service worker ad attivarsi subito senza aspettare
+        skipWaiting: true,
+        clientsClaim: true,
         // Strategia network-first per le API, cache-first per gli asset
         runtimeCaching: [
           {
