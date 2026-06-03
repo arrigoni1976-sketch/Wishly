@@ -556,7 +556,7 @@ export default function ParentDashboardPage() {
           return (
             <div className="card">
               <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
-                <MessageCircle className="w-5 h-5 text-cipria-dark" />
+                <CelebrationIcon size={20} />
                 Ringrazia gli invitati
               </h2>
               <p className="text-sm text-gray-500 mb-4">
