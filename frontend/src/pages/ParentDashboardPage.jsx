@@ -565,16 +565,15 @@ export default function ParentDashboardPage() {
                   className="input resize-none text-sm"
                 />
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      const text = thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`
-                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
-                    }}
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex-1 btn-primary py-3 flex items-center justify-center gap-2"
                   >
                     <HeartRibbonIcon size={16} />
                     Apri su WhatsApp
-                  </button>
+                  </a>
                   <button
                     onClick={() => {
                       const text = thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`
