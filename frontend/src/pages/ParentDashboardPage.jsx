@@ -572,7 +572,7 @@ export default function ParentDashboardPage() {
                     }}
                     className="flex-1 btn-primary py-3 flex items-center justify-center gap-2"
                   >
-                    <CelebrationIcon size={16} />
+                    <HeartRibbonIcon size={16} />
                     Apri su WhatsApp
                   </button>
                   <button
