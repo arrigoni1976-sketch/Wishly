@@ -569,7 +569,7 @@ export default function ParentDashboardPage() {
                     href={`https://wa.me/?text=${encodeURIComponent(thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 btn-primary py-3 flex items-center justify-center gap-2"
+                    className="flex-1 btn-primary py-2.5 text-sm flex items-center justify-center gap-2"
                   >
                     <HeartRibbonIcon size={16} />
                     Apri su WhatsApp
