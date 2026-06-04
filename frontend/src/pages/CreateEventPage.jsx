@@ -11,8 +11,6 @@ const STEPS = ['Info festa', 'Lista', 'Collettivo', 'Regali', 'Conferma']
 
 // ─── Step 1: Dettagli della festa ─────────────────────────────────────────
 function StepPartyInfo({ register, errors, watch, setValue }) {
-  const today = new Date().toISOString().split('T')[0]
-  const maxPartyDate = `${new Date().getFullYear() + 3}-12-31`
   const validYear = (v) => {
     if (!v) return true
     const y = new Date(v).getFullYear()
@@ -72,8 +70,6 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
           <input
             {...register('birthDate', { validate: validYear })}
             type="date"
-            min="1900-01-01"
-            max={today}
             className="input"
           />
         </div>
@@ -83,8 +79,6 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
           <input
             {...register('partyDate', { required: 'Campo obbligatorio', validate: validYear })}
             type="date"
-            min={today}
-            max={maxPartyDate}
             className="input"
           />
           {errors.partyDate && (
@@ -128,8 +122,6 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
 
 // ─── Step 2: Impostazioni lista ────────────────────────────────────────────
 function StepListSettings({ register, errors }) {
-  const today = new Date().toISOString().split('T')[0]
-  const maxDate = `${new Date().getFullYear() + 3}-12-31`
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -165,8 +157,6 @@ function StepListSettings({ register, errors }) {
         <input
           {...register('closingDate')}
           type="date"
-          min={today}
-          max={maxDate}
           className="input"
         />
         <p className="text-xs text-gray-400 mt-1.5">
