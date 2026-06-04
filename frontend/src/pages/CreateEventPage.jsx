@@ -16,6 +16,12 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
     const y = new Date(v).getFullYear()
     return (y >= 1900 && y <= 2099) || 'Anno non valido'
   }
+  const guardYear = (reg) => (e) => {
+    const val = e.target.value
+    if (!val || parseInt(val.split('-')[0]) <= 9999) reg.onChange(e)
+  }
+  const birthReg = register('birthDate', { validate: validYear })
+  const partyReg = register('partyDate', { required: 'Campo obbligatorio', validate: validYear })
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -68,18 +74,20 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
         <div>
           <label className="label">Data di nascita</label>
           <input
-            {...register('birthDate', { validate: validYear })}
+            {...birthReg}
             type="date"
             className="input"
+            onChange={guardYear(birthReg)}
           />
         </div>
 
         <div>
           <label className="label">Data della festa *</label>
           <input
-            {...register('partyDate', { required: 'Campo obbligatorio', validate: validYear })}
+            {...partyReg}
             type="date"
             className="input"
+            onChange={guardYear(partyReg)}
           />
           {errors.partyDate && (
             <p className="text-xs text-red-500 mt-1">{errors.partyDate.message}</p>
@@ -122,6 +130,11 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
 
 // ─── Step 2: Impostazioni lista ────────────────────────────────────────────
 function StepListSettings({ register, errors }) {
+  const guardYear = (reg) => (e) => {
+    const val = e.target.value
+    if (!val || parseInt(val.split('-')[0]) <= 9999) reg.onChange(e)
+  }
+  const closingReg = register('closingDate')
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -155,9 +168,10 @@ function StepListSettings({ register, errors }) {
       <div>
         <label className="label">Data chiusura lista</label>
         <input
-          {...register('closingDate')}
+          {...closingReg}
           type="date"
           className="input"
+          onChange={guardYear(closingReg)}
         />
         <p className="text-xs text-gray-400 mt-1.5">
           Dopo questa data gli invitati non potranno più prenotare. Ti verrà inviato un riepilogo
