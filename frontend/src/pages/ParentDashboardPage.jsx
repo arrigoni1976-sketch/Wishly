@@ -560,7 +560,7 @@ export default function ParentDashboardPage() {
                 <textarea
                   value={thankYouMsg}
                   onChange={(e) => setThankYouMsg(e.target.value)}
-                  placeholder={`Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 💚`}
+                  placeholder={`Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto!`}
                   rows={4}
                   className="input resize-none text-sm"
                 />
