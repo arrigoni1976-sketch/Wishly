@@ -560,13 +560,13 @@ export default function ParentDashboardPage() {
                 <textarea
                   value={thankYouMsg}
                   onChange={(e) => setThankYouMsg(e.target.value)}
-                  placeholder={`Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`}
+                  placeholder={`Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 💚`}
                   rows={4}
                   className="input resize-none text-sm"
                 />
                 <div className="flex gap-2">
                   <a
-                    href={`https://wa.me/?text=${encodeURIComponent(thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`)}`}
+                    href={`https://wa.me/?text=${encodeURIComponent(thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 💚`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 btn-primary py-2.5 text-sm flex items-center justify-center gap-2"
@@ -576,7 +576,7 @@ export default function ParentDashboardPage() {
                   </a>
                   <button
                     onClick={() => {
-                      const text = thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 🎉`
+                      const text = thankYouMsg.trim() || `Grazie di cuore per aver festeggiato con noi il compleanno di ${event.child_name}! È stata una giornata bellissima. A presto! 💚`
                       navigator.clipboard.writeText(text)
                       setMsgCopied(true)
                       setTimeout(() => setMsgCopied(false), 2000)
