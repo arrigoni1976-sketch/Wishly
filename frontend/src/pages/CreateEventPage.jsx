@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mail, Lightbulb } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
@@ -9,19 +9,64 @@ import { createEvent, addUserKeyLink } from '../lib/api'
 
 const STEPS = ['Info festa', 'Lista', 'Collettivo', 'Regali', 'Conferma']
 
+// ─── DateInput: GG / MM / AAAA ────────────────────────────────────────────
+function DateInput({ value, onChange, onBlur }) {
+  const split = (v) => {
+    if (v && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      const [yr, mo, dy] = v.split('-')
+      return [dy, mo, yr]
+    }
+    return ['', '', '']
+  }
+  const [fields, setFields] = useState(() => split(value))
+  const prevVal = useRef(value)
+  useEffect(() => {
+    if (value !== prevVal.current) { setFields(split(value)); prevVal.current = value }
+  }, [value])
+
+  const dayRef = useRef(); const mthRef = useRef(); const yrRef = useRef()
+  const [day, month, year] = fields
+
+  const update = (d, m, y) => {
+    setFields([d, m, y])
+    if (d.length === 2 && m.length === 2 && y.length === 4) {
+      const str = `${y}-${m}-${d}`
+      onChange(!isNaN(new Date(str).getTime()) ? str : '')
+    } else {
+      onChange('')
+    }
+  }
+
+  return (
+    <div className="input flex items-center">
+      <input ref={dayRef} type="text" inputMode="numeric" placeholder="GG" maxLength={2}
+        value={day}
+        onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(v,month,year); if(v.length===2) mthRef.current?.focus() }}
+        className="w-7 text-center bg-transparent outline-none" />
+      <span className="text-gray-300 select-none mx-0.5">/</span>
+      <input ref={mthRef} type="text" inputMode="numeric" placeholder="MM" maxLength={2}
+        value={month}
+        onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(day,v,year); if(v.length===2) yrRef.current?.focus() }}
+        onKeyDown={(e) => { if(e.key==='Backspace'&&!month) dayRef.current?.focus() }}
+        className="w-7 text-center bg-transparent outline-none" />
+      <span className="text-gray-300 select-none mx-0.5">/</span>
+      <input ref={yrRef} type="text" inputMode="numeric" placeholder="AAAA" maxLength={4}
+        value={year}
+        onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,4); update(day,month,v) }}
+        onKeyDown={(e) => { if(e.key==='Backspace'&&!year) mthRef.current?.focus() }}
+        onBlur={onBlur}
+        className="w-14 bg-transparent outline-none" />
+    </div>
+  )
+}
+
 // ─── Step 1: Dettagli della festa ─────────────────────────────────────────
-function StepPartyInfo({ register, errors, watch, setValue }) {
+function StepPartyInfo({ register, control, errors, watch, setValue }) {
   const validYear = (v) => {
     if (!v) return true
     const y = new Date(v).getFullYear()
     return (y >= 1900 && y <= 2099) || 'Anno non valido'
   }
-  const guardYear = (reg) => (e) => {
-    const val = e.target.value
-    if (!val || parseInt(val.split('-')[0]) <= 9999) reg.onChange(e)
-  }
-  const birthReg = register('birthDate', { validate: validYear })
-  const partyReg = register('partyDate', { required: 'Campo obbligatorio', validate: validYear })
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -73,22 +118,14 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
 
         <div>
           <label className="label">Data di nascita</label>
-          <input
-            {...birthReg}
-            type="date"
-            className="input"
-            onChange={guardYear(birthReg)}
-          />
+          <Controller name="birthDate" control={control} rules={{ validate: validYear }}
+            render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
         </div>
 
         <div>
           <label className="label">Data della festa *</label>
-          <input
-            {...partyReg}
-            type="date"
-            className="input"
-            onChange={guardYear(partyReg)}
-          />
+          <Controller name="partyDate" control={control} rules={{ required: 'Campo obbligatorio', validate: validYear }}
+            render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
           {errors.partyDate && (
             <p className="text-xs text-red-500 mt-1">{errors.partyDate.message}</p>
           )}
@@ -129,12 +166,7 @@ function StepPartyInfo({ register, errors, watch, setValue }) {
 }
 
 // ─── Step 2: Impostazioni lista ────────────────────────────────────────────
-function StepListSettings({ register, errors }) {
-  const guardYear = (reg) => (e) => {
-    const val = e.target.value
-    if (!val || parseInt(val.split('-')[0]) <= 9999) reg.onChange(e)
-  }
-  const closingReg = register('closingDate')
+function StepListSettings({ register, control, errors }) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -167,12 +199,8 @@ function StepListSettings({ register, errors }) {
 
       <div>
         <label className="label">Data chiusura lista</label>
-        <input
-          {...closingReg}
-          type="date"
-          className="input"
-          onChange={guardYear(closingReg)}
-        />
+        <Controller name="closingDate" control={control}
+          render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
         <p className="text-xs text-gray-400 mt-1.5">
           Dopo questa data gli invitati non potranno più prenotare. Ti verrà inviato un riepilogo
           finale.
@@ -629,8 +657,8 @@ export default function CreateEventPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
-            {currentStep === 1 && <StepPartyInfo register={register} errors={errors} watch={watch} setValue={setValue} />}
-            {currentStep === 2 && <StepListSettings register={register} errors={errors} />}
+            {currentStep === 1 && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
+            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} />}
             {currentStep === 3 && (
               <StepCollective register={register} watch={watch} setValue={setValue} />
             )}
