@@ -312,7 +312,8 @@ router.post('/:id/gifts', async (req, res, next) => {
 // ─── POST /api/events/:id/rsvp — Submit RSVP ────────────────────────────────
 router.post('/:id/rsvp', async (req, res, next) => {
   try {
-    const { guestName, guestEmail, status, childrenCount, adultsCount } = req.body
+    const { guestEmail, status, childrenCount, adultsCount } = req.body
+    const guestName = req.body.guestName?.trim()
 
     if (!guestName || !status) {
       return res.status(400).json({ message: 'guestName e status obbligatori' })
@@ -322,12 +323,12 @@ router.post('/:id/rsvp', async (req, res, next) => {
       return res.status(400).json({ message: 'Status non valido' })
     }
 
-    // Check if already exists
+    // Check if already exists (case-insensitive to avoid duplicates)
     const { data: existing } = await supabase
       .from('rsvp')
       .select('id')
       .eq('event_id', req.params.id)
-      .eq('guest_name', guestName)
+      .ilike('guest_name', guestName)
       .maybeSingle()
 
     if (existing) {

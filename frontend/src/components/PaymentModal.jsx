@@ -43,7 +43,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
     try {
       await onSubmit({ method: 'paypal', amount: numAmount, name: name.trim() })
       if (paypalWindow) {
-        paypalWindow.location.href = `https://paypal.me/${paypalEmail}/${numAmount}`
+        paypalWindow.location.href = `https://paypal.me/${encodeURIComponent(paypalEmail)}/${numAmount}`
       }
       onClose()
     } catch (e) {

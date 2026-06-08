@@ -487,7 +487,8 @@ export default function GuestWishlistPage() {
   }
 
   const handleCancelReservation = async ({ giftId }) => {
-    await cancelReservation(giftId, {})
+    const guestName = myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''
+    await cancelReservation(giftId, { guestName })
     setMyReservations((prev) => prev.filter((id) => id !== giftId))
     await fetchEvent()
   }
