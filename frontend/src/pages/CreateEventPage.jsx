@@ -599,7 +599,11 @@ export default function CreateEventPage() {
   }
 
   const handleNext = async () => {
-    const fields = STEP_FIELDS[currentStep]
+    let fields = STEP_FIELDS[currentStep]
+    if (currentStep === 3 && watchedData.collectiveEnabled) {
+      fields = ['collectiveGoal']
+      if (watchedData.fixedQuotaEnabled) fields.push('collectiveFixedQuota')
+    }
     const valid = await trigger(fields)
     if (valid) setCurrentStep((s) => Math.min(s + 1, 5))
   }

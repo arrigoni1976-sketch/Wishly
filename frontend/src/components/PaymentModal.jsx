@@ -18,7 +18,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
   const effectiveFixed = fixedAmount ? Math.min(parseFloat(fixedAmount), remaining) : null
 
   const numAmount = effectiveFixed ?? parseFloat(amount)
-  const isValid = name.trim() && !isNaN(numAmount) && numAmount >= 1 && numAmount <= remaining
+  const isValid = name.trim() && !isNaN(numAmount) && numAmount >= (effectiveFixed ? 1 : 10) && numAmount <= remaining
 
   const handleCash = async () => {
     if (!isValid) return

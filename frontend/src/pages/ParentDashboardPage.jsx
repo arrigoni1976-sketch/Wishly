@@ -218,6 +218,13 @@ export default function ParentDashboardPage() {
 
   useEffect(() => { fetchEvent() }, [parentToken])
 
+  // Auto-apri la sezione contributi se ci sono PayPal da verificare
+  useEffect(() => {
+    if (event?.contributions?.some(c => c.status === 'pending' && c.payment_method === 'paypal')) {
+      setShowContrib(true)
+    }
+  }, [event?.contributions])
+
   const handleAddGift = async (form) => {
     await addGift(event.id, form)
     await fetchEvent()
