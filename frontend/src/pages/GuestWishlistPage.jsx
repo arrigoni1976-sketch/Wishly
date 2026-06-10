@@ -234,23 +234,34 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
 
   if (step === 'prompt') {
     return (
-      <div className="bg-white rounded-3xl border border-cipria/40 p-5 text-center">
-        <p className="font-semibold text-gray-800 mb-1">Puoi partecipare?</p>
-        <p className="text-sm text-gray-500 mb-4">Fai sapere ai festeggiati se ci sarai</p>
-        <button
-          onClick={() => setStep('form')}
-          className="btn-primary text-sm px-6 py-2.5"
-        >
-          Conferma la tua presenza
-        </button>
+      <div className="space-y-3">
         {serverRsvps.length > 0 && (
           <button
             onClick={() => setStep('recover')}
-            className="block w-full mt-3 text-xs text-gray-400 hover:text-salvia transition-colors"
+            className="w-full flex items-center gap-3 bg-avorio border border-avorio-dark rounded-2xl px-4 py-3 text-left hover:border-salvia/40 transition-colors group"
           >
-            Hai già risposto? Ritrova la tua risposta →
+            <span className="text-xl flex-shrink-0">↩️</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-700 group-hover:text-salvia transition-colors">
+                Hai già risposto da un altro dispositivo?
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Inserisci il tuo nome per ritrovare la tua risposta
+              </p>
+            </div>
+            <span className="text-gray-300 group-hover:text-salvia transition-colors text-lg flex-shrink-0">›</span>
           </button>
         )}
+        <div className="bg-white rounded-3xl border border-cipria/40 p-5 text-center">
+          <p className="font-semibold text-gray-800 mb-1">Puoi partecipare?</p>
+          <p className="text-sm text-gray-500 mb-4">Fai sapere ai festeggiati se ci sarai</p>
+          <button
+            onClick={() => setStep('form')}
+            className="btn-primary text-sm px-6 py-2.5"
+          >
+            Conferma la tua presenza
+          </button>
+        </div>
       </div>
     )
   }
