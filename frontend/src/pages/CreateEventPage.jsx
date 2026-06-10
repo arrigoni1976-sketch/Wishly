@@ -12,7 +12,7 @@ import { createEvent, addUserKeyLink, checkEmailQuota } from '../lib/api'
 const PAYMENT_ACTIVE = false
 const PRICE_PER_EVENT = 1.29
 
-const STEPS = ['Info festa', 'Lista', 'Collettivo', 'Regali', 'Conferma']
+const STEPS = ['Info festa', 'La tua lista', 'Regali', 'Conferma']
 
 // ─── DateInput: GG / MM / AAAA ────────────────────────────────────────────
 function DateInput({ value, onChange, onBlur }) {
@@ -170,8 +170,8 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
   )
 }
 
-// ─── Step 2: Impostazioni lista ────────────────────────────────────────────
-function StepListSettings({ register, control, errors, emailQuota }) {
+// ─── Step 2: Impostazioni lista + collettivo opzionale ────────────────────
+function StepListSettings({ register, control, errors, emailQuota, watch, setValue }) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -233,36 +233,30 @@ function StepListSettings({ register, control, errors, emailQuota }) {
           </p>
         </div>
       )}
+
+      {/* ── Regalo collettivo opzionale ─────────────────────────────── */}
+      <CollectiveSection register={register} watch={watch} setValue={setValue} />
     </div>
   )
 }
 
-// ─── Step 3: Regalo collettivo (opzionale) ─────────────────────────────────
-function StepCollective({ register, watch, setValue }) {
+// ─── Sezione regalo collettivo (dentro step 2) ────────────────────────────
+function CollectiveSection({ register, watch, setValue }) {
   const collectiveEnabled = watch('collectiveEnabled')
   const fixedQuotaEnabled = watch('fixedQuotaEnabled')
 
   return (
-    <div className="space-y-5 animate-fade-in">
-      <div>
-        <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          Regalo collettivo
-        </h2>
-        <p className="text-gray-500 text-sm">Opzionale — gli invitati prenotano una quota e portano i contanti alla festa</p>
-      </div>
-
+    <div className="space-y-4">
       <div
         className="flex items-center justify-between p-4 bg-white rounded-2xl border border-avorio-dark cursor-pointer"
         onClick={() => setValue('collectiveEnabled', !collectiveEnabled)}
       >
         <div>
-          <p className="font-medium text-gray-800">Attiva il regalo collettivo</p>
-          <p className="text-sm text-gray-500">
-            Gli invitati prenotano la loro quota e portano i contanti il giorno della festa
-          </p>
+          <p className="font-medium text-gray-800 text-sm">Regalo collettivo</p>
+          <p className="text-xs text-gray-400 mt-0.5">Opzionale — gli invitati raccolgono una quota da portare alla festa</p>
         </div>
         <div
-          className={`w-12 h-6 rounded-full transition-colors duration-200 relative ${
+          className={`w-12 h-6 rounded-full transition-colors duration-200 relative flex-shrink-0 ${
             collectiveEnabled ? 'bg-salvia' : 'bg-gray-200'
           }`}
         >
@@ -614,13 +608,12 @@ export default function CreateEventPage() {
     2: ['parentEmail'],
     3: [],
     4: [],
-    5: [],
   }
 
   const handleNext = async () => {
     let fields = STEP_FIELDS[currentStep]
-    if (currentStep === 3 && watchedData.collectiveEnabled) {
-      fields = ['collectiveGoal']
+    if (currentStep === 2 && watchedData.collectiveEnabled) {
+      fields = ['parentEmail', 'collectiveGoal']
       if (watchedData.fixedQuotaEnabled) fields.push('collectiveFixedQuota')
     }
     const valid = await trigger(fields)
@@ -635,7 +628,7 @@ export default function CreateEventPage() {
       } catch { /* non bloccare se il check fallisce */ }
     }
 
-    setCurrentStep((s) => Math.min(s + 1, 5))
+    setCurrentStep((s) => Math.min(s + 1, 4))
   }
 
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
@@ -692,12 +685,9 @@ export default function CreateEventPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
             {currentStep === 1 && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
-            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} />}
-            {currentStep === 3 && (
-              <StepCollective register={register} watch={watch} setValue={setValue} />
-            )}
-            {currentStep === 4 && <StepGifts control={control} register={register} watch={watch} />}
-            {currentStep === 5 && <StepConfirm data={watchedData} />}
+            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} watch={watch} setValue={setValue} />}
+            {currentStep === 3 && <StepGifts control={control} register={register} watch={watch} />}
+            {currentStep === 4 && <StepConfirm data={watchedData} />}
           </div>
 
           {error && (
@@ -716,7 +706,7 @@ export default function CreateEventPage() {
               </button>
             )}
 
-            {currentStep < 5 ? (
+            {currentStep < 4 ? (
               <button
                 type="button"
                 onClick={handleNext}
