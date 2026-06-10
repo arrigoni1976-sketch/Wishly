@@ -13,7 +13,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, sendThankYouEmails } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, sendThankYouEmails, getPushVapidKey, subscribePush } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -149,6 +149,12 @@ export default function ParentDashboardPage() {
   const [giftModal, setGiftModal] = useState({ open: false, data: null })
   const [showRsvp, setShowRsvp] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [notifStatus, setNotifStatus] = useState(() => {
+    if (typeof Notification === 'undefined') return 'unsupported'
+    if (Notification.permission === 'granted') return 'granted'
+    if (Notification.permission === 'denied') return 'denied'
+    return 'default'
+  })
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
   const [collectiveModal, setCollectiveModal] = useState(false)
@@ -221,6 +227,34 @@ export default function ParentDashboardPage() {
     setRefreshing(true)
     await fetchEvent()
     setRefreshing(false)
+  }
+
+  const handleEnableNotifications = async () => {
+    try {
+      const permission = await Notification.requestPermission()
+      if (permission !== 'granted') { setNotifStatus('denied'); return }
+
+      const sw = await navigator.serviceWorker.ready
+      const { data: { key } } = await getPushVapidKey()
+
+      // Converti la chiave VAPID da base64url a Uint8Array
+      const padding = '='.repeat((4 - key.length % 4) % 4)
+      const base64 = (key + padding).replace(/-/g, '+').replace(/_/g, '/')
+      const raw = window.atob(base64)
+      const appKey = new Uint8Array(raw.length)
+      for (let i = 0; i < raw.length; i++) appKey[i] = raw.charCodeAt(i)
+
+      const subscription = await sw.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: appKey,
+      })
+
+      await subscribePush({ parentToken, subscription: subscription.toJSON() })
+      setNotifStatus('granted')
+    } catch (err) {
+      console.error('[push] subscribe error:', err)
+      setNotifStatus('denied')
+    }
   }
 
   useEffect(() => { fetchEvent() }, [parentToken])
@@ -417,6 +451,24 @@ export default function ParentDashboardPage() {
               Anteprima →
             </a>
           </div>
+          {notifStatus === 'default' && (
+            <button
+              onClick={handleEnableNotifications}
+              className="mt-3 w-full py-2.5 border border-salvia/40 rounded-2xl text-sm text-salvia font-medium flex items-center justify-center gap-2 hover:bg-salvia/5 transition-colors"
+            >
+              🔔 Attiva notifiche — avvisami quando qualcuno risponde
+            </button>
+          )}
+          {notifStatus === 'granted' && (
+            <p className="mt-3 text-xs text-salvia font-medium text-center">
+              🔔 Notifiche attive — ti avvisiamo quando qualcuno risponde o prenota
+            </p>
+          )}
+          {notifStatus === 'denied' && (
+            <p className="mt-3 text-xs text-gray-400 text-center">
+              Notifiche bloccate — abilitale dalle impostazioni del browser
+            </p>
+          )}
           <p className="text-xs text-gray-400 mt-2 text-center">
             Torna qui per vedere chi ha risposto e chi ha prenotato un regalo
           </p>

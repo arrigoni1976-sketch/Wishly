@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
+import { sendPushToParent } from '../services/push.js'
 
 const router = Router()
 
@@ -55,7 +56,7 @@ router.post('/:id/reserve', async (req, res, next) => {
     // Check if already reserved (race condition guard)
     const { data: gift } = await supabase
       .from('gifts')
-      .select('id, reserved_by')
+      .select('id, name, price, reserved_by, event_id')
       .eq('id', req.params.id)
       .single()
 
@@ -77,6 +78,18 @@ router.post('/:id/reserve', async (req, res, next) => {
 
     if (error) throw error
     if (!data) return res.status(409).json({ message: 'Regalo già prenotato da qualcun altro' })
+
+    // Notifica push all'organizzatore (fire-and-forget)
+    supabase.from('events').select('parent_token, child_name').eq('id', gift.event_id).single()
+      .then(({ data: ev }) => {
+        if (!ev) return
+        sendPushToParent(ev.parent_token, {
+          title: `Piky — ${guestName} ha prenotato un regalo 🎁`,
+          body: `"${gift.name}" è stato prenotato per ${ev.child_name}`,
+          url: `/dashboard/${ev.parent_token}`,
+        })
+      })
+      .catch(() => {})
 
     res.json(data)
   } catch (err) {

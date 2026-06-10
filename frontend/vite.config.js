@@ -6,41 +6,13 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'favicon.svg', 'icons/*.png'],
-      workbox: {
-        // Cache tutte le pagine e le risorse statiche
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
-        // Serve index.html per qualsiasi route SPA non trovata in cache (essenziale per PWA)
-        navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api\//],
-        // Forza il nuovo service worker ad attivarsi subito senza aspettare
-        skipWaiting: true,
-        clientsClaim: true,
-        // Strategia network-first per le API, cache-first per gli asset
-        runtimeCaching: [
-          {
-            urlPattern: /^\/api\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-stylesheets' },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\//,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-        ],
       },
       manifest: {
         name: 'Piky — Lista desideri',

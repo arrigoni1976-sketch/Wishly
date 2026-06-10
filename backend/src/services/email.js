@@ -365,3 +365,4 @@ export async function sendClosingSummaries() {
     console.log(`[cron] Closing summary sent for event ${event.id} (${event.child_name})`)
   }
 }
+

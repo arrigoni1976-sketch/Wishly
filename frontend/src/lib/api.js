@@ -48,6 +48,11 @@ export const getUserKeyLinks = (key) => api.get(`/user-keys/${encodeURIComponent
 export const addUserKeyLink = (key, data) => api.post(`/user-keys/${encodeURIComponent(key)}/link`, data)
 export const removeUserKeyLink = (key, token) => api.delete(`/user-keys/${encodeURIComponent(key)}/link/${encodeURIComponent(token)}`)
 
+// ─── Push notifications ────────────────────────────────────────────────────
+
+export const getPushVapidKey = () => api.get('/push/vapid-public-key')
+export const subscribePush = (data) => api.post('/push/subscribe', data)
+
 // ─── Error helper ──────────────────────────────────────────────────────────
 
 export const getErrorMessage = (err) =>

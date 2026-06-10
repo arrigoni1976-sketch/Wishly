@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { v4 as uuid } from 'uuid'
 import { supabase } from '../lib/supabase.js'
 import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
+import { sendPushToParent } from '../services/push.js'
 
 const router = Router()
 
@@ -375,6 +376,20 @@ router.post('/:id/rsvp', async (req, res, next) => {
       .single()
 
     if (error) throw error
+
+    // Notifica push all'organizzatore (fire-and-forget)
+    supabase.from('events').select('parent_token, child_name').eq('id', req.params.id).single()
+      .then(({ data: ev }) => {
+        if (!ev) return
+        const statusLabel = { yes: 'parteciperà 🎉', maybe: 'forse parteciperà', no: 'non potrà venire' }[status]
+        sendPushToParent(ev.parent_token, {
+          title: `Piky — ${guestName} ha risposto`,
+          body: `${guestName} ${statusLabel} al compleanno di ${ev.child_name}`,
+          url: `/dashboard/${ev.parent_token}`,
+        })
+      })
+      .catch(() => {})
+
     res.status(201).json(data)
   } catch (err) {
     next(err)
