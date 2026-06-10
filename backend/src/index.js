@@ -8,6 +8,7 @@ import giftsRouter from './routes/gifts.js'
 import rsvpRouter from './routes/rsvp.js'
 import paymentsRouter from './routes/payments.js'
 import userKeysRouter from './routes/userkeys.js'
+import adminRouter from './routes/admin.js'
 import { sendReminders, sendClosingSummaries } from './services/email.js'
 
 const app = express()
@@ -37,6 +38,7 @@ app.use('/api/gifts', giftsRouter)
 app.use('/api/rsvp', rsvpRouter)
 app.use('/api/payments', paymentsRouter)
 app.use('/api/user-keys', userKeysRouter)
+app.use('/api/admin', adminRouter)
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }))
 

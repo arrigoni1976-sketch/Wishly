@@ -8,6 +8,7 @@ import ParentDashboardPage from './pages/ParentDashboardPage'
 import GuestWishlistPage from './pages/GuestWishlistPage'
 import CollectiveGiftPage from './pages/CollectiveGiftPage'
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage'
+import AdminPage from './pages/AdminPage'
 import NotFoundPage from './pages/NotFoundPage'
 import InstallPrompt from './components/InstallPrompt'
 
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/lista/:guestToken" element={<GuestWishlistPage />} />
         <Route path="/collettivo/:collectiveToken" element={<CollectiveGiftPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
