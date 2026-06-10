@@ -115,6 +115,24 @@ router.get('/parent/:token', async (req, res, next) => {
   }
 })
 
+// ─── GET /api/events/email-quota — Check events count for an email ──────────
+router.get('/email-quota', async (req, res, next) => {
+  try {
+    const email = req.query.email?.trim().toLowerCase()
+    if (!email) return res.status(400).json({ message: 'email obbligatoria' })
+
+    const { count } = await supabase
+      .from('events')
+      .select('*', { count: 'exact', head: true })
+      .ilike('parent_email', email)
+
+    const eventCount = count || 0
+    res.json({ eventCount, freeEventUsed: eventCount >= 1 })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ─── GET /api/events/guest/:token — Guest view (no sensitive data) ──────────
 router.get('/guest/:token', async (req, res, next) => {
   try {

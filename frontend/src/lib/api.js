@@ -13,6 +13,7 @@ export const getEventByGuestToken = (token) => api.get(`/events/guest/${token}`)
 export const getEventByCollectiveToken = (token) => api.get(`/events/collective/${token}`)
 export const updateEvent = (id, data) => api.put(`/events/${id}`, data)
 export const trackLinkView = (token, data) => api.post(`/events/guest/${token}/view`, data)
+export const checkEmailQuota = (email) => api.get(`/events/email-quota?email=${encodeURIComponent(email)}`)
 
 // ─── Gifts ─────────────────────────────────────────────────────────────────
 

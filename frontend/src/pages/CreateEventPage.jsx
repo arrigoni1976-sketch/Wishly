@@ -5,7 +5,12 @@ import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mai
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
-import { createEvent, addUserKeyLink } from '../lib/api'
+import { createEvent, addUserKeyLink, checkEmailQuota } from '../lib/api'
+
+// ─── Monetizzazione ────────────────────────────────────────────────────────
+// Imposta su true quando vuoi attivare il pagamento per il secondo evento
+const PAYMENT_ACTIVE = false
+const PRICE_PER_EVENT = 1.29
 
 const STEPS = ['Info festa', 'Lista', 'Collettivo', 'Regali', 'Conferma']
 
@@ -166,7 +171,7 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 }
 
 // ─── Step 2: Impostazioni lista ────────────────────────────────────────────
-function StepListSettings({ register, control, errors }) {
+function StepListSettings({ register, control, errors, emailQuota }) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -215,6 +220,19 @@ function StepListSettings({ register, control, errors }) {
           <li>· Il riepilogo completo alla chiusura della lista</li>
         </ul>
       </div>
+
+      {/* Banner utente di ritorno — informativo finché PAYMENT_ACTIVE = false */}
+      {emailQuota?.freeEventUsed && (
+        <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm text-gray-600">
+          <p className="font-medium text-salvia mb-1">Bentornato su Piky! 👋</p>
+          <p className="text-gray-500">
+            Hai già creato {emailQuota.eventCount} {emailQuota.eventCount === 1 ? 'lista' : 'liste'} con questa email.
+            Il primo compleanno è sempre gratuito — stai creando il tuo{' '}
+            <strong>#{emailQuota.eventCount + 1}</strong>.
+            {!PAYMENT_ACTIVE && ' Piky è ancora completamente gratuita, goditi la festa!'}
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -558,6 +576,7 @@ export default function CreateEventPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [emailQuota, setEmailQuota] = useState(null)
 
   const {
     register,
@@ -605,7 +624,18 @@ export default function CreateEventPage() {
       if (watchedData.fixedQuotaEnabled) fields.push('collectiveFixedQuota')
     }
     const valid = await trigger(fields)
-    if (valid) setCurrentStep((s) => Math.min(s + 1, 5))
+    if (!valid) return
+
+    // Step 2: controlla quota email (silenzioso — solo informativo per ora)
+    if (currentStep === 2 && watchedData.parentEmail) {
+      try {
+        const res = await checkEmailQuota(watchedData.parentEmail)
+        setEmailQuota(res.data)
+        // Quando PAYMENT_ACTIVE = true, aggiungere qui il blocco se freeEventUsed
+      } catch { /* non bloccare se il check fallisce */ }
+    }
+
+    setCurrentStep((s) => Math.min(s + 1, 5))
   }
 
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
@@ -662,7 +692,7 @@ export default function CreateEventPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
             {currentStep === 1 && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
-            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} />}
+            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} />}
             {currentStep === 3 && (
               <StepCollective register={register} watch={watch} setValue={setValue} />
             )}

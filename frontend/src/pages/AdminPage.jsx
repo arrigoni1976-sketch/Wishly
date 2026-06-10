@@ -137,7 +137,7 @@ export default function AdminPage() {
     )
   }
 
-  const { overview, funnel, recentEvents, byMonth } = data
+  const { overview, funnel, monetization, recentEvents, byMonth } = data
   const maxMonth = Math.max(...byMonth.map(([, c]) => c), 1)
   const collectivePct = overview.total > 0 ? Math.round((overview.withCollective / overview.total) * 100) : 0
   const base = funnel.eventsCreated || 1
@@ -224,6 +224,42 @@ export default function AdminPage() {
               sub="erano invitati prima di diventare organizzatori"
               isLast
             />
+          </div>
+        </div>
+
+        {/* Monetizzazione */}
+        <div className="bg-white rounded-2xl border border-avorio-dark overflow-hidden">
+          <div className="px-5 py-4 border-b border-avorio-dark flex items-center justify-between">
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Monetizzazione</h2>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${monetization?.paymentActive ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
+              {monetization?.paymentActive ? '● Attiva' : '○ Non attiva'}
+            </span>
+          </div>
+          <div className="p-5 space-y-4">
+            <p className="text-xs text-gray-400">
+              Modello: primo evento gratuito · dal secondo <strong>€{monetization?.pricePerEvent?.toFixed(2)}</strong> per evento · identificazione via email
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center">
+                <p className="text-2xl font-display font-bold text-gray-900">{monetization?.returningUsers ?? 0}</p>
+                <p className="text-xs text-gray-400 mt-0.5">utenti di ritorno</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-display font-bold text-gray-900">{monetization?.additionalEvents ?? 0}</p>
+                <p className="text-xs text-gray-400 mt-0.5">eventi aggiuntivi</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-display font-bold text-salvia">
+                  €{(monetization?.potentialRevenue ?? 0).toFixed(2)}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">ricavo potenziale</p>
+              </div>
+            </div>
+            {!monetization?.paymentActive && (
+              <p className="text-xs text-gray-400 bg-avorio rounded-xl px-3 py-2">
+                Per attivare il pagamento: imposta <code className="font-mono bg-gray-100 px-1 rounded">PAYMENT_ACTIVE = true</code> in <code className="font-mono bg-gray-100 px-1 rounded">CreateEventPage.jsx</code>
+              </p>
+            )}
           </div>
         </div>
 

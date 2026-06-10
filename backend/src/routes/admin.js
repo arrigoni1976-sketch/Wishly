@@ -78,6 +78,17 @@ router.get('/stats', async (req, res) => {
   ;(giftRows || []).forEach(g => { giftsMap[g.event_id] = (giftsMap[g.event_id] || 0) + 1 })
 
   // By month (last 6)
+  // Monetizzazione: eventi per email (primo gratis, dal secondo €1,29)
+  const PRICE_PER_EVENT = 1.29
+  const emailCounts = {}
+  ;(events || []).forEach(e => {
+    const email = e.parent_email?.toLowerCase()
+    if (email) emailCounts[email] = (emailCounts[email] || 0) + 1
+  })
+  const returningUsers = Object.values(emailCounts).filter(c => c >= 2).length
+  const additionalEvents = Object.values(emailCounts).reduce((a, c) => a + Math.max(0, c - 1), 0)
+  const potentialRevenue = Math.round(additionalEvents * PRICE_PER_EVENT * 100) / 100
+
   const byMonth = {}
   ;(events || []).forEach(e => {
     const m = e.created_at.substring(0, 7)
@@ -114,6 +125,13 @@ router.get('/stats', async (req, res) => {
       giftsReserved: giftsReserved || 0,
       returnOrganizers,
       organizersFromInvite,
+    },
+    monetization: {
+      paymentActive: false,
+      pricePerEvent: PRICE_PER_EVENT,
+      returningUsers,
+      additionalEvents,
+      potentialRevenue,
     },
     recentEvents,
     byMonth: Object.entries(byMonth).sort((a, b) => a[0].localeCompare(b[0])).slice(-6),
