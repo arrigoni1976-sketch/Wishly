@@ -5,7 +5,7 @@ const router = Router()
 
 // GET /api/admin/stats?key=XXX
 router.get('/stats', async (req, res) => {
-// Usa ADMIN_KEY da env, altrimenti chiave di fallback temporanea
+  // Usa ADMIN_KEY da env, altrimenti chiave di fallback temporanea
   const validKey = process.env.ADMIN_KEY || 'pikyAdmin2026'
   if (req.query.key !== validKey) {
     return res.status(401).json({ message: 'Non autorizzato' })
@@ -22,6 +22,10 @@ router.get('/stats', async (req, res) => {
     { data: events },
     { data: rsvpRows },
     { data: giftRows },
+    { data: viewRows },
+    { count: rsvpYes },
+    { count: giftsReserved },
+    { data: userKeyLinks },
   ] = await Promise.all([
     supabase.from('events').select('*', { count: 'exact', head: true }),
     supabase.from('events').select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
@@ -31,13 +35,38 @@ router.get('/stats', async (req, res) => {
       .select('id, child_name, party_date, parent_email, collective_enabled, collective_goal, collective_amount, created_at')
       .order('created_at', { ascending: false }),
     supabase.from('rsvp').select('event_id, status'),
-    supabase.from('gifts').select('event_id'),
+    supabase.from('gifts').select('event_id, reserved_by'),
+    supabase.from('link_views').select('view_count'),
+    supabase.from('rsvp').select('*', { count: 'exact', head: true }).eq('status', 'yes'),
+    supabase.from('gifts').select('*', { count: 'exact', head: true }).not('reserved_by', 'is', null),
+    supabase.from('user_key_links').select('user_key, link_type'),
   ])
 
+  // Collective totals
   const collectiveEvents = (events || []).filter(e => e.collective_enabled)
   const totalCollectiveGoal = collectiveEvents.reduce((a, e) => a + (parseFloat(e.collective_goal) || 0), 0)
   const totalCollectiveOrganized = collectiveEvents.reduce((a, e) => a + (parseFloat(e.collective_amount) || 0), 0)
 
+  // Total link views (sum of all view_count)
+  const totalLinkViews = (viewRows || []).reduce((a, v) => a + (v.view_count || 1), 0)
+
+  // Return organizers: user_key con 2+ eventi creati
+  const eventLinkCounts = {}
+  ;(userKeyLinks || []).filter(l => l.link_type === 'event').forEach(l => {
+    eventLinkCounts[l.user_key] = (eventLinkCounts[l.user_key] || 0) + 1
+  })
+  const returnOrganizers = Object.values(eventLinkCounts).filter(c => c >= 2).length
+
+  // Organizzatori da invito: user_key che ha sia 'invite' che 'event'
+  const keyTypes = {}
+  ;(userKeyLinks || []).forEach(l => {
+    if (!keyTypes[l.user_key]) keyTypes[l.user_key] = new Set()
+    keyTypes[l.user_key].add(l.link_type)
+  })
+  const organizersFromInvite = Object.values(keyTypes)
+    .filter(types => types.has('invite') && types.has('event')).length
+
+  // RSVP map per event table
   const rsvpMap = {}
   ;(rsvpRows || []).forEach(r => {
     if (!rsvpMap[r.event_id]) rsvpMap[r.event_id] = { yes: 0, total: 0 }
@@ -48,6 +77,7 @@ router.get('/stats', async (req, res) => {
   const giftsMap = {}
   ;(giftRows || []).forEach(g => { giftsMap[g.event_id] = (giftsMap[g.event_id] || 0) + 1 })
 
+  // By month (last 6)
   const byMonth = {}
   ;(events || []).forEach(e => {
     const m = e.created_at.substring(0, 7)
@@ -76,6 +106,14 @@ router.get('/stats', async (req, res) => {
       withCollective: withCollective || 0,
       totalCollectiveGoal: Math.round(totalCollectiveGoal),
       totalCollectiveOrganized: Math.round(totalCollectiveOrganized),
+    },
+    funnel: {
+      eventsCreated: total || 0,
+      linkViews: totalLinkViews,
+      rsvpYes: rsvpYes || 0,
+      giftsReserved: giftsReserved || 0,
+      returnOrganizers,
+      organizersFromInvite,
     },
     recentEvents,
     byMonth: Object.entries(byMonth).sort((a, b) => a[0].localeCompare(b[0])).slice(-6),
