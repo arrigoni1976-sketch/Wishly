@@ -38,12 +38,26 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
     if (!isValid) return
     setError('')
     setLoading(true)
-    // Apre la finestra subito (gesto diretto utente) — altrimenti iOS la blocca
+    // Open immediately on user gesture — iOS Safari blocks popups after async
     const paypalWindow = window.open('', '_blank')
+    if (paypalWindow) {
+      // Write a real page so pressing Back from PayPal doesn't show about:blank
+      paypalWindow.document.write(
+        '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+        '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<title>Piky — PayPal</title></head>' +
+        '<body style="margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;' +
+        'height:100vh;font-family:sans-serif;background:#FAF7F2;gap:12px">' +
+        '<p style="color:#4A7A50;font-size:1.1rem;text-align:center;margin:0">Apertura PayPal…</p>' +
+        '<p style="color:#999;font-size:.85rem;text-align:center;margin:0">Verrai reindirizzato a breve</p>' +
+        '</body></html>'
+      )
+    }
     try {
       await onSubmit({ method: 'paypal', amount: numAmount, name: name.trim() })
       if (paypalWindow) {
-        paypalWindow.location.href = `https://paypal.me/${encodeURIComponent(paypalEmail)}/${numAmount}`
+        // replace() so about:blank is not left in history — Back from PayPal skips it
+        paypalWindow.location.replace(`https://paypal.me/${encodeURIComponent(paypalEmail)}/${numAmount}`)
       }
       onClose()
     } catch (e) {
