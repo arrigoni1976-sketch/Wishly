@@ -170,8 +170,8 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
   )
 }
 
-// ─── Step 2: Impostazioni lista + collettivo opzionale ────────────────────
-function StepListSettings({ register, control, errors, emailQuota, watch, setValue }) {
+// ─── Step 2: La tua lista ─────────────────────────────────────────────────
+function StepListSettings({ register, control, errors, emailQuota }) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -234,153 +234,93 @@ function StepListSettings({ register, control, errors, emailQuota, watch, setVal
         </div>
       )}
 
-      {/* ── Regalo collettivo opzionale ─────────────────────────────── */}
-      <CollectiveSection register={register} watch={watch} setValue={setValue} />
     </div>
   )
 }
 
-// ─── Sezione regalo collettivo (dentro step 2) ────────────────────────────
-function CollectiveSection({ register, watch, setValue }) {
+// ─── Card regalo collettivo (dentro step 3, stile identico ai gift card) ──
+function CollectiveGiftCard({ register, watch, setValue }) {
   const collectiveEnabled = watch('collectiveEnabled')
   const fixedQuotaEnabled = watch('fixedQuotaEnabled')
 
   return (
-    <div className="space-y-4">
-      <div
-        className="flex items-center justify-between p-4 bg-white rounded-2xl border border-avorio-dark cursor-pointer"
-        onClick={() => setValue('collectiveEnabled', !collectiveEnabled)}
-      >
-        <div>
-          <p className="font-medium text-gray-800 text-sm">Regalo collettivo</p>
-          <p className="text-xs text-gray-400 mt-0.5">Opzionale — gli invitati raccolgono una quota da portare alla festa</p>
-        </div>
+    <div className="bg-white border border-avorio-dark rounded-2xl p-4 space-y-3 relative">
+      {/* Header card — identico ai gift card */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+          Regalo collettivo
+        </span>
         <div
-          className={`w-12 h-6 rounded-full transition-colors duration-200 relative flex-shrink-0 ${
+          className={`w-10 h-5 rounded-full transition-colors duration-200 relative cursor-pointer flex-shrink-0 ${
             collectiveEnabled ? 'bg-salvia' : 'bg-gray-200'
           }`}
+          onClick={() => setValue('collectiveEnabled', !collectiveEnabled)}
         >
-          <div
-            className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-              collectiveEnabled ? 'translate-x-7' : 'translate-x-1'
-            }`}
-          />
+          <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+            collectiveEnabled ? 'translate-x-5' : 'translate-x-0.5'
+          }`} />
         </div>
       </div>
 
-      {collectiveEnabled && (
-        <div className="space-y-4 animate-fade-in">
-          <div>
-            <label className="label">Obiettivo (€) *</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">€</span>
-              <input
-                {...register('collectiveGoal', {
-                  required: collectiveEnabled ? 'Inserisci un obiettivo' : false,
-                  min: { value: 10, message: 'Minimo €10' },
-                })}
-                type="number"
-                min={10}
-                step={5}
-                placeholder="200"
-                className="input pl-8"
-              />
-            </div>
-          </div>
+      {!collectiveEnabled ? (
+        <p
+          className="text-sm text-gray-400 cursor-pointer"
+          onClick={() => setValue('collectiveEnabled', true)}
+        >
+          Attiva per raccogliere una quota dagli invitati — es. per un regalo importante insieme
+        </p>
+      ) : (
+        <div className="space-y-3 animate-fade-in">
+          <input
+            {...register('collectiveGoal', {
+              required: collectiveEnabled ? 'Inserisci un obiettivo' : false,
+              min: { value: 10, message: 'Minimo €10' },
+            })}
+            type="number"
+            min={10}
+            step={5}
+            placeholder="Obiettivo (€) *"
+            className="input text-sm"
+          />
 
-          <div>
-            <label className="label">Descrizione (opzionale)</label>
-            <textarea
-              {...register('collectiveDescription')}
-              rows={2}
-              placeholder="Es. Per comprare la bicicletta che Sofia desidera..."
-              className="input resize-none"
-            />
-          </div>
+          <input
+            {...register('collectiveDescription')}
+            type="text"
+            placeholder="Descrizione (opzionale) — es. Per la bicicletta di Sofia"
+            className="input text-sm"
+          />
 
-          {/* Quota fissa */}
           <div
-            className="flex items-center justify-between p-4 bg-white rounded-2xl border border-avorio-dark cursor-pointer"
+            className="flex items-center justify-between cursor-pointer"
             onClick={() => setValue('fixedQuotaEnabled', !fixedQuotaEnabled)}
           >
-            <div>
-              <p className="font-medium text-gray-800 text-sm">Quota fissa per persona</p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Ogni invitato paga lo stesso importo — nessuna scelta
-              </p>
-            </div>
-            <div
-              className={`w-12 h-6 rounded-full transition-colors duration-200 relative flex-shrink-0 ${
-                fixedQuotaEnabled ? 'bg-salvia' : 'bg-gray-200'
-              }`}
-            >
-              <div
-                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-                  fixedQuotaEnabled ? 'translate-x-7' : 'translate-x-1'
-                }`}
-              />
+            <span className="text-sm text-gray-600">Quota fissa per persona</span>
+            <div className={`w-10 h-5 rounded-full transition-colors relative flex-shrink-0 ${fixedQuotaEnabled ? 'bg-salvia' : 'bg-gray-200'}`}>
+              <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${fixedQuotaEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
             </div>
           </div>
 
           {fixedQuotaEnabled && (
-            <div className="animate-fade-in">
-              <label className="label">Quota per persona (€) *</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">€</span>
-                <input
-                  {...register('collectiveFixedQuota', {
-                    required: fixedQuotaEnabled ? 'Inserisci la quota' : false,
-                    min: { value: 1, message: 'Minimo €1' },
-                  })}
-                  type="number"
-                  min={1}
-                  step={1}
-                  placeholder="20"
-                  className="input pl-8"
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-1">
-                Ogni invitato vedrà solo questo importo, senza poterlo modificare
-              </p>
-            </div>
+            <input
+              {...register('collectiveFixedQuota', {
+                required: fixedQuotaEnabled ? 'Inserisci la quota' : false,
+                min: { value: 1, message: 'Minimo €1' },
+              })}
+              type="number"
+              min={1}
+              placeholder="Quota per persona (€) *"
+              className="input text-sm"
+            />
           )}
 
-          <div>
-            <label className="label">Il tuo PayPal.me (opzionale)</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-sm font-medium select-none">paypal.me/</span>
-              <input
-                {...register('paypalEmail')}
-                type="text"
-                placeholder="nome.cognome"
-                className="input pl-[5.5rem]"
-              />
-            </div>
-            <div className="mt-2 bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-gray-600 space-y-1">
-              <p className="font-medium text-amber-700">Come trovare il tuo link PayPal.me:</p>
-              <p>1. Apri l'app PayPal sul telefono</p>
-              <p>2. Vai su <strong>Profilo → PayPal.me</strong></p>
-              <p>3. Copia il nome che trovi (es. <span className="font-mono">nome.cognome</span>) e incollalo qui</p>
-              <p className="text-gray-400">Non ce l'hai ancora? Puoi crearlo gratis in 1 minuto su{' '}
-                <a
-                  href="https://www.paypal.com/myaccount/settings/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-salvia underline"
-                >
-                  paypal.com
-                </a>.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm">
-            <p className="font-medium text-salvia mb-2 flex items-center gap-1.5"><Lightbulb className="w-4 h-4" /> Come funziona:</p>
-            <ul className="space-y-1 text-gray-600">
-              <li>· Ogni contributo minimo è €10</li>
-              <li>· Il massimo è l'importo rimanente all'obiettivo</li>
-              <li>· I fondi ti vengono trasferiti al raggiungimento dell'obiettivo</li>
-            </ul>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-medium select-none">paypal.me/</span>
+            <input
+              {...register('paypalEmail')}
+              type="text"
+              placeholder="username (opzionale)"
+              className="input text-sm pl-[5.5rem]"
+            />
           </div>
         </div>
       )}
@@ -389,7 +329,7 @@ function CollectiveSection({ register, watch, setValue }) {
 }
 
 // ─── Step 4: Aggiungi regali ───────────────────────────────────────────────
-function StepGifts({ control, register, watch }) {
+function StepGifts({ control, register, watch, setValue }) {
   const { fields, append, remove } = useFieldArray({ control, name: 'gifts' })
 
   return (
@@ -404,6 +344,9 @@ function StepGifts({ control, register, watch }) {
       </div>
 
       <div className="space-y-3">
+        {/* Card regalo collettivo — stesso stile dei gift card */}
+        <CollectiveGiftCard register={register} watch={watch} setValue={setValue} />
+
         {fields.map((field, index) => (
           <div
             key={field.id}
@@ -617,8 +560,8 @@ export default function CreateEventPage() {
 
   const handleNext = async () => {
     let fields = STEP_FIELDS[currentStep]
-    if (currentStep === 2 && watchedData.collectiveEnabled) {
-      fields = ['parentEmail', 'collectiveGoal']
+    if (currentStep === 3 && watchedData.collectiveEnabled) {
+      fields = ['collectiveGoal']
       if (watchedData.fixedQuotaEnabled) fields.push('collectiveFixedQuota')
     }
     const valid = await trigger(fields)
@@ -690,8 +633,8 @@ export default function CreateEventPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
             {currentStep === 1 && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
-            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} watch={watch} setValue={setValue} />}
-            {currentStep === 3 && <StepGifts control={control} register={register} watch={watch} />}
+            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} />}
+            {currentStep === 3 && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
             {currentStep === 4 && <StepConfirm data={watchedData} />}
           </div>
 
