@@ -176,10 +176,10 @@ function StepListSettings({ register, control, errors, emailQuota, watch, setVal
     <div className="space-y-5 animate-fade-in">
       <div>
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          Impostazioni lista
+          La tua lista
         </h2>
         <p className="text-gray-500 text-sm">
-          Riceverai i link e le notifiche su questa email
+          Dove ti mandiamo i link per condividere la lista
         </p>
       </div>
 
