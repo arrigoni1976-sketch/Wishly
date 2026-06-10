@@ -11,8 +11,15 @@ router.get('/stats', async (req, res) => {
     return res.status(401).json({ message: 'Non autorizzato' })
   }
 
+  const LAUNCH_DATE = process.env.LAUNCH_DATE || '2026-06-20T00:00:00.000Z'
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
   const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  const eventsBase = () => supabase.from('events').gte('created_at', LAUNCH_DATE)
+  const rsvpBase = () => supabase.from('rsvp').gte('created_at', LAUNCH_DATE)
+  const giftsBase = () => supabase.from('gifts').gte('created_at', LAUNCH_DATE)
+  const viewsBase = () => supabase.from('link_views').gte('created_at', LAUNCH_DATE)
+  const userKeyBase = () => supabase.from('user_key_links').gte('created_at', LAUNCH_DATE)
 
   const [
     { count: total },
@@ -27,19 +34,19 @@ router.get('/stats', async (req, res) => {
     { count: giftsReserved },
     { data: userKeyLinks },
   ] = await Promise.all([
-    supabase.from('events').select('*', { count: 'exact', head: true }),
-    supabase.from('events').select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
-    supabase.from('events').select('*', { count: 'exact', head: true }).gte('created_at', weekStart),
-    supabase.from('events').select('*', { count: 'exact', head: true }).eq('collective_enabled', true),
-    supabase.from('events')
+    eventsBase().select('*', { count: 'exact', head: true }),
+    eventsBase().select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
+    eventsBase().select('*', { count: 'exact', head: true }).gte('created_at', weekStart),
+    eventsBase().select('*', { count: 'exact', head: true }).eq('collective_enabled', true),
+    eventsBase()
       .select('id, child_name, party_date, parent_email, collective_enabled, collective_goal, collective_amount, created_at')
       .order('created_at', { ascending: false }),
-    supabase.from('rsvp').select('event_id, status'),
-    supabase.from('gifts').select('event_id, reserved_by'),
-    supabase.from('link_views').select('view_count'),
-    supabase.from('rsvp').select('*', { count: 'exact', head: true }).eq('status', 'yes'),
-    supabase.from('gifts').select('*', { count: 'exact', head: true }).not('reserved_by', 'is', null),
-    supabase.from('user_key_links').select('user_key, link_type'),
+    rsvpBase().select('event_id, status'),
+    giftsBase().select('event_id, reserved_by'),
+    viewsBase().select('view_count'),
+    rsvpBase().select('*', { count: 'exact', head: true }).eq('status', 'yes'),
+    giftsBase().select('*', { count: 'exact', head: true }).not('reserved_by', 'is', null),
+    userKeyBase().select('user_key, link_type'),
   ])
 
   // Collective totals
