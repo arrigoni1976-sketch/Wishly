@@ -144,7 +144,11 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
   const handleRecover = () => {
     const name = recoverName.trim().toLowerCase()
     if (!name) return
-    const found = serverRsvps.find((r) => r.guest_name?.toLowerCase() === name)
+    const found = serverRsvps.find((r) => {
+      const rsvpName = r.guest_name?.toLowerCase().trim() || ''
+      // exact, or one name is contained in the other (handles "Francesca" vs "Francesca Bonacina")
+      return rsvpName === name || rsvpName.startsWith(name) || name.startsWith(rsvpName)
+    })
     if (found) {
       onRsvpSaved(found)
       setStatus(found.status)
@@ -152,7 +156,11 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
       setAdultsCount(found.adults_count || (found.with_partner ? 2 : 1))
       setStep('done')
     } else {
-      setRecoverError('Nessuna risposta trovata con questo nome.')
+      setRecoverError(
+        serverRsvps.length === 0
+          ? 'Nessuna conferma trovata per questo evento.'
+          : `"${recoverName.trim()}" non corrisponde a nessuna risposta. Prova con il nome esatto usato quando hai confermato.`
+      )
     }
   }
 
@@ -169,7 +177,11 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
             className="input"
             onKeyDown={(e) => e.key === 'Enter' && handleRecover()}
           />
-          {recoverError && <p className="text-xs text-red-500 mt-1">{recoverError}</p>}
+          {recoverError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2 mt-2">
+              {recoverError}
+            </p>
+          )}
         </div>
         <div className="flex gap-3">
           <button onClick={() => setStep('prompt')} className="flex-1 btn-outline text-sm py-2.5">
