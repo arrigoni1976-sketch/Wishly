@@ -147,7 +147,8 @@ export default function ParentDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [giftModal, setGiftModal] = useState({ open: false, data: null })
-  const [showRsvp, setShowRsvp] = useState(true)
+  const [showRsvp, setShowRsvp] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
   const [collectiveModal, setCollectiveModal] = useState(false)
@@ -214,6 +215,12 @@ export default function ParentDashboardPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleRefresh = async () => {
+    setRefreshing(true)
+    await fetchEvent()
+    setRefreshing(false)
   }
 
   useEffect(() => { fetchEvent() }, [parentToken])
@@ -367,6 +374,17 @@ export default function ParentDashboardPage() {
               {event.notes}
             </p>
           )}
+
+          <div className="mt-3 pt-3 border-t border-avorio-dark flex justify-end">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="text-xs text-gray-400 hover:text-salvia transition-colors flex items-center gap-1"
+            >
+              <span className={refreshing ? 'animate-spin inline-block' : ''}>↻</span>
+              {refreshing ? 'Aggiorno...' : 'Aggiorna'}
+            </button>
+          </div>
         </div>
 
         {/* ── Condividi con gli invitati ─────────────────────────────── */}
@@ -381,13 +399,27 @@ export default function ParentDashboardPage() {
           <p className="text-sm text-gray-500 leading-relaxed mb-5">
             Potranno confermare la presenza e prenotare un regalo — senza doppioni.
           </p>
-          <button
-            onClick={shareGuestLink}
-            className="btn-primary w-full py-2.5 flex items-center justify-center gap-2 text-sm"
-          >
-            <Share2 className="w-4 h-4" />
-            {copied ? 'Link copiato!' : 'Condividi invito'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={shareGuestLink}
+              className="btn-primary flex-1 py-2.5 flex items-center justify-center gap-2 text-sm"
+            >
+              <Share2 className="w-4 h-4" />
+              {copied ? 'Link copiato!' : 'Condividi invito'}
+            </button>
+            <a
+              href={`${baseUrl}/lista/${event?.guest_token}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center gap-1.5 transition-colors whitespace-nowrap"
+              title="Vedi come appare il link agli invitati"
+            >
+              Anteprima →
+            </a>
+          </div>
+          <p className="text-xs text-gray-400 mt-2 text-center">
+            Torna qui per vedere chi ha risposto e chi ha prenotato un regalo
+          </p>
         </div>
 
         {/* ── Regalo collettivo ────────────────────────────────────────── */}
@@ -553,8 +585,8 @@ export default function ParentDashboardPage() {
           )}
         </div>
 
-        {/* ── Ringraziamenti ───────────────────────────────────────────── */}
-        {event.party_date && (
+        {/* ── Ringraziamenti — visibile solo dopo la festa ─────────────── */}
+        {event.party_date && new Date(event.party_date) <= new Date() && (
           <div className="card">
             <h2 className="font-display font-bold text-lg text-gray-900 mb-1 flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-cipria-dark" />
