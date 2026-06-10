@@ -5,7 +5,9 @@ const router = Router()
 
 // GET /api/admin/stats?key=XXX
 router.get('/stats', async (req, res) => {
-  if (!process.env.ADMIN_KEY || req.query.key !== process.env.ADMIN_KEY) {
+// Usa ADMIN_KEY da env, altrimenti chiave di fallback temporanea
+  const validKey = process.env.ADMIN_KEY || 'pikyAdmin2026'
+  if (req.query.key !== validKey) {
     return res.status(401).json({ message: 'Non autorizzato' })
   }
 
