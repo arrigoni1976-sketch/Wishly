@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { Calendar, CalendarPlus, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
@@ -357,6 +357,8 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
 // ─── Main Page ─────────────────────────────────────────────────────────────
 export default function GuestWishlistPage() {
   const { guestToken } = useParams()
+  const [searchParams] = useSearchParams()
+  const isPreview = searchParams.get('preview') === '1'
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -538,7 +540,18 @@ export default function GuestWishlistPage() {
 
   return (
     <Layout>
-      {/* View name prompt */}
+      {/* Banner anteprima */}
+      {isPreview && (
+        <div className="sticky top-0 z-40 bg-salvia text-white text-sm flex items-center justify-between px-4 py-2.5 shadow-md">
+          <span>Stai visualizzando l'anteprima come ospite</span>
+          <button
+            onClick={() => window.close()}
+            className="font-medium underline hover:no-underline ml-4 whitespace-nowrap"
+          >
+            ← Chiudi anteprima
+          </button>
+        </div>
+      )}
 
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-6">
 

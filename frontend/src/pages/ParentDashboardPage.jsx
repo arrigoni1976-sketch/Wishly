@@ -442,7 +442,7 @@ export default function ParentDashboardPage() {
               {copied ? 'Link copiato!' : 'Condividi invito'}
             </button>
             <a
-              href={`${baseUrl}/lista/${event?.guest_token}`}
+              href={`${baseUrl}/lista/${event?.guest_token}?preview=1`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center gap-1.5 transition-colors whitespace-nowrap"
