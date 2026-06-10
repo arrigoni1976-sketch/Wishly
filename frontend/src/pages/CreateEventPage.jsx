@@ -346,27 +346,32 @@ function CollectiveSection({ register, watch, setValue }) {
           )}
 
           <div>
-            <label className="label">Username PayPal.me (opzionale)</label>
+            <label className="label">Il tuo PayPal.me (opzionale)</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-sm font-medium select-none">paypal.me/</span>
               <input
                 {...register('paypalEmail')}
                 type="text"
-                placeholder="tuousername"
+                placeholder="nome.cognome"
                 className="input pl-[5.5rem]"
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">
-              Gli invitati potranno pagarti direttamente con un click. Lo username lo trovi su{' '}
-              <a
-                href="https://www.paypal.com/myaccount/settings/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-salvia underline hover:text-salvia-dark"
-              >
-                paypal.com → Impostazioni → PayPal.me
-              </a>.
-            </p>
+            <div className="mt-2 bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-gray-600 space-y-1">
+              <p className="font-medium text-amber-700">Come trovare il tuo link PayPal.me:</p>
+              <p>1. Apri l'app PayPal sul telefono</p>
+              <p>2. Vai su <strong>Profilo → PayPal.me</strong></p>
+              <p>3. Copia il nome che trovi (es. <span className="font-mono">nome.cognome</span>) e incollalo qui</p>
+              <p className="text-gray-400">Non ce l'hai ancora? Puoi crearlo gratis in 1 minuto su{' '}
+                <a
+                  href="https://www.paypal.com/myaccount/settings/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-salvia underline"
+                >
+                  paypal.com
+                </a>.
+              </p>
+            </div>
           </div>
 
           <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm">
