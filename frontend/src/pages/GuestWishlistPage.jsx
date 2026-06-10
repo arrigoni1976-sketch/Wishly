@@ -594,49 +594,6 @@ export default function GuestWishlistPage() {
 
         </div>
 
-        {/* ── Prompt codice personale ─────────────────────────────────── */}
-        {!userKey && !keyPromptDismissed && !keyLinked && (
-          <div className="bg-avorio rounded-2xl border border-avorio-dark p-4 space-y-3">
-            <div>
-              <p className="text-sm font-semibold text-gray-700">Salva questo invito sul tuo Piky</p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Hai già un codice personale? Inseriscilo per ritrovare questo invito dall'app su qualsiasi dispositivo.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={keyInput}
-                onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
-                placeholder="Es. MARCO-7X2Q"
-                className="input flex-1 font-mono tracking-wider text-sm py-2"
-                onKeyDown={(e) => e.key === 'Enter' && handleLinkKey()}
-              />
-              <button
-                onClick={handleLinkKey}
-                disabled={!keyInput.trim() || keyLoading}
-                className="btn-primary px-4 py-2 text-sm whitespace-nowrap"
-              >
-                {keyLoading ? '...' : 'Collega'}
-              </button>
-            </div>
-            {keyError && <p className="text-xs text-red-500">{keyError}</p>}
-            <button
-              onClick={() => setKeyPromptDismissed(true)}
-              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              Non ora
-            </button>
-          </div>
-        )}
-
-        {keyLinked && (
-          <div className="bg-salvia/10 border border-salvia/30 rounded-2xl p-3 text-center">
-            <p className="text-sm text-salvia font-semibold">✓ Invito collegato al tuo codice Piky!</p>
-            <p className="text-xs text-gray-500 mt-0.5">Lo troverai nella home dell'app.</p>
-          </div>
-        )}
-
         {/* ── Welcome / invitation message — prima parte ──────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark p-6 space-y-4">
           {/* Greeting row */}
@@ -681,6 +638,49 @@ export default function GuestWishlistPage() {
           eventData={event}
         />
         </div>
+
+        {/* ── Prompt codice personale — mostrato dopo l'RSVP ─────────── */}
+        {myRsvp && !userKey && !keyPromptDismissed && !keyLinked && (
+          <div className="bg-avorio rounded-2xl border border-avorio-dark p-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-700">Vuoi ritrovare questo invito in futuro?</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Se hai già un codice Piky, inseriscilo qui per salvare questo invito e ritrovarlo sempre.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={keyInput}
+                onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
+                placeholder="Es. MARCO-7X2Q"
+                className="input flex-1 font-mono tracking-wider text-sm py-2"
+                onKeyDown={(e) => e.key === 'Enter' && handleLinkKey()}
+              />
+              <button
+                onClick={handleLinkKey}
+                disabled={!keyInput.trim() || keyLoading}
+                className="btn-primary px-4 py-2 text-sm whitespace-nowrap"
+              >
+                {keyLoading ? '...' : 'Collega'}
+              </button>
+            </div>
+            {keyError && <p className="text-xs text-red-500">{keyError}</p>}
+            <button
+              onClick={() => setKeyPromptDismissed(true)}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Non ora
+            </button>
+          </div>
+        )}
+
+        {keyLinked && (
+          <div className="bg-salvia/10 border border-salvia/30 rounded-2xl p-3 text-center">
+            <p className="text-sm text-salvia font-semibold">✓ Invito collegato al tuo codice Piky!</p>
+            <p className="text-xs text-gray-500 mt-0.5">Lo troverai nella home dell'app.</p>
+          </div>
+        )}
 
         {/* ── Welcome / invitation message — seconda parte ─────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark px-6 py-4 space-y-3">
