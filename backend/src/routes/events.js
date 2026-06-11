@@ -10,7 +10,7 @@ const router = Router()
 router.post('/', async (req, res, next) => {
   try {
     const {
-      childName, birthDate, partyDate, partyTime, location, address, notes,
+      childName, birthDate, partyDate, partyTime, location, notes,
       parentEmail, closingDate, gender,
       collectiveEnabled, collectiveGoal, collectiveDescription, paypalEmail, collectiveFixedQuota,
       gifts = [],
@@ -34,7 +34,6 @@ router.post('/', async (req, res, next) => {
         party_date: partyDate,
         party_time: partyTime || null,
         location: location || null,
-        address: address || null,
         notes: notes || null,
         parent_email: parentEmail,
         closing_date: closingDate || null,
