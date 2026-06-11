@@ -41,7 +41,7 @@ export default function GiftCard({
     setLoading(true)
     setReserveError('')
     try {
-      await onCancelReservation?.({ giftId: gift.id })
+      await onCancelReservation?.({ giftId: gift.id, reservedBy: gift.reserved_by })
     } catch (e) {
       setReserveError(e?.response?.data?.message || 'Errore nella cancellazione. Riprova.')
     } finally {
