@@ -443,8 +443,15 @@ export default function GuestWishlistPage() {
             localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(found))
           }
         }
+        // Check by storedName AND by per-gift saved names (handles RSVP name overwriting piky_guest_name)
+        const savedGiftNames = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
         const reservedByMe = (data.gifts || [])
-          .filter((g) => g.reserved_by?.toLowerCase() === storedName.toLowerCase())
+          .filter((g) => {
+            if (!g.reserved_by) return false
+            const rb = g.reserved_by.toLowerCase()
+            if (savedGiftNames[g.id] && savedGiftNames[g.id].toLowerCase() === rb) return true
+            return storedName && rb === storedName.toLowerCase()
+          })
           .map((g) => g.id)
         if (reservedByMe.length > 0) setMyReservations(reservedByMe)
       }
@@ -524,14 +531,24 @@ export default function GuestWishlistPage() {
 
   const handleReserve = async ({ giftId, guestName, partnerName, purchasedOffline }) => {
     await reserveGift(giftId, { guestName, partnerName, purchasedOffline })
-    if (guestName) localStorage.setItem('piky_guest_name', guestName)
+    if (guestName) {
+      localStorage.setItem('piky_guest_name', guestName)
+      // Save per-gift name so detection works even if RSVP overwrites piky_guest_name
+      const saved = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
+      saved[giftId] = guestName
+      localStorage.setItem('piky_reserved_gifts', JSON.stringify(saved))
+    }
     setMyReservations((prev) => [...prev, giftId])
     await fetchEvent()
   }
 
   const handleCancelReservation = async ({ giftId, reservedBy }) => {
-    const guestName = reservedBy || myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''
+    const savedGiftNames = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
+    const guestName = savedGiftNames[giftId] || reservedBy || myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''
     await cancelReservation(giftId, { guestName })
+    // Clear the per-gift saved name
+    delete savedGiftNames[giftId]
+    localStorage.setItem('piky_reserved_gifts', JSON.stringify(savedGiftNames))
     setMyReservations((prev) => prev.filter((id) => id !== giftId))
     await fetchEvent()
   }
