@@ -359,6 +359,20 @@ router.post('/:id/rsvp', async (req, res, next) => {
         .single()
 
       if (error) throw error
+
+      // Notifica push anche per aggiornamento RSVP (fire-and-forget)
+      supabase.from('events').select('parent_token, child_name').eq('id', req.params.id).single()
+        .then(({ data: ev }) => {
+          if (!ev) return
+          const statusLabel = { yes: 'parteciperà 🎉', maybe: 'forse parteciperà', no: 'non potrà venire' }[status]
+          sendPushToParent(ev.parent_token, {
+            title: `Piky — ${guestName} ha risposto`,
+            body: `${guestName} ${statusLabel} al compleanno di ${ev.child_name}`,
+            url: `/dashboard/${ev.parent_token}`,
+          })
+        })
+        .catch(() => {})
+
       return res.json(data)
     }
 
