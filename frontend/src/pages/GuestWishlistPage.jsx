@@ -106,12 +106,14 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
   const [adultsCount, setAdultsCount] = useState(existingRsvp?.adults_count || 1)
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [recoverName, setRecoverName] = useState('')
   const [recoverError, setRecoverError] = useState('')
 
   const handleSubmit = async () => {
     if (!guestName.trim() || !status) return
     setLoading(true)
+    setSubmitError('')
     try {
       let res
       if (existingRsvp?.id) {
@@ -135,7 +137,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
       setStep('done')
       setSaved(true)
     } catch {
-      /* handle silently */
+      setSubmitError('Errore nel salvataggio. Controlla la connessione e riprova.')
     } finally {
       setLoading(false)
     }
@@ -357,6 +359,12 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
             </div>
           </div>
         </>
+      )}
+
+      {submitError && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+          {submitError}
+        </p>
       )}
 
       <div className="flex gap-3">

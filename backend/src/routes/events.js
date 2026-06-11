@@ -144,7 +144,7 @@ router.get('/guest/:token', async (req, res, next) => {
         closing_date, collective_enabled, collective_token,
         collective_goal, collective_amount, collective_description,
         gifts(id, name, description, price, amazon_url, store_url, reserved_by, reserved_partner, purchased_offline, sort_order),
-        rsvp(id, guest_name, status, children_count, adults_count, with_partner),
+        rsvp(id, guest_name, guest_email, status, children_count, adults_count, with_partner),
         contributions(id, contributor_name, amount, status, created_at)
       `)
       .eq('guest_token', req.params.token)
@@ -366,7 +366,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
           if (!ev) return
           const statusLabel = { yes: 'parteciperà 🎉', maybe: 'forse parteciperà', no: 'non potrà venire' }[status]
           sendPushToParent(ev.parent_token, {
-            title: `Piky — ${guestName} ha risposto`,
+            title: `Piky — ${guestName} ha aggiornato la risposta`,
             body: `${guestName} ${statusLabel} al compleanno di ${ev.child_name}`,
             url: `/dashboard/${ev.parent_token}`,
           })
