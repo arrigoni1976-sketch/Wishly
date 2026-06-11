@@ -18,6 +18,15 @@ import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
 const RSVP_LABELS = { yes: 'Ci sarò', maybe: 'Forse', no: 'Non vengo' }
+
+function urlBase64ToUint8Array(b64) {
+  const padding = '='.repeat((4 - b64.length % 4) % 4)
+  const base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const raw = window.atob(base64)
+  const arr = new Uint8Array(raw.length)
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i)
+  return arr
+}
 const RSVP_COLORS = {
   yes: 'badge-rsvp-yes',
   maybe: 'badge-rsvp-maybe',
@@ -233,22 +242,12 @@ export default function ParentDashboardPage() {
     try {
       const permission = await Notification.requestPermission()
       if (permission !== 'granted') { setNotifStatus('denied'); return }
-
       const sw = await navigator.serviceWorker.ready
       const { data: { key } } = await getPushVapidKey()
-
-      // Converti la chiave VAPID da base64url a Uint8Array
-      const padding = '='.repeat((4 - key.length % 4) % 4)
-      const base64 = (key + padding).replace(/-/g, '+').replace(/_/g, '/')
-      const raw = window.atob(base64)
-      const appKey = new Uint8Array(raw.length)
-      for (let i = 0; i < raw.length; i++) appKey[i] = raw.charCodeAt(i)
-
-      const subscription = await sw.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: appKey,
-      })
-
+      const appKey = urlBase64ToUint8Array(key)
+      const existing = await sw.pushManager.getSubscription()
+      if (existing) await existing.unsubscribe()
+      const subscription = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
       await subscribePush({ parentToken, subscription: subscription.toJSON() })
       setNotifStatus('granted')
     } catch (err) {
@@ -256,6 +255,23 @@ export default function ParentDashboardPage() {
       setNotifStatus('denied')
     }
   }
+
+  // Al mount, se la permission è già granted, rinnova la subscription con le chiavi VAPID correnti
+  // Copre il caso in cui le chiavi siano cambiate dopo la subscription iniziale
+  useEffect(() => {
+    if (notifStatus !== 'granted' || !navigator.serviceWorker || !window.PushManager) return
+    ;(async () => {
+      try {
+        const sw = await navigator.serviceWorker.ready
+        const { data: { key } } = await getPushVapidKey()
+        const appKey = urlBase64ToUint8Array(key)
+        const existing = await sw.pushManager.getSubscription()
+        if (existing) await existing.unsubscribe()
+        const sub = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
+        await subscribePush({ parentToken, subscription: sub.toJSON() })
+      } catch { /* silent — non cambia lo stato visibile */ }
+    })()
+  }, [])
 
   useEffect(() => { fetchEvent() }, [parentToken])
 
