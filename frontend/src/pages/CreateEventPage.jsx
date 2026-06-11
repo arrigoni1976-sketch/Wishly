@@ -147,7 +147,7 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
         </div>
 
         <div>
-          <label className="label">Nome del luogo</label>
+          <label className="label">Luogo</label>
           <input
             {...register('location')}
             type="text"
@@ -158,7 +158,7 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 
         <div className="sm:col-span-2">
           <div className="flex items-center justify-between mb-1">
-            <label className="label mb-0">Indirizzo</label>
+            <label className="label mb-0">Aggiungi indirizzo</label>
             {watch('address')?.trim() && (
               <a
                 href={`https://maps.google.com/?q=${encodeURIComponent(watch('address').trim())}`}
