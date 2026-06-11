@@ -347,6 +347,13 @@ function StepGifts({ control, register, watch, setValue }) {
         {/* Card regalo collettivo — stesso stile dei gift card */}
         <CollectiveGiftCard register={register} watch={watch} setValue={setValue} />
 
+        {/* Separatore visivo tra collettivo e lista regali */}
+        <div className="flex items-center gap-3 py-1">
+          <div className="flex-1 h-px bg-avorio-dark" />
+          <span className="text-xs text-gray-400 font-medium uppercase tracking-widest">Regali della lista</span>
+          <div className="flex-1 h-px bg-avorio-dark" />
+        </div>
+
         {fields.map((field, index) => (
           <div
             key={field.id}
