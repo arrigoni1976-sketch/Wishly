@@ -601,7 +601,7 @@ export default function HomePage() {
       <section className="py-24 px-4 bg-salvia text-white">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-display text-4xl font-bold mb-4">
-            Pronto a creare la lista?
+            Pronto a organizzare la festa?
           </h2>
           <p className="text-white/80 text-base mb-8 leading-relaxed">
             Ci vogliono meno di 5 minuti. Aggiungi i regali, copia il link e condividilo con gli invitati.
