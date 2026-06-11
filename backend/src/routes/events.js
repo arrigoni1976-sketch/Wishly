@@ -426,7 +426,7 @@ router.post('/:id/contributions', async (req, res, next) => {
     // Verify collective token matches event
     const { data: event } = await supabase
       .from('events')
-      .select('id, collective_goal, collective_amount')
+      .select('id, collective_goal, collective_amount, parent_token, child_name, collective_description')
       .eq('id', req.params.id)
       .eq('collective_token', collectiveToken)
       .single()
@@ -458,6 +458,22 @@ router.post('/:id/contributions', async (req, res, next) => {
         .from('events')
         .update({ collective_amount: event.collective_amount + parseFloat(amount) })
         .eq('id', req.params.id)
+
+      // Notifica push per contributo in contanti (fire-and-forget)
+      const giftName = event.collective_description || 'regalo collettivo'
+      sendPushToParent(event.parent_token, {
+        title: `Piky — ${contributorName} ha contribuito 💛`,
+        body: `€${parseFloat(amount).toFixed(2)} per "${giftName}" al compleanno di ${event.child_name}`,
+        url: `/dashboard/${event.parent_token}`,
+      })
+    } else {
+      // Per PayPal: notifica che c'è un contributo in attesa di verifica
+      const giftName = event.collective_description || 'regalo collettivo'
+      sendPushToParent(event.parent_token, {
+        title: `Piky — ${contributorName} vuole contribuire con PayPal 💛`,
+        body: `€${parseFloat(amount).toFixed(2)} per "${giftName}" — verifica nel tuo dashboard`,
+        url: `/dashboard/${event.parent_token}`,
+      })
     }
 
     res.status(201).json({ ...data })
