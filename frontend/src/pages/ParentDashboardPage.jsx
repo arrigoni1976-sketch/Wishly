@@ -13,7 +13,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, sendThankYouEmails, getPushVapidKey, subscribePush, diagnosePush } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, sendThankYouEmails, getPushVapidKey, subscribePush } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -171,7 +171,6 @@ export default function ParentDashboardPage() {
   const [collectiveSaving, setCollectiveSaving] = useState(false)
   const [thankYouMsg, setThankYouMsg] = useState('')
   const [msgCopied, setMsgCopied] = useState(false)
-  const [pushTestStatus, setPushTestStatus] = useState(null) // null | 'testing' | { ok, step, error }
 
   const baseUrl = window.location.origin
 
@@ -254,16 +253,6 @@ export default function ParentDashboardPage() {
     } catch (err) {
       console.error('[push] subscribe error:', err)
       setNotifStatus('denied')
-    }
-  }
-
-  const handleTestPush = async () => {
-    setPushTestStatus('testing')
-    try {
-      const { data } = await diagnosePush(parentToken)
-      setPushTestStatus(data)
-    } catch {
-      setPushTestStatus({ ok: false, step: 'request_failed', error: 'Errore di rete' })
     }
   }
 
@@ -487,29 +476,9 @@ export default function ParentDashboardPage() {
             </button>
           )}
           {notifStatus === 'granted' && (
-            <div className="mt-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-salvia font-medium">
-                  🔔 Notifiche attive — ti avvisiamo quando qualcuno risponde o prenota
-                </p>
-                <button
-                  onClick={handleTestPush}
-                  disabled={pushTestStatus === 'testing'}
-                  className="text-xs text-gray-400 hover:text-salvia underline transition-colors ml-3 flex-shrink-0"
-                >
-                  {pushTestStatus === 'testing' ? 'Test...' : 'Testa'}
-                </button>
-              </div>
-              {pushTestStatus && pushTestStatus !== 'testing' && (
-                <div className={`mt-2 px-3 py-2 rounded-xl text-xs ${pushTestStatus.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
-                  {pushTestStatus.ok
-                    ? '✅ Notifica di test inviata — controlla la campanella del telefono'
-                    : pushTestStatus.step === 'no_subscription'
-                      ? '⚠️ Subscription non trovata — ricarica la pagina per riattivare'
-                      : `❌ Errore: ${pushTestStatus.error || pushTestStatus.step}`}
-                </div>
-              )}
-            </div>
+            <p className="mt-3 text-xs text-salvia font-medium text-center">
+              🔔 Notifiche attive — ti avvisiamo quando qualcuno risponde o prenota
+            </p>
           )}
           {notifStatus === 'denied' && (
             <p className="mt-3 text-xs text-gray-400 text-center">
