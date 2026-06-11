@@ -112,7 +112,7 @@ router.delete('/:id/reserve', async (req, res, next) => {
       .single()
 
     if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
-    if (gift.reserved_by !== guestName) {
+    if (gift.reserved_by?.toLowerCase() !== guestName?.toLowerCase()) {
       return res.status(403).json({ message: 'Non puoi cancellare la prenotazione di un altro' })
     }
 

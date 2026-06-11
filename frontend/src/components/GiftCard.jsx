@@ -215,6 +215,9 @@ export default function GiftCard({
           >
             {loading ? 'Annullo...' : 'Annulla prenotazione'}
           </button>
+          {reserveError && (
+            <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg mt-2">{reserveError}</p>
+          )}
         </div>
       )}
     </div>
