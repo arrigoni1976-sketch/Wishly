@@ -9,7 +9,7 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.js',
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.png', 'favicon.svg', 'icons/*.png'],
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],

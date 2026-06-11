@@ -582,6 +582,27 @@ export default function CreateEventPage() {
 
   const watchedData = watch()
 
+  // Restore draft from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('piky_create_draft')
+      if (saved) {
+        const vals = JSON.parse(saved)
+        Object.entries(vals).forEach(([k, v]) => {
+          if (v !== undefined && v !== null) setValue(k, v)
+        })
+      }
+    } catch {}
+  }, [])
+
+  // Save draft to sessionStorage on every change
+  useEffect(() => {
+    const subscription = watch((vals) => {
+      try { sessionStorage.setItem('piky_create_draft', JSON.stringify(vals)) } catch {}
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
+
   const STEP_FIELDS = {
     1: ['childName', 'partyDate'],
     2: ['parentEmail'],
@@ -639,6 +660,7 @@ export default function CreateEventPage() {
         }).catch(() => {})
       }
 
+      sessionStorage.removeItem('piky_create_draft')
       navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
     } catch (e) {
       setError(e?.response?.data?.message || 'Errore nella creazione. Riprova.')
