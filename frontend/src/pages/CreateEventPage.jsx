@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mail, Lightbulb } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mail, Lightbulb, MapPin } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
@@ -147,11 +147,23 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
         </div>
 
         <div>
-          <label className="label">Luogo</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="label mb-0">Luogo</label>
+            {watch('location')?.trim() && (
+              <a
+                href={`https://maps.google.com/?q=${encodeURIComponent(watch('location').trim())}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-salvia hover:underline flex items-center gap-1"
+              >
+                <MapPin className="w-3 h-3" /> Verifica su mappa →
+              </a>
+            )}
+          </div>
           <input
             {...register('location')}
             type="text"
-            placeholder="Es. Giardino di casa, Sala feste..."
+            placeholder="Es. Via Roma 12, Milano — o nome del locale"
             className="input"
           />
         </div>

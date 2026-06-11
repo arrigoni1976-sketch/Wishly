@@ -613,10 +613,15 @@ export default function GuestWishlistPage() {
               </span>
             )}
             {event.location && (
-              <span className="flex items-center gap-1.5">
+              <a
+                href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 hover:text-salvia transition-colors"
+              >
                 <MapPin className="w-4 h-4 text-cipria-dark" />
                 {event.location}
-              </span>
+              </a>
             )}
           </div>
 
@@ -662,10 +667,15 @@ export default function GuestWishlistPage() {
               </span>
             )}
             {event.location && (
-              <span className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium">
+              <a
+                href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium hover:border-salvia hover:text-salvia transition-colors"
+              >
                 <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
                 {event.location}
-              </span>
+              </a>
             )}
           </div>
 
