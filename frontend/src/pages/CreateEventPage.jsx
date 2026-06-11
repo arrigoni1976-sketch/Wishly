@@ -678,7 +678,7 @@ export default function CreateEventPage() {
             <ChevronLeft className="w-4 h-4" />
             Torna alla home
           </Link>
-          <h1 className="font-display text-3xl font-bold text-gray-900">Crea la lista</h1>
+          <h1 className="font-display text-3xl font-bold text-gray-900">Organizza la festa</h1>
         </div>
 
         <StepIndicator steps={STEPS} currentStep={currentStep} />
@@ -730,7 +730,7 @@ export default function CreateEventPage() {
                 ) : (
                   <>
                     <Check className="w-5 h-5" />
-                    Crea la lista
+                    Organizza la festa
                   </>
                 )}
               </button>

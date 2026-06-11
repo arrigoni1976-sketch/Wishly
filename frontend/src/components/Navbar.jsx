@@ -36,7 +36,7 @@ export default function Navbar() {
               to="/crea"
               className="btn-primary text-sm py-2 px-5"
             >
-              Crea la lista
+              Organizza la festa
             </Link>
           )}
         </nav>
