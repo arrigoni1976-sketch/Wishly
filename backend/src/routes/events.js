@@ -10,7 +10,7 @@ const router = Router()
 router.post('/', async (req, res, next) => {
   try {
     const {
-      childName, birthDate, partyDate, partyTime, location, notes,
+      childName, birthDate, partyDate, partyTime, location, address, notes,
       parentEmail, closingDate, gender,
       collectiveEnabled, collectiveGoal, collectiveDescription, paypalEmail, collectiveFixedQuota,
       gifts = [],
@@ -34,6 +34,7 @@ router.post('/', async (req, res, next) => {
         party_date: partyDate,
         party_time: partyTime || null,
         location: location || null,
+        address: address || null,
         notes: notes || null,
         parent_email: parentEmail,
         closing_date: closingDate || null,
@@ -140,7 +141,7 @@ router.get('/guest/:token', async (req, res, next) => {
     const { data: event, error } = await supabase
       .from('events')
       .select(`
-        id, child_name, gender, birth_date, party_date, party_time, location, notes,
+        id, child_name, gender, birth_date, party_date, party_time, location, address, notes,
         closing_date, collective_enabled, collective_token,
         collective_goal, collective_amount, collective_description,
         gifts(id, name, description, price, amazon_url, store_url, reserved_by, reserved_partner, purchased_offline, sort_order),

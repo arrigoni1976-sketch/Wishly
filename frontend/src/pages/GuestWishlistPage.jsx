@@ -233,7 +233,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
               childName: eventData.child_name,
               partyDate: eventData.party_date,
               partyTime: eventData.party_time,
-              location: eventData.location,
+              location: eventData.address || eventData.location,
               inviteUrl: window.location.href,
             })}
             className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-salvia bg-salvia/10 border border-salvia/40 rounded-2xl hover:bg-salvia/20 transition-colors"
@@ -620,16 +620,33 @@ export default function GuestWishlistPage() {
                 {event.party_time && ` · ${event.party_time.slice(0, 5)}`}
               </span>
             )}
-            {event.location && (
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 hover:text-salvia transition-colors"
-              >
-                <MapPin className="w-4 h-4 text-cipria-dark" />
-                {event.location}
-              </a>
+            {(event.location || event.address) && (
+              event.address ? (
+                <span className="flex items-start gap-1.5">
+                  <MapPin className="w-4 h-4 text-cipria-dark flex-shrink-0 mt-0.5" />
+                  <span className="flex flex-col gap-0.5 text-left">
+                    {event.location && <span>{event.location}</span>}
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-salvia hover:underline text-xs"
+                    >
+                      {event.address} →
+                    </a>
+                  </span>
+                </span>
+              ) : (
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 hover:text-salvia transition-colors"
+                >
+                  <MapPin className="w-4 h-4 text-cipria-dark" />
+                  {event.location}
+                </a>
+              )
             )}
           </div>
 
@@ -674,16 +691,36 @@ export default function GuestWishlistPage() {
                 {event.party_time && <> · {event.party_time.slice(0, 5)}</>}
               </span>
             )}
-            {event.location && (
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium hover:border-salvia hover:text-salvia transition-colors"
-              >
-                <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
-                {event.location}
-              </a>
+            {(event.location || event.address) && (
+              event.address ? (
+                <span className="inline-flex flex-col items-start gap-0.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium">
+                  {event.location && (
+                    <span className="flex items-center gap-1.5 text-sm">
+                      <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
+                      {event.location}
+                    </span>
+                  )}
+                  <a
+                    href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-1.5 text-xs text-salvia hover:underline ${event.location ? 'pl-5' : ''}`}
+                  >
+                    {!event.location && <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />}
+                    {event.address} →
+                  </a>
+                </span>
+              ) : (
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium hover:border-salvia hover:text-salvia transition-colors"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
+                  {event.location}
+                </a>
+              )
             )}
           </div>
 

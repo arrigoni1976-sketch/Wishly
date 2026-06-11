@@ -147,11 +147,21 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
         </div>
 
         <div>
+          <label className="label">Nome del luogo</label>
+          <input
+            {...register('location')}
+            type="text"
+            placeholder="Es. Oratorio di Vercurago, Bar Centrale"
+            className="input"
+          />
+        </div>
+
+        <div className="sm:col-span-2">
           <div className="flex items-center justify-between mb-1">
-            <label className="label mb-0">Luogo</label>
-            {watch('location')?.trim() && (
+            <label className="label mb-0">Indirizzo</label>
+            {watch('address')?.trim() && (
               <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(watch('location').trim())}`}
+                href={`https://maps.google.com/?q=${encodeURIComponent(watch('address').trim())}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-salvia hover:underline flex items-center gap-1"
@@ -161,9 +171,9 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
             )}
           </div>
           <input
-            {...register('location')}
+            {...register('address')}
             type="text"
-            placeholder="Es. Via Roma 12, Milano — o nome del locale"
+            placeholder="Es. Via Roma 12, Vercurago BG"
             className="input"
           />
         </div>
@@ -491,6 +501,7 @@ function StepConfirm({ data }) {
           <div>
             <span className="text-gray-400">Luogo</span>
             <p className="font-medium text-gray-700">{data.location || '—'}</p>
+            {data.address && <p className="text-xs text-gray-500 mt-0.5">{data.address}</p>}
           </div>
           <div>
             <span className="text-gray-400">Email</span>
@@ -555,6 +566,7 @@ export default function CreateEventPage() {
       partyDate: '',
       partyTime: '16:00',
       location: '',
+      address: '',
       notes: '',
       parentEmail: '',
       closingDate: '',
