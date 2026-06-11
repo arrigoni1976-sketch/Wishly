@@ -61,22 +61,28 @@ export async function saveSubscription(parentToken, subscription) {
 }
 
 export async function sendPushToParent(parentToken, { title, body, url = '/' }) {
-  if (!publicKey) return // VAPID non ancora inizializzato
+  if (!publicKey) {
+    console.warn('[push] VAPID non inizializzato — push ignorata')
+    return
+  }
   try {
-    const { data } = await supabase
+    const { data, error: dbErr } = await supabase
       .from('push_subscriptions')
       .select('subscription')
       .eq('parent_token', parentToken)
       .maybeSingle()
 
-    if (!data) return
+    if (dbErr) { console.error('[push] DB error:', dbErr.message); return }
+    if (!data) { console.log(`[push] Nessuna subscription per ${parentToken.slice(0, 8)}…`); return }
 
     await webpush.sendNotification(data.subscription, JSON.stringify({ title, body, url }))
+    console.log(`[push] ✅ Push inviata a ${parentToken.slice(0, 8)}…`)
   } catch (err) {
     if (err.statusCode === 410 || err.statusCode === 404) {
+      console.log(`[push] Subscription scaduta per ${parentToken.slice(0, 8)}… — rimossa`)
       await supabase.from('push_subscriptions').delete().eq('parent_token', parentToken)
     } else {
-      console.error('[push] sendNotification error:', err.message)
+      console.error(`[push] sendNotification error (${err.statusCode}):`, err.message)
     }
   }
 }
