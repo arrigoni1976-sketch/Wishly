@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import { vapidPublicKey, saveSubscription } from '../services/push.js'
+import { getVapidPublicKey, saveSubscription } from '../services/push.js'
 
 const router = Router()
 
 // GET /api/push/vapid-public-key
 router.get('/vapid-public-key', (_req, res) => {
-  res.json({ key: vapidPublicKey })
+  res.json({ key: getVapidPublicKey() })
 })
 
 // POST /api/push/subscribe

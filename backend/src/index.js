@@ -10,6 +10,7 @@ import paymentsRouter from './routes/payments.js'
 import userKeysRouter from './routes/userkeys.js'
 import adminRouter from './routes/admin.js'
 import pushRouter from './routes/push.js'
+import { initVapid } from './services/push.js'
 import { sendReminders, sendClosingSummaries } from './services/email.js'
 
 const app = express()
@@ -67,6 +68,11 @@ cron.schedule('0 10 * * *', async () => {
 })
 
 // ─── Start ───────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`✅ Wishly backend running on http://localhost:${PORT}`)
+initVapid().then(() => {
+  app.listen(PORT, () => {
+    console.log(`✅ Wishly backend running on http://localhost:${PORT}`)
+  })
+}).catch((err) => {
+  console.error('❌ initVapid failed:', err.message)
+  process.exit(1)
 })
