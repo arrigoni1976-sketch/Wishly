@@ -473,6 +473,7 @@ export default function GuestWishlistPage() {
         token: guestToken,
         childName: event?.child_name,
         partyDate: event?.party_date,
+        guestName: myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || undefined,
       })
       setKeyLinked(true)
     } catch (e) {
