@@ -422,7 +422,9 @@ export default function GuestWishlistPage() {
       }
 
       // Auto-recover RSVP and gift reservations if guest name is known
-      const storedName = localStorage.getItem('piky_guest_name')
+      // Usa piky_guest_name oppure il nome dall'RSVP salvato localmente (cross-browser)
+      const storedRsvp = JSON.parse(localStorage.getItem(`piky_rsvp_${guestToken}`) || 'null')
+      const storedName = localStorage.getItem('piky_guest_name') || storedRsvp?.guest_name
       if (storedName) {
         if (!localStorage.getItem(`piky_rsvp_${guestToken}`)) {
           const found = data.rsvp?.find(
@@ -490,6 +492,13 @@ export default function GuestWishlistPage() {
     if (rsvp.guest_name) {
       localStorage.setItem('piky_guest_name', rsvp.guest_name)
       trackLinkView(guestToken, { guestName: rsvp.guest_name }).catch(() => {})
+      // Aggiorna subito le prenotazioni riconosciute (utile dopo recupero RSVP cross-device)
+      if (event?.gifts) {
+        const reservedByMe = event.gifts
+          .filter((g) => g.reserved_by?.toLowerCase() === rsvp.guest_name.toLowerCase())
+          .map((g) => g.id)
+        if (reservedByMe.length > 0) setMyReservations(reservedByMe)
+      }
       // Save guest name server-side so other devices can auto-recover RSVP via sync
       const userKey = localStorage.getItem('piky_user_key')
       if (userKey) {
