@@ -231,7 +231,7 @@ function StepListSettings({ register, control, errors, emailQuota, onEmailBlur }
       </div>
 
       <div>
-        <label className="label">Data chiusura lista</label>
+        <label className="label">Chiudi le prenotazioni il</label>
         <Controller name="closingDate" control={control}
           render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
         <p className="text-xs text-gray-400 mt-1.5">
