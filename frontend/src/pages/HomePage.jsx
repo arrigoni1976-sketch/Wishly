@@ -269,6 +269,11 @@ export default function HomePage() {
           <p className="text-sm text-gray-400 mt-4 max-w-sm mx-auto leading-relaxed">
             Il codice è il tuo accesso personale. Salvalo per ritrovare le tue liste e i tuoi inviti su qualsiasi dispositivo — senza registrazione, senza password.
           </p>
+
+          <div className="inline-flex items-center gap-2 mt-5 bg-white/70 border border-cipria/40 rounded-full px-4 py-2 text-sm text-gray-500 backdrop-blur-sm">
+            <span>🎂</span>
+            <span>Già usato da più di <span className="font-semibold text-gray-700">500 mamme</span></span>
+          </div>
         </div>
 
         {/* ─── Le tue liste + Inviti ────────────────────────────────── */}
