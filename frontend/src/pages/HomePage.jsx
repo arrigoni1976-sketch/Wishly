@@ -16,20 +16,20 @@ import { it } from 'date-fns/locale'
 
 const FEATURES = [
   {
-    icon: Gift,
-    emoji: null,
-    customIcon: <GiftIcon size={28} />,
-    title: 'Lista senza doppioni',
-    description:
-      'Chi prenota un regalo lo rende invisibile agli altri invitati. Zero sovrapposizioni, zero imbarazzo.',
-  },
-  {
     icon: Users,
     emoji: null,
     customIcon: <CelebrationIcon size={28} />,
     title: 'Conferma presenza',
     description:
       'Gli invitati confermano la loro presenza (ci sarò / forse / non vengo) direttamente nella lista.',
+  },
+  {
+    icon: Gift,
+    emoji: null,
+    customIcon: <GiftIcon size={28} />,
+    title: 'Lista senza doppioni',
+    description:
+      'Chi prenota un regalo lo rende invisibile agli altri invitati. Zero sovrapposizioni, zero imbarazzo.',
   },
   {
     icon: Heart,
