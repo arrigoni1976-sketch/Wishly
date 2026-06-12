@@ -129,7 +129,7 @@ export async function sendClosingPushes() {
   console.log(`[push] Closing push inviate per ${events.length} eventi`)
 }
 
-async function sendPushToParent(parentToken, { title, body, url }) {
+export async function sendPushToParent(parentToken, { title, body, url }) {
   if (!publicKey) {
     console.warn('[push] VAPID non inizializzato — push ignorata')
     return
