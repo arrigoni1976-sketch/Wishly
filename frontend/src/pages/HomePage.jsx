@@ -191,7 +191,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
-            Organizza il compleanno del tuo bambino in pochi minuti. Condividi il link con gli invitati: la lista dei regali e le conferme di presenza le gestisce Piky.
+            Messaggi WhatsApp a non finire, gruppi caotici, regali doppi o inutili. Con Piky condividi un link e gli invitati confermano la presenza e prenotano i regali — senza sovrapposizioni, senza caos.
           </p>
 
           <div className="flex flex-row gap-3 justify-center">
