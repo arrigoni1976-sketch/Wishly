@@ -182,7 +182,7 @@ export default function HomePage() {
         <div className="relative max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/70 border border-cipria/40 rounded-full px-4 py-1.5 text-sm text-gray-600 mb-6 backdrop-blur-sm">
             <CakeIcon size={20} />
-            <span>La wishlist intelligente per i compleanni</span>
+            <span>Già usato da più di <strong>500 mamme</strong></span>
           </div>
 
           <h1 className="font-display text-5xl sm:text-6xl font-bold text-gray-900 leading-tight mb-6">
@@ -270,10 +270,6 @@ export default function HomePage() {
             Il codice è il tuo accesso personale. Salvalo per ritrovare le tue liste e i tuoi inviti su qualsiasi dispositivo — senza registrazione, senza password.
           </p>
 
-          <div className="inline-flex items-center gap-2 mt-5 bg-white/70 border border-cipria/40 rounded-full px-4 py-2 text-sm text-gray-500 backdrop-blur-sm">
-            <span>🎂</span>
-            <span>Già usato da più di <span className="font-semibold text-gray-700">500 mamme</span></span>
-          </div>
         </div>
 
         {/* ─── Le tue liste + Inviti ────────────────────────────────── */}
