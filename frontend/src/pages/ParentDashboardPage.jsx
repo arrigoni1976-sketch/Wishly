@@ -388,7 +388,16 @@ export default function ParentDashboardPage() {
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
                       <span className="flex flex-col gap-0.5">
                         {event.location && <span>{event.location}</span>}
-                        {event.address && <span className="text-xs text-gray-400">{event.address}</span>}
+                        {event.address && (
+                          <a
+                            href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-salvia hover:underline"
+                          >
+                            {event.address} →
+                          </a>
+                        )}
                       </span>
                     </span>
                   )}
