@@ -235,7 +235,7 @@ function StepListSettings({ register, control, errors, emailQuota, onEmailBlur }
         <Controller name="closingDate" control={control}
           render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
         <p className="text-xs text-gray-400 mt-1.5">
-          Dopo questa data gli invitati non potranno più prenotare.
+          Dopo questa data gli invitati non potranno più prenotare regali né confermare la presenza.
         </p>
       </div>
 
