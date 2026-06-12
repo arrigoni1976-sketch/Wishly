@@ -122,12 +122,6 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
         </div>
 
         <div>
-          <label className="label">Data di nascita</label>
-          <Controller name="birthDate" control={control} rules={{ validate: validYear }}
-            render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
-        </div>
-
-        <div>
           <label className="label">Data della festa *</label>
           <Controller name="partyDate" control={control} rules={{ required: 'Campo obbligatorio', validate: validYear }}
             render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
@@ -562,7 +556,6 @@ export default function CreateEventPage() {
     defaultValues: {
       childName: '',
       gender: '',
-      birthDate: '',
       partyDate: '',
       partyTime: '16:00',
       location: '',
