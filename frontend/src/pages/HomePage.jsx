@@ -220,21 +220,20 @@ export default function HomePage() {
                     </span>
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(userKey.toUpperCase()).catch(() => {})
                       setKeyCopied(true)
                       setTimeout(() => setKeyCopied(false), 2000)
                     }}
-                    className="text-gray-400 hover:text-salvia transition-colors"
-                    title="Copia codice"
+                    className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-salvia hover:text-salvia transition-colors"
                   >
-                    {keyCopied ? <Check className="w-4 h-4 text-salvia" /> : <Copy className="w-4 h-4" />}
+                    {keyCopied ? '✓ Copiato' : 'Copia'}
                   </button>
                   <button
                     onClick={() => openKeyModal('create')}
-                    className="text-xs text-salvia hover:underline font-medium"
+                    className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-salvia hover:text-salvia transition-colors"
                   >
                     Cambia
                   </button>
