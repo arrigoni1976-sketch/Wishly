@@ -538,7 +538,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">Come funziona</h2>
-            <p className="text-lg text-gray-500">Quattro passi e la lista è pronta</p>
+            <p className="text-lg text-gray-500">Quattro passi e la festa è pronta</p>
 
           </div>
 
