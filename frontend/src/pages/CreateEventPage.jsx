@@ -353,10 +353,11 @@ function StepGifts({ control, register, watch, setValue }) {
         <CollectiveGiftCard register={register} watch={watch} setValue={setValue} />
 
         {/* Separatore visivo tra collettivo e lista regali */}
-        <div className="flex items-center gap-3 py-1">
-          <div className="flex-1 h-px bg-avorio-dark" />
-          <span className="text-xs text-gray-400 font-medium uppercase tracking-widest">Regali della lista</span>
-          <div className="flex-1 h-px bg-avorio-dark" />
+        <div className="pt-3">
+          <h3 className="font-display text-xl font-bold text-gray-900">
+            Lista dei regali
+          </h3>
+          <p className="text-sm text-gray-400 mt-0.5">Ogni regalo sarà prenotabile in esclusiva da un invitato.</p>
         </div>
 
         {fields.map((field, index) => (
