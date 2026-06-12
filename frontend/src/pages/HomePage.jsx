@@ -407,9 +407,10 @@ export default function HomePage() {
 
           {/* Titolo sezione */}
           <div className="text-center mb-8">
-            <h2 className="font-display text-3xl font-bold text-gray-900">
+            <h2 className="font-display text-3xl font-bold text-gray-900 mb-2">
               Scopri di più
             </h2>
+            <p className="text-lg text-gray-500">Semplice per chi organizza, comodo per gli invitati</p>
           </div>
 
           {/* Phone mockup — fedele alla pagina ospite reale */}
@@ -536,12 +537,9 @@ export default function HomePage() {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="font-display text-3xl font-bold text-gray-900">
               Tutto quello che ti serve
             </h2>
-            <p className="text-lg text-gray-500">
-              Pensato per chi organizza, comodo per gli invitati.
-            </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
