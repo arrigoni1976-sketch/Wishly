@@ -12,7 +12,7 @@ import { createEvent, addUserKeyLink, checkEmailQuota } from '../lib/api'
 const PAYMENT_ACTIVE = false
 const PRICE_PER_EVENT = 1.29
 
-const STEPS = ['Info festa', 'La tua lista', 'Regali', 'Conferma']
+const STEPS = ['Info festa', 'Chi organizza', 'Regali', 'Conferma']
 
 // ─── DateInput: GG / MM / AAAA ────────────────────────────────────────────
 function DateInput({ value, onChange, onBlur }) {
@@ -504,6 +504,13 @@ function StepConfirm({ data }) {
             <p className="font-medium text-gray-700">{data.gifts?.length || 0} regali</p>
           </div>
         </div>
+
+        {data.notes && (
+          <div className="pt-2 border-t border-avorio-dark">
+            <span className="text-gray-400 text-xs">Note per gli invitati</span>
+            <p className="text-sm text-gray-700 mt-0.5">{data.notes}</p>
+          </div>
+        )}
 
         {data.collectiveEnabled && (
           <div className="pt-2 border-t border-avorio-dark">

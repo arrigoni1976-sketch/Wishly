@@ -1,4 +1,4 @@
-const API_URL = 'https://wishly-production.up.railway.app'
+const API_URL = process.env.RAILWAY_API_URL || process.env.VITE_API_URL || 'https://wishly-production.up.railway.app'
 
 // Detect social media crawlers
 function isCrawler(userAgent) {

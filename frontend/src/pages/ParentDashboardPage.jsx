@@ -13,7 +13,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, sendThankYouEmails, getPushVapidKey, subscribePush } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, getPushVapidKey, subscribePush } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 

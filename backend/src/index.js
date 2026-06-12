@@ -72,7 +72,7 @@ cron.schedule('0 10 * * *', async () => {
 // ─── Start ───────────────────────────────────────────────────────────────────
 initVapid().then(() => {
   app.listen(PORT, () => {
-    console.log(`✅ Wishly backend running on http://localhost:${PORT}`)
+    console.log(`✅ Piky backend running on http://localhost:${PORT}`)
   })
 }).catch((err) => {
   console.error('❌ initVapid failed:', err.message)

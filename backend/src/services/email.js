@@ -44,12 +44,12 @@ export async function sendEventCreatedEmail({
   to, childName, partyDate, partyTime, location,
   parentToken, guestToken, collectiveToken,
 }) {
-  const subject = `🎁 Wishly — Lista di ${childName} creata con successo!`
+  const subject = `🎁 Piky — Lista di ${childName} creata con successo!`
   const html = `
     <div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
       <div style="background: #4A7A50; padding: 32px; border-radius: 16px 16px 0 0; text-align: center;">
         <h1 style="color: white; font-size: 28px; margin: 0; font-family: Georgia, serif;">
-          🎁 Wishly
+          🎁 Piky
         </h1>
         <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0;">Lista desideri pronta!</p>
       </div>
@@ -162,7 +162,7 @@ export async function sendClosingSummaryEmail({ to, event }) {
       )
       .join('')
 
-  const subject = `🎂 Wishly — Riepilogo finale: compleanno di ${event.child_name}`
+  const subject = `🎂 Piky — Riepilogo finale: compleanno di ${event.child_name}`
   const html = `
     <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
       <div style="background: #4A7A50; padding: 32px; border-radius: 16px 16px 0 0; text-align: center;">
@@ -231,7 +231,7 @@ export async function sendClosingSummaryEmail({ to, event }) {
         </table>` : ''}
 
         <p style="color: #999; font-size: 13px; margin: 28px 0 0; text-align: center;">
-          Grazie per aver usato Wishly 🎁
+          Grazie per aver usato Piky 🎁
         </p>
       </div>
     </div>
