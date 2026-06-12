@@ -27,7 +27,7 @@ const FEATURES = [
     icon: Gift,
     emoji: null,
     customIcon: <GiftIcon size={28} />,
-    title: 'Lista senza doppioni',
+    title: 'Lista regali senza doppioni',
     description:
       'Chi prenota un regalo lo rende invisibile agli altri invitati. Zero sovrapposizioni, zero imbarazzo.',
   },
