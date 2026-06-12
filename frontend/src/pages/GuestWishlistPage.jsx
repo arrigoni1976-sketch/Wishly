@@ -699,48 +699,6 @@ export default function GuestWishlistPage() {
             </h2>
           </div>
 
-          {/* Event details recap */}
-          <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-            {event.party_date && (
-              <span className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium">
-                <Calendar className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
-                {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
-                {event.party_time && <> · {event.party_time.slice(0, 5)}</>}
-              </span>
-            )}
-            {(event.location || event.address) && (
-              event.address ? (
-                <span className="inline-flex flex-col items-start gap-0.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium">
-                  {event.location && (
-                    <span className="flex items-center gap-1.5 text-sm">
-                      <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
-                      {event.location}
-                    </span>
-                  )}
-                  <a
-                    href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center gap-1.5 text-xs text-salvia hover:underline ${event.location ? 'pl-5' : ''}`}
-                  >
-                    {!event.location && <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />}
-                    {event.address} →
-                  </a>
-                </span>
-              ) : (
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-white border border-avorio-dark rounded-xl px-3 py-1.5 font-medium hover:border-salvia hover:text-salvia transition-colors"
-                >
-                  <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
-                  {event.location}
-                </a>
-              )
-            )}
-          </div>
-
           <p className="text-sm text-gray-600 leading-relaxed">
             Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci.
           </p>
