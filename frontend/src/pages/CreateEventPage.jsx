@@ -222,8 +222,7 @@ function StepListSettings({ register, control, errors, emailQuota, onEmailBlur }
           <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm text-gray-600 mt-3">
             <p className="font-medium text-salvia mb-1">Bentornato su Piky! 👋</p>
             <p className="text-gray-500">
-              Hai già creato {emailQuota.eventCount} {emailQuota.eventCount === 1 ? 'festa' : 'feste'} con questa email.
-              Il primo compleanno è sempre gratuito — stai organizzando il tuo{' '}
+              Hai già creato {emailQuota.eventCount} {emailQuota.eventCount === 1 ? 'festa' : 'feste'} con questa email — stai organizzando il tuo{' '}
               <strong>{emailQuota.eventCount + 1}° compleanno</strong>.
               {!PAYMENT_ACTIVE && ' Piky è ancora completamente gratuita, goditi la festa!'}
             </p>
