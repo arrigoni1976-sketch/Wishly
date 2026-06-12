@@ -407,10 +407,9 @@ export default function HomePage() {
 
           {/* Titolo sezione */}
           <div className="text-center mb-8">
-            <h2 className="font-display text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="font-display text-3xl font-bold text-gray-900">
               Scopri di più
             </h2>
-            <p className="text-lg text-gray-500">Semplice per chi organizza, comodo per gli invitati</p>
           </div>
 
           {/* Phone mockup — fedele alla pagina ospite reale */}
