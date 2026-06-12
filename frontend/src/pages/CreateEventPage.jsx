@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Mail, Lightbulb, MapPin } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
@@ -186,16 +186,16 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
   )
 }
 
-// ─── Step 2: La tua lista ─────────────────────────────────────────────────
+// ─── Step 2: Chi organizza ────────────────────────────────────────────────
 function StepListSettings({ register, control, errors, emailQuota }) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          La tua lista
+          Chi organizza?
         </h2>
         <p className="text-gray-500 text-sm">
-          Dove ti mandiamo i link per condividere la lista
+          La tua email ci permette di ritrovare il tuo evento
         </p>
       </div>
 
@@ -223,18 +223,8 @@ function StepListSettings({ register, control, errors, emailQuota }) {
         <Controller name="closingDate" control={control}
           render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
         <p className="text-xs text-gray-400 mt-1.5">
-          Dopo questa data gli invitati non potranno più prenotare. Ti verrà inviato un riepilogo
-          finale.
+          Dopo questa data gli invitati non potranno più prenotare.
         </p>
-      </div>
-
-      <div className="bg-cipria/10 border border-cipria/30 rounded-2xl p-4 text-sm text-gray-600">
-        <p className="font-medium text-gray-700 mb-1"><span className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-salvia" /> Cosa riceverai:</span></p>
-        <ul className="space-y-1 text-gray-500">
-          <li>· I link per condividere la lista</li>
-          <li>· Un promemoria quando mancano 2 giorni alla festa</li>
-          <li>· Il riepilogo completo alla chiusura della lista</li>
-        </ul>
       </div>
 
       {/* Banner utente di ritorno — informativo finché PAYMENT_ACTIVE = false */}
@@ -525,13 +515,6 @@ function StepConfirm({ data }) {
         )}
       </div>
 
-      <div className="bg-cipria/10 border border-cipria/30 rounded-2xl p-4 text-sm text-gray-600">
-        <p className="font-medium text-gray-700 mb-1 flex items-center gap-1.5"><Mail className="w-4 h-4 text-salvia" /> Dopo la creazione riceverai:</p>
-        <ul className="space-y-1 text-gray-500">
-          <li>· Link di gestione lista (solo per te)</li>
-          <li>· Link lista per gli invitati</li>
-        </ul>
-      </div>
     </div>
   )
 }
