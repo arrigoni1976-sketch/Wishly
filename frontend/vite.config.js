@@ -12,7 +12,8 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.png', 'favicon.svg', 'icons/*.png'],
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['icons/icon-1024x1024.png'],
       },
       manifest: {
         name: 'Piky — Lista desideri',
