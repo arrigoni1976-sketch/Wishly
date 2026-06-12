@@ -60,6 +60,33 @@ export async function saveSubscription(parentToken, subscription) {
   }
 }
 
+export async function sendPartyFollowupPushes() {
+  // Fires the morning after the party
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+  const { data: events } = await supabase
+    .from('events')
+    .select('id, child_name, parent_token')
+    .eq('party_date', yesterdayStr)
+
+  if (!events?.length) {
+    console.log('[push] Nessuna festa ieri')
+    return
+  }
+
+  for (const event of events) {
+    await sendPushToParent(event.parent_token, {
+      title: `Piky — Com'è andata la festa di ${event.child_name}? 🎂`,
+      body: 'Ricorda di mandare un messaggio di ringraziamento agli invitati!',
+      url: `/dashboard/${event.parent_token}`,
+    })
+  }
+
+  console.log(`[push] Follow-up push inviate per ${events.length} feste`)
+}
+
 export async function sendClosingPushes() {
   const today = new Date().toISOString().split('T')[0]
 
