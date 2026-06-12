@@ -383,10 +383,13 @@ export default function ParentDashboardPage() {
                       {event.party_time && ` · ${event.party_time.slice(0, 5)}`}
                     </span>
                   )}
-                  {event.location && (
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {event.location}
+                  {(event.location || event.address) && (
+                    <span className="flex items-start gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                      <span className="flex flex-col gap-0.5">
+                        {event.location && <span>{event.location}</span>}
+                        {event.address && <span className="text-xs text-gray-400">{event.address}</span>}
+                      </span>
                     </span>
                   )}
                 </div>
