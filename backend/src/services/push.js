@@ -60,7 +60,47 @@ export async function saveSubscription(parentToken, subscription) {
   }
 }
 
-export async function sendPushToParent(parentToken, { title, body, url = '/' }) {
+export async function sendClosingPushes() {
+  const today = new Date().toISOString().split('T')[0]
+
+  const { data: events } = await supabase
+    .from('events')
+    .select(`
+      id, child_name, parent_token,
+      gifts(id, reserved_by),
+      rsvp(id, status, adults_count, children_count),
+      collective_enabled, collective_amount
+    `)
+    .eq('closing_date', today)
+
+  if (!events?.length) {
+    console.log('[push] Nessuna lista in chiusura oggi')
+    return
+  }
+
+  for (const event of events) {
+    const confirmed = (event.rsvp || []).filter((r) => r.status === 'yes')
+    const totalPeople = confirmed.reduce(
+      (acc, r) => acc + (r.adults_count || 1) + (r.children_count || 0), 0
+    )
+    const reservedGifts = (event.gifts || []).filter((g) => g.reserved_by).length
+    const totalGifts = (event.gifts || []).length
+
+    const parts = []
+    parts.push(`${totalPeople} ${totalPeople === 1 ? 'confermato' : 'confermati'}`)
+    if (totalGifts > 0) parts.push(`${reservedGifts}/${totalGifts} regali prenotati`)
+    if (event.collective_enabled && event.collective_amount > 0)
+      parts.push(`€${parseFloat(event.collective_amount).toFixed(2)} raccolti`)
+
+    await sendPushToParent(event.parent_token, {
+      title: `Piky — La lista di ${event.child_name} è chiusa 🎉`,
+      body: parts.join(' · '),
+      url: `/dashboard/${event.parent_token}`,
+    })
+  }
+
+  console.log(`[push] Closing push inviate per ${events.length} eventi`)
+}
   if (!publicKey) {
     console.warn('[push] VAPID non inizializzato — push ignorata')
     return
