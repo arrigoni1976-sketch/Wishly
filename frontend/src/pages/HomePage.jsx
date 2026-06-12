@@ -266,36 +266,8 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Azioni secondarie — Scarica e Condividi */}
-          <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
-            <button
-              onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors shadow-sm"
-            >
-              Scarica l'app
-            </button>
-            <button
-              onClick={async () => {
-                const shareData = {
-                  title: 'Piky — Lista desideri per compleanni',
-                  text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
-                  url: window.location.origin,
-                }
-                if (navigator.share) {
-                  await navigator.share(shareData)
-                } else {
-                  await navigator.clipboard.writeText(window.location.origin)
-                  alert('Link copiato!')
-                }
-              }}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 px-4 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors shadow-sm"
-            >
-              <Share2 className="w-3.5 h-3.5" /> Condividi
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-400 mt-5">
-            Nessun account necessario · Pronto in pochi minuti · Tutto in un link
+          <p className="text-sm text-gray-400 mt-4 max-w-sm mx-auto leading-relaxed">
+            Il codice è il tuo accesso personale. Salvalo per ritrovare le tue liste e i tuoi inviti su qualsiasi dispositivo — senza registrazione, senza password.
           </p>
         </div>
 
