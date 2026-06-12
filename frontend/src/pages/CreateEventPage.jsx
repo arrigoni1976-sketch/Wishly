@@ -187,7 +187,7 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 }
 
 // ─── Step 2: Chi organizza ────────────────────────────────────────────────
-function StepListSettings({ register, control, errors, emailQuota }) {
+function StepListSettings({ register, control, errors, emailQuota, onEmailBlur }) {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
@@ -208,6 +208,7 @@ function StepListSettings({ register, control, errors, emailQuota }) {
               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
               message: 'Email non valida',
             },
+            onBlur: onEmailBlur,
           })}
           type="email"
           placeholder="nome@esempio.it"
@@ -527,6 +528,15 @@ export default function CreateEventPage() {
   const [error, setError] = useState('')
   const [emailQuota, setEmailQuota] = useState(null)
 
+  const handleEmailBlur = async (e) => {
+    const email = e.target.value.trim()
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
+    try {
+      const res = await checkEmailQuota(email)
+      setEmailQuota(res.data)
+    } catch { /* non bloccare */ }
+  }
+
   const {
     register,
     control,
@@ -595,14 +605,7 @@ export default function CreateEventPage() {
     const valid = await trigger(fields)
     if (!valid) return
 
-    // Step 2: controlla quota email (silenzioso — solo informativo per ora)
-    if (currentStep === 2 && watchedData.parentEmail) {
-      try {
-        const res = await checkEmailQuota(watchedData.parentEmail)
-        setEmailQuota(res.data)
-        // Quando PAYMENT_ACTIVE = true, aggiungere qui il blocco se freeEventUsed
-      } catch { /* non bloccare se il check fallisce */ }
-    }
+    // Quando PAYMENT_ACTIVE = true, aggiungere qui il blocco se freeEventUsed
 
     setCurrentStep((s) => Math.min(s + 1, 4))
   }
@@ -662,7 +665,7 @@ export default function CreateEventPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
             {currentStep === 1 && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
-            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} />}
+            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} onEmailBlur={handleEmailBlur} />}
             {currentStep === 3 && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
             {currentStep === 4 && <StepConfirm data={watchedData} />}
           </div>
