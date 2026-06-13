@@ -659,9 +659,9 @@ export default function GuestWishlistPage() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 hover:text-salvia transition-colors"
+                  className="flex items-center gap-1.5 text-salvia underline underline-offset-2 hover:opacity-80 transition-opacity"
                 >
-                  <MapPin className="w-4 h-4 text-cipria-dark flex-shrink-0" />
+                  <MapPin className="w-4 h-4 flex-shrink-0 no-underline" />
                   {event.location ? `${event.location} — ${event.address}` : event.address} →
                 </a>
               ) : (
@@ -669,9 +669,9 @@ export default function GuestWishlistPage() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 hover:text-salvia transition-colors"
+                  className="flex items-center gap-1.5 text-salvia underline underline-offset-2 hover:opacity-80 transition-opacity"
                 >
-                  <MapPin className="w-4 h-4 text-cipria-dark" />
+                  <MapPin className="w-4 h-4" />
                   {event.location}
                 </a>
               )
