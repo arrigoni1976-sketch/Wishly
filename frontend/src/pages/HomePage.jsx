@@ -583,14 +583,13 @@ export default function HomePage() {
               Organizza la festa
               <GiftIcon size={18} />
             </Link>
-            <div className="flex items-center gap-1 text-white/60 text-sm">
+            <div className="flex items-center gap-3 flex-wrap justify-center">
               <button
                 onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
-                className="px-3 py-1.5 hover:text-white transition-colors"
+                className="inline-flex items-center gap-2 border border-white/40 text-white/80 hover:text-white hover:border-white text-sm font-medium px-4 py-2 rounded-xl transition-colors duration-200"
               >
                 Scarica l'app
               </button>
-              <span>·</span>
               <button
                 onClick={async () => {
                   const shareData = {
@@ -605,7 +604,7 @@ export default function HomePage() {
                     alert('Link copiato!')
                   }
                 }}
-                className="px-3 py-1.5 hover:text-white transition-colors inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-2 border border-white/40 text-white/80 hover:text-white hover:border-white text-sm font-medium px-4 py-2 rounded-xl transition-colors duration-200"
               >
                 <Share2 className="w-3.5 h-3.5" /> Condividi
               </button>
