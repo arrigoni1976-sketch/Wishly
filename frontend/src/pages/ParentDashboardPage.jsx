@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import {
-  Gift, Users, Plus, Calendar, MapPin,
+  Gift, Users, Plus, Calendar, Clock, MapPin,
   Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
   Baby, AlertCircle, Share2, MessageCircle, Copy
 } from 'lucide-react'
@@ -375,31 +375,38 @@ export default function ParentDashboardPage() {
                 <h1 className="font-display text-2xl font-bold text-gray-900">
                   Compleanno di {event.child_name}
                 </h1>
-                <div className="flex flex-wrap gap-3 mt-1 text-sm text-gray-500">
-                  {event.party_date && (
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
-                      {event.party_time && ` · ${event.party_time.slice(0, 5)}`}
-                    </span>
-                  )}
-                  {(event.location || event.address) && (
-                    <span className="flex items-start gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                      <span className="flex flex-col gap-0.5">
-                        {event.location && <span>{event.location}</span>}
-                        {event.address && (
-                          <a
-                            href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-salvia hover:underline"
-                          >
-                            {event.address} →
-                          </a>
-                        )}
+                <div className="flex flex-col gap-1 mt-1 text-sm text-gray-500">
+                  <div className="flex flex-wrap gap-3">
+                    {event.party_date && (
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
                       </span>
-                    </span>
+                    )}
+                    {event.party_time && (
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        {event.party_time.slice(0, 5)}
+                      </span>
+                    )}
+                  </div>
+                  {(event.location || event.address) && (
+                    event.address ? (
+                      <a
+                        href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-salvia underline underline-offset-2 hover:opacity-80 transition-opacity"
+                      >
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                        {event.location ? `${event.location} — ${event.address}` : event.address} →
+                      </a>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5" />
+                        {event.location}
+                      </span>
+                    )
                   )}
                 </div>
               </div>
