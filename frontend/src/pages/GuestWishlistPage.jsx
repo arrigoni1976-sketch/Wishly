@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Calendar, CalendarPlus, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil } from 'lucide-react'
+import { Calendar, CalendarPlus, Clock, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
 import GiftIcon from '../components/GiftIcon'
@@ -643,7 +643,12 @@ export default function GuestWishlistPage() {
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-cipria-dark" />
                 {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
-                {event.party_time && ` · ${event.party_time.slice(0, 5)}`}
+              </span>
+            )}
+            {event.party_time && (
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-cipria-dark" />
+                {event.party_time.slice(0, 5)}
               </span>
             )}
             {(event.location || event.address) && (
