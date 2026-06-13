@@ -655,16 +655,20 @@ export default function GuestWishlistPage() {
             </div>
             {(event.location || event.address) && (
               event.address ? (
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  <MapPin className="w-4 h-4 text-cipria-dark flex-shrink-0" />
-                  {event.location && <span>{event.location} — </span>}
-                  <span className="underline underline-offset-2">{event.address} →</span>
-                </a>
+                <span className="flex items-start gap-1.5 text-gray-500">
+                  <MapPin className="w-4 h-4 text-cipria-dark flex-shrink-0 mt-0.5" />
+                  <span className="flex flex-col gap-0.5">
+                    {event.location && <span>{event.location}</span>}
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 hover:text-gray-700 transition-colors"
+                    >
+                      {event.address} →
+                    </a>
+                  </span>
+                </span>
               ) : (
                 <a
                   href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
