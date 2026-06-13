@@ -396,10 +396,11 @@ export default function ParentDashboardPage() {
                         href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-salvia underline underline-offset-2 hover:opacity-80 transition-opacity"
+                        className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors"
                       >
                         <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                        {event.location ? `${event.location} — ${event.address}` : event.address} →
+                        {event.location && <span>{event.location} — </span>}
+                        <span className="underline underline-offset-2">{event.address} →</span>
                       </a>
                     ) : (
                       <span className="flex items-center gap-1.5">
