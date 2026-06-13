@@ -79,6 +79,13 @@ router.post('/:id/reserve', async (req, res, next) => {
     if (error) throw error
     if (!data) return res.status(409).json({ message: 'Regalo già prenotato da qualcun altro' })
 
+    // Registra first_gift_reserved_at se non ancora impostato (fire-and-forget)
+    supabase.from('events')
+      .update({ first_gift_reserved_at: new Date().toISOString() })
+      .eq('id', gift.event_id)
+      .is('first_gift_reserved_at', null)
+      .then(() => {}).catch(() => {})
+
     // Notifica push all'organizzatore (fire-and-forget)
     supabase.from('events').select('parent_token, child_name').eq('id', gift.event_id).single()
       .then(({ data: ev }) => {

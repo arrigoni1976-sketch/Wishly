@@ -28,6 +28,15 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+// Cattura UTM params al primo caricamento e li conserva in sessionStorage
+;(function captureUTMs() {
+  const params = new URLSearchParams(window.location.search)
+  ;['utm_source', 'utm_medium', 'utm_campaign', 'referral_source'].forEach(k => {
+    const v = params.get(k)
+    if (v && !sessionStorage.getItem(k)) sessionStorage.setItem(k, v)
+  })
+})()
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>

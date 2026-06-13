@@ -6,6 +6,26 @@ import { sendPushToParent } from '../services/push.js'
 
 const router = Router()
 
+// ─── User-Agent parser ───────────────────────────────────────────────────────
+function parseUserAgent(ua) {
+  if (!ua) return { device_type: 'unknown', os: 'unknown', browser: 'unknown' }
+  const isMobile = /mobile|android|iphone|ipod/i.test(ua)
+  const isTablet = /ipad|tablet/i.test(ua)
+  const device_type = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop'
+  let os = 'other'
+  if (/iphone|ipad|ipod/i.test(ua)) os = 'iOS'
+  else if (/android/i.test(ua)) os = 'Android'
+  else if (/windows/i.test(ua)) os = 'Windows'
+  else if (/mac os x|macintosh/i.test(ua)) os = 'macOS'
+  else if (/linux/i.test(ua)) os = 'Linux'
+  let browser = 'other'
+  if (/edg\//i.test(ua)) browser = 'Edge'
+  else if (/firefox/i.test(ua)) browser = 'Firefox'
+  else if (/chrome/i.test(ua)) browser = 'Chrome'
+  else if (/safari/i.test(ua)) browser = 'Safari'
+  return { device_type, os, browser }
+}
+
 // ─── POST /api/events — Create event ────────────────────────────────────────
 router.post('/', async (req, res, next) => {
   try {
@@ -14,6 +34,7 @@ router.post('/', async (req, res, next) => {
       parentEmail, closingDate, gender,
       collectiveEnabled, collectiveGoal, collectiveDescription, paypalEmail, collectiveFixedQuota,
       gifts = [],
+      referralSource, utmSource, utmMedium, utmCampaign,
     } = req.body
 
     if (!childName || !partyDate || !parentEmail) {
@@ -46,6 +67,10 @@ router.post('/', async (req, res, next) => {
         collective_amount: 0,
         paypal_email: collectiveEnabled && paypalEmail ? paypalEmail : null,
         collective_fixed_quota: collectiveEnabled && collectiveFixedQuota ? parseFloat(collectiveFixedQuota) : null,
+        referral_source: referralSource || null,
+        utm_source: utmSource || null,
+        utm_medium: utmMedium || null,
+        utm_campaign: utmCampaign || null,
       })
       .select()
       .single()
@@ -186,6 +211,7 @@ router.get('/collective/:token', async (req, res, next) => {
 router.post('/guest/:token/view', async (req, res, next) => {
   try {
     const { guestName } = req.body
+    const { device_type, os, browser } = parseUserAgent(req.headers['user-agent'])
 
     // Find event id from token
     const { data: event } = await supabase
@@ -196,7 +222,7 @@ router.post('/guest/:token/view', async (req, res, next) => {
 
     if (!event) return res.status(404).json({ message: 'Evento non trovato' })
 
-    console.log(`[view] token=${req.params.token} eventId=${event.id} guestName=${guestName || 'anon'}`)
+    console.log(`[view] token=${req.params.token} eventId=${event.id} guestName=${guestName || 'anon'} device=${device_type}`)
 
     // Upsert view record (by guest_name if provided, otherwise aggregate anonymous row)
     if (guestName) {
@@ -216,6 +242,9 @@ router.post('/guest/:token/view', async (req, res, next) => {
         await supabase.from('link_views').insert({
           event_id: event.id,
           guest_name: guestName,
+          device_type,
+          os,
+          browser,
         })
       }
     } else {
@@ -236,6 +265,9 @@ router.post('/guest/:token/view', async (req, res, next) => {
         const { error: insertErr } = await supabase.from('link_views').insert({
           event_id: event.id,
           guest_name: null,
+          device_type,
+          os,
+          browser,
         })
         if (insertErr) console.error('[view] insert anon error:', insertErr.message)
         else console.log('[view] anon row inserted')
@@ -390,6 +422,13 @@ router.post('/:id/rsvp', async (req, res, next) => {
       .single()
 
     if (error) throw error
+
+    // Registra first_rsvp_at se non ancora impostato (fire-and-forget)
+    supabase.from('events')
+      .update({ first_rsvp_at: new Date().toISOString() })
+      .eq('id', req.params.id)
+      .is('first_rsvp_at', null)
+      .then(() => {}).catch(() => {})
 
     // Notifica push all'organizzatore (fire-and-forget)
     supabase.from('events').select('parent_token, child_name').eq('id', req.params.id).single()

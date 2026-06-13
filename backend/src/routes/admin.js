@@ -33,6 +33,9 @@ router.get('/stats', async (req, res) => {
     { count: rsvpYes },
     { count: giftsReserved },
     { data: userKeyLinks },
+    { data: deviceRows },
+    { data: latencyEvents },
+    { data: acquisitionRows },
   ] = await Promise.all([
     eventsBase().select('*', { count: 'exact', head: true }),
     eventsBase().select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
@@ -47,6 +50,9 @@ router.get('/stats', async (req, res) => {
     rsvpBase().select('*', { count: 'exact', head: true }).eq('status', 'yes'),
     giftsBase().select('*', { count: 'exact', head: true }).not('reserved_by', 'is', null),
     userKeyBase().select('user_key, link_type'),
+    viewsBase().select('device_type, os, browser'),
+    eventsBase().select('created_at, first_rsvp_at, first_gift_reserved_at'),
+    eventsBase().select('utm_source, referral_source'),
   ])
 
   // Collective totals
@@ -102,6 +108,37 @@ router.get('/stats', async (req, res) => {
     byMonth[m] = (byMonth[m] || 0) + 1
   })
 
+  // ── Dispositivi ───────────────────────────────────────────────────────────
+  const deviceCounts = { mobile: 0, tablet: 0, desktop: 0, unknown: 0 }
+  const osCounts = {}
+  const browserCounts = {}
+  ;(deviceRows || []).forEach(r => {
+    const d = r.device_type || 'unknown'
+    deviceCounts[d] = (deviceCounts[d] || 0) + 1
+    if (r.os) osCounts[r.os] = (osCounts[r.os] || 0) + 1
+    if (r.browser) browserCounts[r.browser] = (browserCounts[r.browser] || 0) + 1
+  })
+
+  // ── Acquisizione ──────────────────────────────────────────────────────────
+  const sourceCounts = {}
+  ;(acquisitionRows || []).forEach(e => {
+    const src = e.utm_source || e.referral_source || 'diretto'
+    sourceCounts[src] = (sourceCounts[src] || 0) + 1
+  })
+
+  // ── Latenza ───────────────────────────────────────────────────────────────
+  const rsvpLatencyRows = (latencyEvents || []).filter(e => e.first_rsvp_at)
+  const avgRsvpHours = rsvpLatencyRows.length > 0
+    ? Math.round(rsvpLatencyRows.reduce((acc, e) =>
+        acc + (new Date(e.first_rsvp_at) - new Date(e.created_at)) / 3600000, 0) / rsvpLatencyRows.length)
+    : null
+
+  const giftLatencyRows = (latencyEvents || []).filter(e => e.first_gift_reserved_at)
+  const avgGiftHours = giftLatencyRows.length > 0
+    ? Math.round(giftLatencyRows.reduce((acc, e) =>
+        acc + (new Date(e.first_gift_reserved_at) - new Date(e.created_at)) / 3600000, 0) / giftLatencyRows.length)
+    : null
+
   const recentEvents = (events || []).slice(0, 50).map(e => ({
     id: e.id,
     child_name: e.child_name,
@@ -142,6 +179,18 @@ router.get('/stats', async (req, res) => {
     },
     recentEvents,
     byMonth: Object.entries(byMonth).sort((a, b) => a[0].localeCompare(b[0])).slice(-6),
+    analytics: {
+      devices: deviceCounts,
+      os: osCounts,
+      browsers: browserCounts,
+      acquisition: sourceCounts,
+      latency: {
+        avgRsvpHours,
+        avgGiftHours,
+        eventsWithRsvp: rsvpLatencyRows.length,
+        eventsWithGift: giftLatencyRows.length,
+      },
+    },
   })
 })
 

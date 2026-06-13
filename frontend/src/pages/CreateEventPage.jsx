@@ -622,7 +622,11 @@ export default function CreateEventPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await createEvent(data)
+      const utmSource = sessionStorage.getItem('utm_source') || undefined
+      const utmMedium = sessionStorage.getItem('utm_medium') || undefined
+      const utmCampaign = sessionStorage.getItem('utm_campaign') || undefined
+      const referralSource = sessionStorage.getItem('referral_source') || undefined
+      const res = await createEvent({ ...data, utmSource, utmMedium, utmCampaign, referralSource })
 
       // Salva in localStorage
       const saved = JSON.parse(localStorage.getItem('piky_events') || '[]')

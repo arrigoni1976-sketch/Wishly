@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { RefreshCw, Gift, Users, Calendar, TrendingUp, Star, Eye, CheckCircle, Repeat2, Share2 } from 'lucide-react'
+import { RefreshCw, Gift, Users, Calendar, TrendingUp, Star, Eye, CheckCircle, Repeat2, Share2, Smartphone, Monitor, Clock, BarChart2 } from 'lucide-react'
 import api from '../lib/api'
 
 const getAdminStats = (key) => api.get(`/admin/stats?key=${encodeURIComponent(key)}`)
@@ -137,7 +137,7 @@ export default function AdminPage() {
     )
   }
 
-  const { overview, funnel, monetization, recentEvents, byMonth } = data
+  const { overview, funnel, monetization, recentEvents, byMonth, analytics } = data
   const maxMonth = Math.max(...byMonth.map(([, c]) => c), 1)
   const collectivePct = overview.total > 0 ? Math.round((overview.withCollective / overview.total) * 100) : 0
   const base = funnel.eventsCreated || 1
@@ -289,6 +289,129 @@ export default function AdminPage() {
               {byMonth.map(([month, count]) => (
                 <MonthBar key={month} month={month} count={count} max={maxMonth} />
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Dispositivi */}
+        {analytics && (
+          <div className="bg-white rounded-2xl border border-avorio-dark overflow-hidden">
+            <div className="px-5 py-4 border-b border-avorio-dark flex items-center gap-2">
+              <Smartphone className="w-4 h-4 text-gray-400" />
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Dispositivi degli invitati</h2>
+            </div>
+            <div className="p-5 space-y-4">
+              {/* Device type */}
+              {(() => {
+                const d = analytics.devices
+                const tot = (d.mobile || 0) + (d.tablet || 0) + (d.desktop || 0) + (d.unknown || 0)
+                const pct = (n) => tot > 0 ? Math.round((n / tot) * 100) : 0
+                return (
+                  <div className="space-y-2">
+                    {[
+                      { label: 'Mobile', val: d.mobile || 0, color: 'bg-salvia' },
+                      { label: 'Desktop', val: d.desktop || 0, color: 'bg-blue-400' },
+                      { label: 'Tablet', val: d.tablet || 0, color: 'bg-amber-400' },
+                    ].map(({ label, val, color }) => (
+                      <div key={label} className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500 w-14">{label}</span>
+                        <div className="flex-1 h-2 bg-avorio-dark rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full ${color}`} style={{ width: `${pct(val)}%` }} />
+                        </div>
+                        <span className="text-xs font-medium text-gray-600 w-16 text-right">{val} ({pct(val)}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+              {/* OS breakdown */}
+              {Object.keys(analytics.os || {}).length > 0 && (
+                <div className="pt-3 border-t border-avorio-dark">
+                  <p className="text-xs text-gray-400 mb-2">Sistema operativo</p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(analytics.os).sort((a, b) => b[1] - a[1]).map(([os, n]) => (
+                      <span key={os} className="text-xs bg-avorio px-2 py-1 rounded-lg text-gray-600 font-medium">
+                        {os}: {n}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Browser breakdown */}
+              {Object.keys(analytics.browsers || {}).length > 0 && (
+                <div className="pt-3 border-t border-avorio-dark">
+                  <p className="text-xs text-gray-400 mb-2">Browser</p>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(analytics.browsers).sort((a, b) => b[1] - a[1]).map(([br, n]) => (
+                      <span key={br} className="text-xs bg-avorio px-2 py-1 rounded-lg text-gray-600 font-medium">
+                        {br}: {n}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Acquisizione */}
+        {analytics && Object.keys(analytics.acquisition || {}).length > 0 && (
+          <div className="bg-white rounded-2xl border border-avorio-dark overflow-hidden">
+            <div className="px-5 py-4 border-b border-avorio-dark flex items-center gap-2">
+              <BarChart2 className="w-4 h-4 text-gray-400" />
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Fonte di acquisizione</h2>
+            </div>
+            <div className="p-5">
+              {(() => {
+                const entries = Object.entries(analytics.acquisition).sort((a, b) => b[1] - a[1])
+                const tot = entries.reduce((a, [, n]) => a + n, 0)
+                return (
+                  <div className="space-y-2">
+                    {entries.map(([src, n]) => (
+                      <div key={src} className="flex items-center gap-3">
+                        <span className="text-xs text-gray-500 w-24 truncate capitalize">{src}</span>
+                        <div className="flex-1 h-2 bg-avorio-dark rounded-full overflow-hidden">
+                          <div className="h-full bg-violet-400 rounded-full" style={{ width: `${Math.round(n / tot * 100)}%` }} />
+                        </div>
+                        <span className="text-xs font-medium text-gray-600 w-16 text-right">{n} ({Math.round(n / tot * 100)}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </div>
+          </div>
+        )}
+
+        {/* Latenza */}
+        {analytics?.latency && (
+          <div>
+            <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Latenza — velocità di risposta</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white rounded-2xl p-5 border border-avorio-dark">
+                <div className="flex items-start justify-between mb-3">
+                  <span className="text-sm text-gray-500 leading-snug">Ore medie al primo RSVP</span>
+                  <div className="w-8 h-8 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0 ml-2">
+                    <Clock className="w-4 h-4 text-green-600" />
+                  </div>
+                </div>
+                <p className="text-3xl font-display font-bold text-gray-900">
+                  {analytics.latency.avgRsvpHours !== null ? `${analytics.latency.avgRsvpHours}h` : '—'}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">su {analytics.latency.eventsWithRsvp} eventi</p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 border border-avorio-dark">
+                <div className="flex items-start justify-between mb-3">
+                  <span className="text-sm text-gray-500 leading-snug">Ore medie alla prima prenotazione</span>
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0 ml-2">
+                    <Gift className="w-4 h-4 text-amber-600" />
+                  </div>
+                </div>
+                <p className="text-3xl font-display font-bold text-gray-900">
+                  {analytics.latency.avgGiftHours !== null ? `${analytics.latency.avgGiftHours}h` : '—'}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">su {analytics.latency.eventsWithGift} eventi</p>
+              </div>
             </div>
           </div>
         )}
