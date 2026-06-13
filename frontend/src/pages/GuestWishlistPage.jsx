@@ -638,19 +638,21 @@ export default function GuestWishlistPage() {
             Compleanno di {event.child_name}!
           </h1>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 mb-4">
-            {event.party_date && (
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-cipria-dark" />
-                {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
-              </span>
-            )}
-            {event.party_time && (
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-cipria-dark" />
-                {event.party_time.slice(0, 5)}
-              </span>
-            )}
+          <div className="flex flex-col items-center gap-2 text-sm text-gray-500 mb-4">
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {event.party_date && (
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-cipria-dark" />
+                  {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
+                </span>
+              )}
+              {event.party_time && (
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-cipria-dark" />
+                  {event.party_time.slice(0, 5)}
+                </span>
+              )}
+            </div>
             {(event.location || event.address) && (
               event.address ? (
                 <span className="flex items-start gap-1.5">
