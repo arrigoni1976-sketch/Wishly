@@ -379,13 +379,13 @@ export default function ParentDashboardPage() {
                   <div className="flex flex-wrap gap-3">
                     {event.party_date && (
                       <span className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
+                        <Calendar className="w-3.5 h-3.5 text-cipria-dark" />
                         {format(new Date(event.party_date), "d MMMM yyyy", { locale: it })}
                       </span>
                     )}
                     {event.party_time && (
                       <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" />
+                        <Clock className="w-3.5 h-3.5 text-cipria-dark" />
                         {event.party_time.slice(0, 5)}
                       </span>
                     )}
@@ -398,13 +398,13 @@ export default function ParentDashboardPage() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors"
                       >
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                        <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
                         {event.location && <span>{event.location} — </span>}
                         <span className="underline underline-offset-2">{event.address} →</span>
                       </a>
                     ) : (
                       <span className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5" />
+                        <MapPin className="w-3.5 h-3.5 text-cipria-dark" />
                         {event.location}
                       </span>
                     )
