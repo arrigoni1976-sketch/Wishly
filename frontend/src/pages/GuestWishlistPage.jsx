@@ -266,12 +266,21 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
             <span className="text-gray-300 group-hover:text-salvia transition-colors text-lg flex-shrink-0">›</span>
           </button>
         )}
-        <div className="bg-white rounded-3xl border border-cipria/40 p-5 text-center">
-          <p className="font-semibold text-gray-800 mb-1">Puoi partecipare?</p>
-          <p className="text-sm text-gray-500 mb-4">Fai sapere ai festeggiati se ci sarai</p>
+        <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-cipria/30 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <WaveIcon size={26} />
+            </div>
+            <h2 className="font-display font-bold text-gray-900 text-lg leading-snug">
+              Sei invitato al compleanno di {eventData?.child_name}!
+            </h2>
+          </div>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci.
+          </p>
           <button
             onClick={() => setStep('form')}
-            className="btn-primary text-sm px-6 py-2.5"
+            className="btn-primary w-full text-sm py-3"
           >
             Conferma la tua presenza
           </button>
@@ -685,23 +694,6 @@ export default function GuestWishlistPage() {
             </p>
           )}
 
-        </div>
-
-        {/* ── Welcome / invitation message — prima parte ──────────────── */}
-        <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark p-6 space-y-4">
-          {/* Greeting row */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-cipria/30 rounded-2xl flex items-center justify-center flex-shrink-0">
-              <WaveIcon size={26} />
-            </div>
-            <h2 className="font-display font-bold text-gray-900 text-lg leading-snug">
-              Sei invitato al compleanno di {event.child_name}!
-            </h2>
-          </div>
-
-          <p className="text-sm text-gray-600 leading-relaxed">
-            Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci.
-          </p>
         </div>
 
         {/* ── RSVP ────────────────────────────────────────────────────── */}
