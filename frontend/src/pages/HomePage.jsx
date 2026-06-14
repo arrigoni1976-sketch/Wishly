@@ -318,7 +318,7 @@ export default function HomePage() {
                     </div>
                   ))}
                   <Link to="/crea" className="inline-flex items-center gap-1 text-xs text-salvia font-medium hover:underline mt-1">
-                    + Crea una nuova lista
+                    + Crea una nuova festa
                   </Link>
                 </div>
               ) : (
