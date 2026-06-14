@@ -655,7 +655,7 @@ export default function GuestWishlistPage() {
             </div>
             {(event.location || event.address) && (
               event.address ? (
-                <span className="flex flex-col gap-0.5 text-gray-500">
+                <span className="flex flex-col items-center gap-0.5 text-gray-500">
                   <span className="flex items-center gap-1.5">
                     <MapPin className="w-4 h-4 text-cipria-dark flex-shrink-0" />
                     <span>{event.location || event.address}</span>
@@ -665,7 +665,7 @@ export default function GuestWishlistPage() {
                       href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="pl-[22px] underline underline-offset-2 hover:text-gray-700 transition-colors"
+                      className="underline underline-offset-2 hover:text-gray-700 transition-colors"
                     >
                       {event.address} →
                     </a>
