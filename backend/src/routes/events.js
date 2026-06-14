@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid'
 import { supabase } from '../lib/supabase.js'
 import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
 import { sendPushToParent } from '../services/push.js'
+import { isListClosed } from '../lib/utils.js'
 
 const router = Router()
 
@@ -372,6 +373,17 @@ router.post('/:id/rsvp', async (req, res, next) => {
 
     if (!['yes', 'maybe', 'no'].includes(status)) {
       return res.status(400).json({ message: 'Status non valido' })
+    }
+
+    // Check closing date
+    const { data: eventCheck } = await supabase
+      .from('events')
+      .select('closing_date')
+      .eq('id', req.params.id)
+      .single()
+
+    if (isListClosed(eventCheck?.closing_date)) {
+      return res.status(403).json({ message: 'Lista chiusa' })
     }
 
     // Check if already exists (case-insensitive to avoid duplicates)

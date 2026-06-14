@@ -55,19 +55,20 @@ app.use((err, _req, res, _next) => {
 })
 
 // ─── Scheduled jobs ─────────────────────────────────────────────────────────
-// Run every day at 09:00 — send reminders 2 days before party
+// Run every day at 09:00 Italy time — send reminders 2 days before party
 cron.schedule('0 9 * * *', async () => {
   console.log('[cron] Running reminder job...')
   await sendReminders()
-})
+}, { timezone: 'Europe/Rome' })
 
-// Run every day at 10:00 — closing summary + push + party follow-up
-cron.schedule('0 10 * * *', async () => {
+// Run every day at 19:01 Italy time — closing summary + push + party follow-up
+// (list closes at 19:00; summary sent one minute later)
+cron.schedule('1 19 * * *', async () => {
   console.log('[cron] Running closing summary job...')
   await sendClosingSummaries()
   await sendClosingPushes()
   await sendPartyFollowupPushes()
-})
+}, { timezone: 'Europe/Rome' })
 
 // ─── Start ───────────────────────────────────────────────────────────────────
 initVapid().then(() => {

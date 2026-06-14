@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
 import { sendPushToParent } from '../services/push.js'
+import { isListClosed } from '../lib/utils.js'
 
 const router = Router()
 
@@ -62,6 +63,17 @@ router.post('/:id/reserve', async (req, res, next) => {
 
     if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
     if (gift.reserved_by) return res.status(409).json({ message: 'Regalo già prenotato' })
+
+    // Check closing date
+    const { data: eventData } = await supabase
+      .from('events')
+      .select('closing_date')
+      .eq('id', gift.event_id)
+      .single()
+
+    if (isListClosed(eventData?.closing_date)) {
+      return res.status(403).json({ message: 'Lista chiusa' })
+    }
 
     const { data, error } = await supabase
       .from('gifts')

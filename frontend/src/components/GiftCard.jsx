@@ -11,6 +11,7 @@ export default function GiftCard({
   onDelete,
   defaultGuestName = '',
   hasRsvp = true,
+  listClosed = false,
 }) {
   const [showReserveForm, setShowReserveForm] = useState(false)
   const [guestName, setGuestName] = useState(defaultGuestName)
@@ -150,7 +151,7 @@ export default function GiftCard({
       )}
 
       {/* Guest actions */}
-      {mode === 'guest' && !isReserved && (
+      {mode === 'guest' && !isReserved && !listClosed && (
         <div className="mt-4 pt-3 border-t border-avorio-dark">
           {!showReserveForm ? (
             <button
@@ -208,13 +209,15 @@ export default function GiftCard({
           <p className="text-xs text-salvia font-medium mb-2">
             Hai prenotato questo regalo
           </p>
-          <button
-            onClick={handleCancel}
-            disabled={loading}
-            className="text-xs text-red-500 hover:text-red-600 hover:underline transition-colors"
-          >
-            {loading ? 'Annullo...' : 'Annulla prenotazione'}
-          </button>
+          {!listClosed && (
+            <button
+              onClick={handleCancel}
+              disabled={loading}
+              className="text-xs text-red-500 hover:text-red-600 hover:underline transition-colors"
+            >
+              {loading ? 'Annullo...' : 'Annulla prenotazione'}
+            </button>
+          )}
           {reserveError && (
             <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg mt-2">{reserveError}</p>
           )}

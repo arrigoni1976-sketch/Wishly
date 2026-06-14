@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { Calendar, CalendarPlus, Clock, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil } from 'lucide-react'
+import { Calendar, CalendarPlus, Clock, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil, Lock } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
 import GiftIcon from '../components/GiftIcon'
@@ -23,6 +23,19 @@ import {
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import clsx from 'clsx'
+
+// ─── Closing date check ────────────────────────────────────────────────────
+function isListClosed(closingDate) {
+  if (!closingDate) return false
+  const now = new Date()
+  const italyDateStr = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' }) // YYYY-MM-DD
+  if (italyDateStr > closingDate) return true
+  if (italyDateStr === closingDate) {
+    const italyHour = Number(now.toLocaleString('en', { timeZone: 'Europe/Rome', hour: 'numeric', hour12: false }))
+    return italyHour >= 19
+  }
+  return false
+}
 
 // ─── Calendar helper ───────────────────────────────────────────────────────
 function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl }) {
@@ -97,7 +110,7 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl })
 }
 
 // ─── RSVP Form ─────────────────────────────────────────────────────────────
-function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eventData = null }) {
+function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eventData = null, listClosed = false }) {
   const [step, setStep] = useState(existingRsvp ? 'done' : 'prompt') // 'prompt' | 'form' | 'done' | 'recover'
   const [guestName, setGuestName] = useState(existingRsvp?.guest_name || '')
   const [guestEmail, setGuestEmail] = useState(existingRsvp?.guest_email || '')
@@ -220,12 +233,14 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
               </span>
             </p>
           </div>
-          <button
-            onClick={() => setStep('form')}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
-          >
-            <Pencil className="w-4 h-4" />
-          </button>
+          {!listClosed && (
+            <button
+              onClick={() => setStep('form')}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+          )}
         </div>
         {(status === 'yes' || status === 'maybe') && eventData && (
           <button
@@ -242,6 +257,16 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
             Aggiungi al calendario
           </button>
         )}
+      </div>
+    )
+  }
+
+  if (step === 'prompt' && listClosed) {
+    return (
+      <div className="bg-gray-50 rounded-3xl border border-gray-200 p-6 text-center space-y-2">
+        <Lock className="w-6 h-6 text-gray-400 mx-auto" />
+        <p className="font-display font-semibold text-gray-700">Le prenotazioni sono chiuse</p>
+        <p className="text-sm text-gray-400">Non è più possibile confermare la presenza.</p>
       </div>
     )
   }
@@ -562,6 +587,8 @@ export default function GuestWishlistPage() {
     await fetchEvent()
   }
 
+  const listClosed = event ? isListClosed(event.closing_date) : false
+
   const giftsWithMyFlag = (event?.gifts || []).map((g) => ({
     ...g,
     my_reservation: myReservations.includes(g.id),
@@ -713,6 +740,7 @@ export default function GuestWishlistPage() {
           onRsvpSaved={handleRsvpSaved}
           serverRsvps={event.rsvp || []}
           eventData={event}
+          listClosed={listClosed}
         />
         </div>
 
@@ -865,6 +893,7 @@ export default function GuestWishlistPage() {
                     onCancelReservation={handleCancelReservation}
                     defaultGuestName={myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''}
                     hasRsvp={!!myRsvp}
+                    listClosed={listClosed}
                   />
                 ))}
 
