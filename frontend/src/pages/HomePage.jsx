@@ -209,10 +209,10 @@ export default function HomePage() {
           </div>
 
           {/* Box codice — visibile subito sotto i bottoni principali */}
-          <div className="max-w-md mx-auto mt-6 text-left">
+          <div className="max-w-md mx-auto mt-6">
             {userKey ? (
               <div className="flex flex-col gap-2 bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                   <Key className="w-4 h-4 text-salvia flex-shrink-0" />
                   <span className="whitespace-nowrap">
                     Codice:{' '}
@@ -221,7 +221,7 @@ export default function HomePage() {
                     </span>
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(userKey.toUpperCase()).catch(() => {})
