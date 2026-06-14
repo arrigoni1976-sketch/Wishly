@@ -39,7 +39,7 @@ export default function ClosingCountdown({ closingDate, closed = false, classNam
   if (closed) {
     return (
       <div className={`flex justify-center ${className}`}>
-        <span className="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
+        <span className="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-avorio border border-avorio-dark rounded-full px-3 py-1.5">
           <Lock className="w-3 h-3" />
           Prenotazioni chiuse
         </span>
@@ -51,7 +51,7 @@ export default function ClosingCountdown({ closingDate, closed = false, classNam
 
   return (
     <div className={`flex justify-center ${className}`}>
-      <span className="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
+      <span className="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-avorio border border-avorio-dark rounded-full px-3 py-1.5">
         <Clock className="w-3 h-3" />
         Le prenotazioni chiudono tra{' '}
         <span className="font-mono font-medium text-gray-600 tabular-nums">{formatRemaining(remaining)}</span>
