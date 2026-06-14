@@ -700,15 +700,10 @@ export default function GuestWishlistPage() {
                   )}
                 </span>
               ) : (
-                <a
-                  href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-gray-500 hover:text-gray-700 transition-colors"
-                >
+                <span className="flex items-center gap-1.5 text-gray-500">
                   <MapPin className="w-4 h-4 text-cipria-dark" />
-                  <span className="underline underline-offset-2">{event.location} →</span>
-                </a>
+                  <span>{event.location}</span>
+                </span>
               )
             )}
           </div>
