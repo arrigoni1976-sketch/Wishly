@@ -280,7 +280,7 @@ export default function HomePage() {
             {/* Le tue liste */}
             <div className="px-5 pt-5 pb-4">
               <div className="flex items-center justify-between mb-1">
-                <h2 className="font-display text-sm font-bold text-gray-600 uppercase tracking-wide">Le tue liste</h2>
+                <h2 className="font-display text-sm font-bold text-gray-600 uppercase tracking-wide">Le tue feste</h2>
                 <button onClick={handleRefresh} className="p-1 text-gray-300 hover:text-salvia transition-colors" title="Aggiorna">
                   <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
                 </button>
