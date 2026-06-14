@@ -392,19 +392,21 @@ export default function ParentDashboardPage() {
                   </div>
                   {(event.location || event.address) && (
                     event.address ? (
-                      <span className="flex items-start gap-1.5 text-gray-500">
-                        <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0 mt-0.5" />
-                        <span className="flex flex-col gap-0.5">
-                          {event.location && <span>{event.location}</span>}
+                      <span className="flex flex-col gap-0.5 text-gray-500">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5 text-cipria-dark flex-shrink-0" />
+                          <span>{event.location || event.address}</span>
+                        </span>
+                        {event.location && (
                           <a
                             href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="underline underline-offset-2 hover:text-gray-700 transition-colors"
+                            className="pl-5 underline underline-offset-2 hover:text-gray-700 transition-colors"
                           >
                             {event.address} →
                           </a>
-                        </span>
+                        )}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1.5">
