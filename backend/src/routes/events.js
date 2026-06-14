@@ -192,7 +192,7 @@ router.get('/collective/:token', async (req, res, next) => {
     const { data: event, error } = await supabase
       .from('events')
       .select(`
-        id, child_name, party_date, party_time, location,
+        id, child_name, party_date, party_time, location, closing_date,
         collective_enabled, collective_goal, collective_amount, collective_description, paypal_email, collective_fixed_quota,
         contributions(id, contributor_name, amount, payment_method, status, created_at)
       `)
@@ -477,12 +477,16 @@ router.post('/:id/contributions', async (req, res, next) => {
     // Verify collective token matches event
     const { data: event } = await supabase
       .from('events')
-      .select('id, collective_goal, collective_amount, parent_token, child_name, collective_description')
+      .select('id, collective_goal, collective_amount, parent_token, child_name, collective_description, closing_date')
       .eq('id', req.params.id)
       .eq('collective_token', collectiveToken)
       .single()
 
     if (!event) return res.status(403).json({ message: 'Token non valido' })
+
+    if (isListClosed(event.closing_date)) {
+      return res.status(403).json({ message: 'Lista chiusa' })
+    }
 
     const remaining = event.collective_goal - event.collective_amount
     if (amount > remaining) {

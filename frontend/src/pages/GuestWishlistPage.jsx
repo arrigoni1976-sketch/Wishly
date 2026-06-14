@@ -732,6 +732,17 @@ export default function GuestWishlistPage() {
 
         </div>
 
+        {/* ── Banner lista chiusa ──────────────────────────────────────── */}
+        {listClosed && (
+          <div className="bg-gray-100 border border-gray-200 rounded-2xl px-5 py-4 flex items-center gap-3">
+            <Lock className="w-5 h-5 text-gray-400 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-gray-700 text-sm">Prenotazioni chiuse</p>
+              <p className="text-xs text-gray-400 mt-0.5">Non è più possibile confermare la presenza o prenotare regali.</p>
+            </div>
+          </div>
+        )}
+
         {/* ── RSVP ────────────────────────────────────────────────────── */}
         <div id="rsvp">
         <RsvpSection

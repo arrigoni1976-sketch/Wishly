@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Heart, Calendar, MapPin, Banknote, AlertCircle, ArrowLeft } from 'lucide-react'
+import { Heart, Calendar, MapPin, Banknote, AlertCircle, ArrowLeft, Lock } from 'lucide-react'
 import Layout from '../components/Layout'
 import ProgressBar from '../components/ProgressBar'
 import PaymentModal from '../components/PaymentModal'
@@ -10,6 +10,18 @@ import { getEventByCollectiveToken, createContribution, updateContribution, addU
 import { syncFromServer } from '../lib/sync'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
+
+function isListClosed(closingDate) {
+  if (!closingDate) return false
+  const now = new Date()
+  const italyDateStr = now.toLocaleDateString('en-CA', { timeZone: 'Europe/Rome' })
+  if (italyDateStr > closingDate) return true
+  if (italyDateStr === closingDate) {
+    const italyHour = Number(now.toLocaleString('en', { timeZone: 'Europe/Rome', hour: 'numeric', hour12: false }))
+    return italyHour >= 19
+  }
+  return false
+}
 
 export default function CollectiveGiftPage() {
   const { collectiveToken } = useParams()
@@ -169,6 +181,7 @@ export default function CollectiveGiftPage() {
     )
   }
 
+  const listClosed = isListClosed(event.closing_date)
   const collected = event.collective_amount || 0
   const goal = event.collective_goal || 0
   const remaining = Math.max(0, goal - collected)
@@ -224,6 +237,14 @@ export default function CollectiveGiftPage() {
               <p className="text-sm text-gray-500 mt-1">
                 Grazie a tutti per i contributi. Il regalo è completo!
               </p>
+            </div>
+          ) : listClosed ? (
+            <div className="mt-4 bg-gray-100 border border-gray-200 rounded-2xl px-5 py-4 flex items-center gap-3">
+              <Lock className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-gray-700 text-sm">Raccolta chiusa</p>
+                <p className="text-xs text-gray-400 mt-0.5">Non è più possibile aggiungere contributi.</p>
+              </div>
             </div>
           ) : (
             <div className="mt-4 space-y-3">
