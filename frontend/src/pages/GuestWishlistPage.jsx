@@ -732,13 +732,24 @@ export default function GuestWishlistPage() {
 
         </div>
 
-        {/* ── Banner lista chiusa ──────────────────────────────────────── */}
-        {listClosed && (
+        {/* ── Banner stato prenotazioni ────────────────────────────────── */}
+        {listClosed ? (
           <div className="bg-gray-100 border border-gray-200 rounded-2xl px-5 py-4 flex items-center gap-3">
             <Lock className="w-5 h-5 text-gray-400 flex-shrink-0" />
             <div>
               <p className="font-semibold text-gray-700 text-sm">Prenotazioni chiuse</p>
               <p className="text-xs text-gray-400 mt-0.5">Non è più possibile confermare la presenza o prenotare regali.</p>
+            </div>
+          </div>
+        ) : event.closing_date && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-center gap-3">
+            <Clock className="w-5 h-5 text-amber-400 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-amber-700 text-sm">Prenotazioni aperte</p>
+              <p className="text-xs text-amber-600 mt-0.5">
+                {(() => { const [y,m,d] = event.closing_date.split('-').map(Number); return format(new Date(y, m-1, d), "d MMMM yyyy", { locale: it }) })()}
+                {' '}alle 19:00 le prenotazioni si chiuderanno.
+              </p>
             </div>
           </div>
         )}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Heart, Calendar, MapPin, Banknote, AlertCircle, ArrowLeft, Lock } from 'lucide-react'
+import { Heart, Calendar, MapPin, Banknote, AlertCircle, ArrowLeft, Lock, Clock } from 'lucide-react'
 import Layout from '../components/Layout'
 import ProgressBar from '../components/ProgressBar'
 import PaymentModal from '../components/PaymentModal'
@@ -248,6 +248,17 @@ export default function CollectiveGiftPage() {
             </div>
           ) : (
             <div className="mt-4 space-y-3">
+
+              {/* Avviso data chiusura */}
+              {event.closing_date && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center gap-2.5">
+                  <Clock className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <p className="text-xs text-amber-600">
+                    {(() => { const [y,m,d] = event.closing_date.split('-').map(Number); return format(new Date(y, m-1, d), "d MMMM yyyy", { locale: it }) })()}
+                    {' '}alle 19:00 la raccolta si chiuderà.
+                  </p>
+                </div>
+              )}
 
               {/* Contributi già fatti da questa persona */}
               {myContributions.length > 0 && editingId === null && (
