@@ -192,7 +192,7 @@ export default function HomePage() {
 
           <p className="text-base text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
             Messaggi WhatsApp a non finire, gruppi caotici, conferme che arrivano e non arrivano, regali doppi o inutili.<br />
-            Con <span className="text-salvia font-semibold">Piky</span> condividi un link e gli invitati confermano la presenza e prenotano i regali, senza sovrapposizioni, senza caos.
+            Con <span className="text-salvia font-semibold">Piky</span> organizza la festa, condividi un link e gli invitati confermano la presenza e prenotano i regali, senza sovrapposizioni, senza caos.
           </p>
 
           <div className="flex flex-row gap-3 justify-center">
