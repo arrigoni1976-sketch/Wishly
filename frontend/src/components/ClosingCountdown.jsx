@@ -53,7 +53,7 @@ export default function ClosingCountdown({ closingDate, closed = false, classNam
     <div className={`flex justify-center ${className}`}>
       <span className="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5">
         <Clock className="w-3 h-3" />
-        Chiudono tra{' '}
+        Le prenotazioni chiudono tra{' '}
         <span className="font-mono font-medium text-gray-600 tabular-nums">{formatRemaining(remaining)}</span>
       </span>
     </div>
