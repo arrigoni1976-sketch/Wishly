@@ -264,10 +264,12 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
 
   if (step === 'prompt' && listClosed) {
     return (
-      <div className="bg-gray-50 rounded-3xl border border-gray-200 p-6 text-center space-y-2">
+      <div className="bg-avorio rounded-3xl border border-avorio-dark p-6 text-center space-y-2">
         <Lock className="w-6 h-6 text-gray-400 mx-auto" />
         <p className="font-display font-semibold text-gray-700">Le prenotazioni sono chiuse</p>
-        <p className="text-sm text-gray-400">Non è più possibile confermare la presenza.</p>
+        <p className="text-sm text-gray-400 leading-relaxed">
+          Se non hai fatto in tempo, non preoccuparti — contatta direttamente chi organizza la festa, sarà felice di sentirti!
+        </p>
       </div>
     )
   }
