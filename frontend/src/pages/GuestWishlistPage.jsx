@@ -268,7 +268,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
         <Lock className="w-6 h-6 text-gray-400 mx-auto" />
         <p className="font-display font-semibold text-gray-700">Le prenotazioni sono chiuse</p>
         <p className="text-sm text-gray-400 leading-relaxed">
-          Se non hai fatto in tempo, non preoccuparti — contatta direttamente chi organizza la festa, sarà felice di sentirti!
+          Se non hai fatto in tempo, non preoccuparti! Contatta direttamente chi organizza la festa, sarà felice di sentirti!
         </p>
       </div>
     )
