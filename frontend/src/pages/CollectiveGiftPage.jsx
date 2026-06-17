@@ -47,6 +47,13 @@ export default function CollectiveGiftPage() {
       (c) => c.contributor_name?.toLowerCase() === name.toLowerCase()
     )
 
+  // L'edit_token viene salvato solo sul dispositivo che ha creato il contributo,
+  // così solo quel dispositivo può modificarlo in seguito.
+  const getEditToken = (contributionId) => localStorage.getItem(`piky_contrib_edit_${contributionId}`)
+  const saveEditToken = (contributionId, token) => {
+    if (token) localStorage.setItem(`piky_contrib_edit_${contributionId}`, token)
+  }
+
   const fetchEvent = async () => {
     try {
       const res = await getEventByCollectiveToken(collectiveToken)
@@ -92,13 +99,14 @@ export default function CollectiveGiftPage() {
     // Stessa chiave riusata sui retry (es. dopo un errore di rete) per evitare
     // contributi/notifiche duplicati
     if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID()
-    await createContribution(event.id, {
+    const res = await createContribution(event.id, {
       contributorName: name,
       amount,
       paymentMethod: method,
       collectiveToken,
       idempotencyKey: idempotencyKeyRef.current,
     })
+    saveEditToken(res.data.id, res.data.edit_token)
     localStorage.setItem('piky_guest_name', name)
     saveNameToKey(name)
     await fetchEvent()
@@ -127,6 +135,7 @@ export default function CollectiveGiftPage() {
         contributorName: editName.trim(),
         amount,
         collectiveToken,
+        editToken: getEditToken(editingId),
       })
       localStorage.setItem('piky_guest_name', editName.trim())
       await fetchEvent()
@@ -269,7 +278,7 @@ export default function CollectiveGiftPage() {
                         {format(new Date(c.created_at), "d MMM", { locale: it })}
                         {c.status === 'pending' && ' · in attesa'}
                       </span>
-                      {c.status === 'completed' && (
+                      {c.status === 'completed' && getEditToken(c.id) && (
                         <button
                           onClick={() => handleEditOpen(c)}
                           className="text-salvia hover:underline font-medium ml-3"

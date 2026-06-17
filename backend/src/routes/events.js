@@ -559,6 +559,7 @@ router.post('/:id/contributions', async (req, res, next) => {
         payment_method: paymentMethod,
         status: paymentMethod === 'paypal' ? 'pending' : 'completed',
         idempotency_key: idempotencyKey || null,
+        edit_token: crypto.randomUUID(),
       })
       .select()
       .single()
@@ -611,7 +612,7 @@ router.post('/:id/contributions', async (req, res, next) => {
 // ─── PUT /api/events/:id/contributions/:cid — Edit a contribution ───────────
 router.put('/:id/contributions/:cid', async (req, res, next) => {
   try {
-    const { contributorName, collectiveToken } = req.body
+    const { contributorName, collectiveToken, editToken } = req.body
     const newAmount = parseFloat(req.body.amount)
 
     if (!contributorName || !Number.isFinite(newAmount)) {
@@ -635,12 +636,19 @@ router.put('/:id/contributions/:cid', async (req, res, next) => {
     // Get existing contribution
     const { data: existing } = await supabase
       .from('contributions')
-      .select('id, amount, status')
+      .select('id, amount, status, edit_token')
       .eq('id', req.params.cid)
       .eq('event_id', req.params.id)
       .single()
 
     if (!existing) return res.status(404).json({ message: 'Contributo non trovato' })
+
+    // Il collectiveToken è condiviso da tutti gli invitati: senza questo controllo
+    // chiunque avesse il link potrebbe modificare il contributo di un altro ospite.
+    if (!existing.edit_token || existing.edit_token !== editToken) {
+      return res.status(403).json({ message: 'Non autorizzato a modificare questo contributo' })
+    }
+
     if (existing.status !== 'completed') {
       return res.status(400).json({ message: 'Solo i contributi completati sono modificabili' })
     }
