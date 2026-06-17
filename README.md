@@ -63,9 +63,6 @@ SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_KEY=eyJ...  # service_role key!
 
 STRIPE_SECRET_KEY=sk_test_...
-PAYPAL_CLIENT_ID=...
-PAYPAL_CLIENT_SECRET=...
-PAYPAL_MODE=sandbox
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -162,10 +159,10 @@ wishly/
 ## Pagamenti
 
 - **Stripe**: integrazione completa con PaymentIntent + webhook
-- **PayPal**: ordine + capture via redirect
+- **PayPal**: link personale (paypal.me) + conferma manuale dell'organizzatore
 - **Satispay**: placeholder — richiede setup chiave RSA da pannello Satispay Business
 
-Per i test usa le sandbox di Stripe e PayPal.
+Per i test usa la sandbox di Stripe.
 
 ---
 

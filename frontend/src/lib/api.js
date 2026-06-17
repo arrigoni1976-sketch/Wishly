@@ -36,7 +36,6 @@ export const createContribution = (eventId, data) => api.post(`/events/${eventId
 export const updateContribution = (eventId, cid, data) => api.put(`/events/${eventId}/contributions/${cid}`, data)
 export const confirmContribution = (eventId, cid, parentToken) => api.patch(`/events/${eventId}/contributions/${cid}/confirm`, { parentToken })
 export const createPaymentIntent = (data) => api.post('/payments/stripe/intent', data)
-export const createPayPalOrder = (data) => api.post('/payments/paypal/order', data)
 export const initSatispay = (data) => api.post('/payments/satispay/init', data)
 
 export const sendThankYouEmails = (eventId, data) => api.post(`/events/${eventId}/thank-you`, data)
