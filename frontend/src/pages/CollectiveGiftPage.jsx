@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { Heart, Calendar, MapPin, Banknote, AlertCircle, ArrowLeft } from 'lucide-react'
 import ClosingCountdown from '../components/ClosingCountdown'
@@ -40,6 +40,7 @@ export default function CollectiveGiftPage() {
   const [recovering, setRecovering] = useState(false)
   const [recoverName, setRecoverName] = useState('')
   const [recoverError, setRecoverError] = useState('')
+  const idempotencyKeyRef = useRef(null)
 
   const findMyContributions = (contributions, name) =>
     (contributions || []).filter(
@@ -88,11 +89,15 @@ export default function CollectiveGiftPage() {
   }
 
   const handleContribute = async ({ method, amount, name }) => {
+    // Stessa chiave riusata sui retry (es. dopo un errore di rete) per evitare
+    // contributi/notifiche duplicati
+    if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID()
     await createContribution(event.id, {
       contributorName: name,
       amount,
       paymentMethod: method,
       collectiveToken,
+      idempotencyKey: idempotencyKeyRef.current,
     })
     localStorage.setItem('piky_guest_name', name)
     saveNameToKey(name)
@@ -352,7 +357,7 @@ export default function CollectiveGiftPage() {
               ) : (
                 <>
                   <button
-                    onClick={() => setPaymentOpen(true)}
+                    onClick={() => { idempotencyKeyRef.current = null; setPaymentOpen(true) }}
                     className="btn-primary w-full py-3.5 text-base flex items-center justify-center gap-2"
                   >
                     <Heart className="w-5 h-5" />

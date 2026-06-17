@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { Calendar, CalendarPlus, Clock, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil, Lock } from 'lucide-react'
 import Layout from '../components/Layout'
@@ -123,6 +123,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
   const [submitError, setSubmitError] = useState('')
   const [recoverName, setRecoverName] = useState('')
   const [recoverError, setRecoverError] = useState('')
+  const idempotencyKeyRef = useRef(null)
 
   const handleSubmit = async () => {
     if (!guestName.trim() || !status) return
@@ -139,12 +140,16 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           guestEmail: guestEmail.trim(),
         }, guestToken)
       } else {
+        // Stessa chiave riusata sui retry (es. dopo un errore di rete) per evitare
+        // invii/notifiche duplicate
+        if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID()
         res = await submitRsvp(eventId, {
           guestName: guestName.trim(),
           guestEmail: guestEmail.trim(),
           status,
           childrenCount,
           adultsCount,
+          idempotencyKey: idempotencyKeyRef.current,
         })
       }
       onRsvpSaved(res.data)

@@ -397,7 +397,7 @@ router.post('/:id/gifts', async (req, res, next) => {
 // ─── POST /api/events/:id/rsvp — Submit RSVP ────────────────────────────────
 router.post('/:id/rsvp', async (req, res, next) => {
   try {
-    const { guestEmail, status, childrenCount, adultsCount } = req.body
+    const { guestEmail, status, childrenCount, adultsCount, idempotencyKey } = req.body
     const guestName = req.body.guestName?.trim()
 
     if (!guestName || !status) {
@@ -422,15 +422,26 @@ router.post('/:id/rsvp', async (req, res, next) => {
     // Check if already exists (case-insensitive to avoid duplicates)
     const { data: existing } = await supabase
       .from('rsvp')
-      .select('id')
+      .select('*')
       .eq('event_id', req.params.id)
       .ilike('guest_name', guestName)
       .maybeSingle()
 
     if (existing) {
+      // Stessa richiesta già elaborata (es. retry di rete) — non duplicare la notifica
+      if (idempotencyKey && existing.idempotency_key === idempotencyKey) {
+        return res.json(existing)
+      }
+
       const { data, error } = await supabase
         .from('rsvp')
-        .update({ status, children_count: childrenCount || 0, adults_count: adultsCount ?? 1, updated_at: new Date().toISOString() })
+        .update({
+          status,
+          children_count: childrenCount || 0,
+          adults_count: adultsCount ?? 1,
+          updated_at: new Date().toISOString(),
+          idempotency_key: idempotencyKey || null,
+        })
         .eq('id', existing.id)
         .select()
         .single()
@@ -462,11 +473,23 @@ router.post('/:id/rsvp', async (req, res, next) => {
         status,
         children_count: childrenCount || 0,
         adults_count: adultsCount ?? 1,
+        idempotency_key: idempotencyKey || null,
       })
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      if (error.code === '23505' && idempotencyKey) {
+        const { data: dup } = await supabase
+          .from('rsvp')
+          .select('*')
+          .eq('event_id', req.params.id)
+          .eq('idempotency_key', idempotencyKey)
+          .maybeSingle()
+        if (dup) return res.status(200).json(dup)
+      }
+      throw error
+    }
 
     // Registra first_rsvp_at se non ancora impostato (fire-and-forget)
     supabase.from('events')
@@ -497,7 +520,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
 // ─── POST /api/events/:id/contributions — Log contribution ──────────────────
 router.post('/:id/contributions', async (req, res, next) => {
   try {
-    const { contributorName, paymentMethod, collectiveToken } = req.body
+    const { contributorName, paymentMethod, collectiveToken, idempotencyKey } = req.body
     const amount = parseFloat(req.body.amount)
 
     if (!contributorName || !paymentMethod) {
@@ -535,11 +558,24 @@ router.post('/:id/contributions', async (req, res, next) => {
         amount,
         payment_method: paymentMethod,
         status: paymentMethod === 'paypal' ? 'pending' : 'completed',
+        idempotency_key: idempotencyKey || null,
       })
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      if (error.code === '23505' && idempotencyKey) {
+        // Richiesta già elaborata (es. retry di rete) — non duplicare riga/notifica
+        const { data: dup } = await supabase
+          .from('contributions')
+          .select('*')
+          .eq('event_id', req.params.id)
+          .eq('idempotency_key', idempotencyKey)
+          .maybeSingle()
+        if (dup) return res.status(200).json({ ...dup })
+      }
+      throw error
+    }
 
     // Per i contanti: aggiorna subito il totale. Per PayPal: in attesa di conferma
     if (paymentMethod !== 'paypal') {
