@@ -5,12 +5,37 @@ import { isListClosed } from '../lib/utils.js'
 
 const router = Router()
 
+// ─── Helper: verifica che parentToken sia il proprietario dell'evento del regalo ─
+async function assertGiftOwnership(giftId, parentToken) {
+  if (!parentToken) return null
+
+  const { data: gift } = await supabase
+    .from('gifts')
+    .select('id, event_id')
+    .eq('id', giftId)
+    .single()
+
+  if (!gift) return null
+
+  const { data: event } = await supabase
+    .from('events')
+    .select('id')
+    .eq('id', gift.event_id)
+    .eq('parent_token', parentToken)
+    .single()
+
+  return event ? gift : null
+}
+
 // ─── PUT /api/gifts/:id — Update gift ───────────────────────────────────────
 router.put('/:id', async (req, res, next) => {
   try {
-    const { name, description, price, amazonUrl, storeUrl } = req.body
+    const { name, description, price, amazonUrl, storeUrl, parentToken } = req.body
 
     if (!name) return res.status(400).json({ message: 'Nome obbligatorio' })
+
+    const gift = await assertGiftOwnership(req.params.id, parentToken)
+    if (!gift) return res.status(403).json({ message: 'Non autorizzato' })
 
     const { data, error } = await supabase
       .from('gifts')
@@ -35,6 +60,9 @@ router.put('/:id', async (req, res, next) => {
 // ─── DELETE /api/gifts/:id — Delete gift ────────────────────────────────────
 router.delete('/:id', async (req, res, next) => {
   try {
+    const gift = await assertGiftOwnership(req.params.id, req.body?.parentToken)
+    if (!gift) return res.status(403).json({ message: 'Non autorizzato' })
+
     const { error } = await supabase
       .from('gifts')
       .delete()
@@ -96,7 +124,7 @@ router.post('/:id/reserve', async (req, res, next) => {
       .update({ first_gift_reserved_at: new Date().toISOString() })
       .eq('id', gift.event_id)
       .is('first_gift_reserved_at', null)
-      .then(() => {}).catch(() => {})
+      .then(() => {}).catch(err => console.error('[gifts] first_gift_reserved_at update failed', err))
 
     // Notifica push all'organizzatore (fire-and-forget)
     supabase.from('events').select('parent_token, child_name').eq('id', gift.event_id).single()
@@ -108,7 +136,7 @@ router.post('/:id/reserve', async (req, res, next) => {
           url: `/dashboard/${ev.parent_token}`,
         })
       })
-      .catch(() => {})
+      .catch(err => console.error('[gifts] push notification failed', err))
 
     res.json(data)
   } catch (err) {

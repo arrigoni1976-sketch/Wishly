@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase.js'
 import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
 import { sendPushToParent } from '../services/push.js'
 import { isListClosed } from '../lib/utils.js'
+import { createResourceLimiter, emailSendLimiter } from '../lib/rateLimit.js'
 
 const router = Router()
 
@@ -28,7 +29,7 @@ function parseUserAgent(ua) {
 }
 
 // ─── POST /api/events — Create event ────────────────────────────────────────
-router.post('/', async (req, res, next) => {
+router.post('/', createResourceLimiter, async (req, res, next) => {
   try {
     const {
       childName, partyDate, partyTime, location, address, notes,
@@ -170,7 +171,7 @@ router.get('/guest/:token', async (req, res, next) => {
         closing_date, collective_enabled, collective_token,
         collective_goal, collective_amount, collective_description,
         gifts(id, name, description, price, amazon_url, store_url, reserved_by, reserved_partner, purchased_offline, sort_order),
-        rsvp(id, guest_name, guest_email, status, children_count, adults_count, with_partner),
+        rsvp(id, guest_name, status, children_count, adults_count, with_partner),
         contributions(id, contributor_name, amount, status, created_at)
       `)
       .eq('guest_token', req.params.token)
@@ -223,7 +224,7 @@ router.post('/guest/:token/view', async (req, res, next) => {
 
     if (!event) return res.status(404).json({ message: 'Evento non trovato' })
 
-    console.log(`[view] token=${req.params.token} eventId=${event.id} guestName=${guestName || 'anon'} device=${device_type}`)
+    console.log(`[view] token=${req.params.token.slice(0, 8)}… eventId=${event.id} guestName=${guestName || 'anon'} device=${device_type}`)
 
     // Upsert view record (by guest_name if provided, otherwise aggregate anonymous row)
     if (guestName) {
@@ -282,9 +283,17 @@ router.post('/guest/:token/view', async (req, res, next) => {
 })
 
 // ─── PUT /api/events/:id — Update event metadata ────────────────────────────
+// Campi che l'organizzatore può modificare via PUT /:id — qualsiasi altro campo
+// (token, collective_amount, parent_email, ecc.) viene ignorato per evitare mass assignment.
+const EVENT_UPDATABLE_FIELDS = [
+  'child_name', 'gender', 'party_date', 'party_time', 'location', 'address', 'notes',
+  'closing_date', 'collective_enabled', 'collective_goal', 'collective_description',
+  'paypal_email', 'collective_fixed_quota',
+]
+
 router.put('/:id', async (req, res, next) => {
   try {
-    const { parentToken, ...updates } = req.body
+    const { parentToken } = req.body
 
     // Verify ownership via parentToken
     const { data: event } = await supabase
@@ -295,6 +304,11 @@ router.put('/:id', async (req, res, next) => {
       .single()
 
     if (!event) return res.status(403).json({ message: 'Non autorizzato' })
+
+    const updates = {}
+    for (const field of EVENT_UPDATABLE_FIELDS) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field]
+    }
 
     const { error } = await supabase
       .from('events')
@@ -311,11 +325,21 @@ router.put('/:id', async (req, res, next) => {
 // ─── PUT /api/events/:id/gifts/order — Reorder gifts ────────────────────────
 router.put('/:id/gifts/order', async (req, res, next) => {
   try {
-    const { order } = req.body // array of gift IDs in new order
+    const { order, parentToken } = req.body // array of gift IDs in new order
+
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('id', req.params.id)
+      .eq('parent_token', parentToken)
+      .single()
+
+    if (!event) return res.status(403).json({ message: 'Non autorizzato' })
+
     const updates = order.map((giftId, i) => ({ id: giftId, sort_order: i }))
 
     for (const u of updates) {
-      await supabase.from('gifts').update({ sort_order: u.sort_order }).eq('id', u.id)
+      await supabase.from('gifts').update({ sort_order: u.sort_order }).eq('id', u.id).eq('event_id', req.params.id)
     }
 
     res.json({ ok: true })
@@ -327,9 +351,18 @@ router.put('/:id/gifts/order', async (req, res, next) => {
 // ─── POST /api/events/:id/gifts — Add gift ───────────────────────────────────
 router.post('/:id/gifts', async (req, res, next) => {
   try {
-    const { name, description, price, amazonUrl, storeUrl } = req.body
+    const { name, description, price, amazonUrl, storeUrl, parentToken } = req.body
 
     if (!name) return res.status(400).json({ message: 'Nome obbligatorio' })
+
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('id', req.params.id)
+      .eq('parent_token', parentToken)
+      .single()
+
+    if (!event) return res.status(403).json({ message: 'Non autorizzato' })
 
     // Get current max sort_order
     const { data: lastGift } = await supabase
@@ -415,7 +448,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
             url: `/dashboard/${ev.parent_token}`,
           })
         })
-        .catch(() => {})
+        .catch(err => console.error('[rsvp] push notification failed', err))
 
       return res.json(data)
     }
@@ -440,7 +473,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
       .update({ first_rsvp_at: new Date().toISOString() })
       .eq('id', req.params.id)
       .is('first_rsvp_at', null)
-      .then(() => {}).catch(() => {})
+      .then(() => {}).catch(err => console.error('[rsvp] first_rsvp_at update failed', err))
 
     // Notifica push all'organizzatore (fire-and-forget)
     supabase.from('events').select('parent_token, child_name').eq('id', req.params.id).single()
@@ -453,7 +486,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
           url: `/dashboard/${ev.parent_token}`,
         })
       })
-      .catch(() => {})
+      .catch(err => console.error('[rsvp] push notification failed', err))
 
     res.status(201).json(data)
   } catch (err) {
@@ -464,13 +497,14 @@ router.post('/:id/rsvp', async (req, res, next) => {
 // ─── POST /api/events/:id/contributions — Log contribution ──────────────────
 router.post('/:id/contributions', async (req, res, next) => {
   try {
-    const { contributorName, amount, paymentMethod, collectiveToken } = req.body
+    const { contributorName, paymentMethod, collectiveToken } = req.body
+    const amount = parseFloat(req.body.amount)
 
-    if (!contributorName || !amount || !paymentMethod) {
+    if (!contributorName || !paymentMethod) {
       return res.status(400).json({ message: 'Dati mancanti' })
     }
 
-    if (amount < 10) {
+    if (!Number.isFinite(amount) || amount < 10) {
       return res.status(400).json({ message: 'Importo minimo €10' })
     }
 
@@ -498,7 +532,7 @@ router.post('/:id/contributions', async (req, res, next) => {
       .insert({
         event_id: req.params.id,
         contributor_name: contributorName,
-        amount: parseFloat(amount),
+        amount,
         payment_method: paymentMethod,
         status: paymentMethod === 'paypal' ? 'pending' : 'completed',
       })
@@ -509,16 +543,17 @@ router.post('/:id/contributions', async (req, res, next) => {
 
     // Per i contanti: aggiorna subito il totale. Per PayPal: in attesa di conferma
     if (paymentMethod !== 'paypal') {
-      await supabase
-        .from('events')
-        .update({ collective_amount: event.collective_amount + parseFloat(amount) })
-        .eq('id', req.params.id)
+      const { error: incError } = await supabase.rpc('increment_collective_amount', {
+        p_event_id: req.params.id,
+        p_amount: amount,
+      })
+      if (incError) console.error('[contributions] increment_collective_amount failed', incError)
 
       // Notifica push per contributo in contanti (fire-and-forget)
       const giftName = event.collective_description || 'regalo collettivo'
       sendPushToParent(event.parent_token, {
         title: `Piky — ${contributorName} ha contribuito 💛`,
-        body: `€${parseFloat(amount).toFixed(2)} per "${giftName}" al compleanno di ${event.child_name}`,
+        body: `€${amount.toFixed(2)} per "${giftName}" al compleanno di ${event.child_name}`,
         url: `/dashboard/${event.parent_token}`,
       })
     } else {
@@ -526,7 +561,7 @@ router.post('/:id/contributions', async (req, res, next) => {
       const giftName = event.collective_description || 'regalo collettivo'
       sendPushToParent(event.parent_token, {
         title: `Piky — ${contributorName} vuole contribuire con PayPal 💛`,
-        body: `€${parseFloat(amount).toFixed(2)} per "${giftName}" — verifica nel tuo dashboard`,
+        body: `€${amount.toFixed(2)} per "${giftName}" — verifica nel tuo dashboard`,
         url: `/dashboard/${event.parent_token}`,
       })
     }
@@ -540,13 +575,14 @@ router.post('/:id/contributions', async (req, res, next) => {
 // ─── PUT /api/events/:id/contributions/:cid — Edit a contribution ───────────
 router.put('/:id/contributions/:cid', async (req, res, next) => {
   try {
-    const { contributorName, amount, collectiveToken } = req.body
+    const { contributorName, collectiveToken } = req.body
+    const newAmount = parseFloat(req.body.amount)
 
-    if (!contributorName || !amount) {
+    if (!contributorName || !Number.isFinite(newAmount)) {
       return res.status(400).json({ message: 'Dati mancanti' })
     }
 
-    if (amount < 10) {
+    if (newAmount < 10) {
       return res.status(400).json({ message: 'Importo minimo €10' })
     }
 
@@ -574,7 +610,6 @@ router.put('/:id/contributions/:cid', async (req, res, next) => {
     }
 
     const oldAmount = parseFloat(existing.amount)
-    const newAmount = parseFloat(amount)
     const remaining = event.collective_goal - event.collective_amount + oldAmount
 
     if (newAmount > remaining) {
@@ -590,12 +625,12 @@ router.put('/:id/contributions/:cid', async (req, res, next) => {
 
     if (error) throw error
 
-    // Adjust event total
-    const newTotal = event.collective_amount - oldAmount + newAmount
-    await supabase
-      .from('events')
-      .update({ collective_amount: newTotal })
-      .eq('id', req.params.id)
+    // Adjust event total atomically (delta può essere negativo)
+    const { error: incError } = await supabase.rpc('increment_collective_amount', {
+      p_event_id: req.params.id,
+      p_amount: newAmount - oldAmount,
+    })
+    if (incError) console.error('[contributions] increment_collective_amount failed', incError)
 
     res.json(data)
   } catch (err) {
@@ -634,10 +669,11 @@ router.patch('/:id/contributions/:cid/confirm', async (req, res, next) => {
       .update({ status: 'completed' })
       .eq('id', req.params.cid)
 
-    await supabase
-      .from('events')
-      .update({ collective_amount: event.collective_amount + parseFloat(contribution.amount) })
-      .eq('id', req.params.id)
+    const { error: incError } = await supabase.rpc('increment_collective_amount', {
+      p_event_id: req.params.id,
+      p_amount: parseFloat(contribution.amount),
+    })
+    if (incError) console.error('[contributions] increment_collective_amount failed', incError)
 
     res.json({ ok: true })
   } catch (err) {
@@ -646,7 +682,7 @@ router.patch('/:id/contributions/:cid/confirm', async (req, res, next) => {
 })
 
 // ─── POST /api/events/:id/thank-you — Send thank-you emails to guests ────────
-router.post('/:id/thank-you', async (req, res, next) => {
+router.post('/:id/thank-you', emailSendLimiter, async (req, res, next) => {
   try {
     const { parentToken, message } = req.body
 

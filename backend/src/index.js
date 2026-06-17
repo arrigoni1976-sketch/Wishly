@@ -16,6 +16,16 @@ import { sendReminders, sendClosingSummaries } from './services/email.js'
 const app = express()
 const PORT = process.env.PORT || 4000
 
+// ─── Global error safety net ─────────────────────────────────────────────────
+// Evita che un errore async non gestito (es. in una callback fire-and-forget)
+// faccia crashare silenziosamente il processo.
+process.on('unhandledRejection', (reason) => {
+  console.error('[unhandledRejection]', reason)
+})
+process.on('uncaughtException', (err) => {
+  console.error('[uncaughtException]', err)
+})
+
 // ─── Middleware ─────────────────────────────────────────────────────────────
 const allowedOrigins = [
   'https://www.pikyapp.it',
@@ -32,7 +42,10 @@ app.use(cors({
     callback(new Error('Host not in allowlist'))
   },
 }))
-app.use(express.json())
+// Conserva il raw body per la verifica della firma del webhook Stripe
+app.use(express.json({
+  verify: (req, _res, buf) => { req.rawBody = buf },
+}))
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/events', eventsRouter)

@@ -7,11 +7,31 @@ const router = Router()
 // ─── PUT /api/rsvp/:id — Update RSVP ────────────────────────────────────────
 router.put('/:id', async (req, res, next) => {
   try {
-    const { status, childrenCount, adultsCount, guestName, guestEmail } = req.body
+    const { status, childrenCount, adultsCount, guestName, guestEmail, guestToken } = req.body
 
     if (!status || !['yes', 'maybe', 'no'].includes(status)) {
       return res.status(400).json({ message: 'Status non valido' })
     }
+
+    if (!guestToken) return res.status(400).json({ message: 'guestToken obbligatorio' })
+
+    // Verify the RSVP belongs to the event reachable via this guestToken
+    const { data: rsvp } = await supabase
+      .from('rsvp')
+      .select('id, event_id')
+      .eq('id', req.params.id)
+      .single()
+
+    if (!rsvp) return res.status(404).json({ message: 'RSVP non trovato' })
+
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('id', rsvp.event_id)
+      .eq('guest_token', guestToken)
+      .single()
+
+    if (!event) return res.status(403).json({ message: 'Non autorizzato' })
 
     const updateData = {
       status,
@@ -47,7 +67,7 @@ router.put('/:id', async (req, res, next) => {
             })
           })
       })
-      .catch(() => {})
+      .catch(err => console.error('[rsvp] push notification failed', err))
 
     res.json(data)
   } catch (err) {

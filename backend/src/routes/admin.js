@@ -4,10 +4,9 @@ import { supabase } from '../lib/supabase.js'
 const router = Router()
 
 // GET /api/admin/stats?key=XXX
-router.get('/stats', async (req, res) => {
-  // Usa ADMIN_KEY da env, altrimenti chiave di fallback temporanea
-  const validKey = process.env.ADMIN_KEY || 'pikyAdmin2026'
-  if (req.query.key !== validKey) {
+router.get('/stats', async (req, res, next) => {
+  try {
+  if (!process.env.ADMIN_KEY || req.query.key !== process.env.ADMIN_KEY) {
     return res.status(401).json({ message: 'Non autorizzato' })
   }
 
@@ -192,6 +191,9 @@ router.get('/stats', async (req, res) => {
       },
     },
   })
+  } catch (err) {
+    next(err)
+  }
 })
 
 export default router

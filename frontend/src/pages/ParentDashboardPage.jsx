@@ -283,18 +283,18 @@ export default function ParentDashboardPage() {
   }, [event?.contributions])
 
   const handleAddGift = async (form) => {
-    await addGift(event.id, form)
+    await addGift(event.id, form, parentToken)
     await fetchEvent()
   }
 
   const handleEditGift = async (form) => {
-    await updateGift(form.id, form)
+    await updateGift(form.id, form, parentToken)
     await fetchEvent()
   }
 
   const handleDeleteGift = async (giftId) => {
     if (!confirm('Eliminare questo regalo?')) return
-    await deleteGift(giftId)
+    await deleteGift(giftId, parentToken)
     await fetchEvent()
   }
 

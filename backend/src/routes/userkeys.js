@@ -1,11 +1,12 @@
 import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
 import { sendUserKeyEmail } from '../services/email.js'
+import { createResourceLimiter } from '../lib/rateLimit.js'
 
 const router = Router()
 
 // POST /api/user-keys/register — Create a new personal key
-router.post('/register', async (req, res, next) => {
+router.post('/register', createResourceLimiter, async (req, res, next) => {
   try {
     const { key, email } = req.body
     if (!key || key.trim().length < 3) {

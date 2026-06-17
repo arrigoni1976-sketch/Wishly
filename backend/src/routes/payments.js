@@ -11,9 +11,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
 // POST /api/payments/stripe/intent
 router.post('/stripe/intent', async (req, res, next) => {
   try {
-    const { amount, contributorName, eventId } = req.body
+    const { contributorName, eventId } = req.body
+    const amount = parseFloat(req.body.amount)
 
-    if (!amount || amount < 10) {
+    if (!Number.isFinite(amount) || amount < 10) {
       return res.status(400).json({ message: 'Importo minimo €10' })
     }
 
@@ -74,9 +75,10 @@ router.post(
 // POST /api/payments/paypal/order
 router.post('/paypal/order', async (req, res, next) => {
   try {
-    const { amount, contributorName, eventId } = req.body
+    const { contributorName, eventId } = req.body
+    const amount = parseFloat(req.body.amount)
 
-    if (!amount || amount < 10) {
+    if (!Number.isFinite(amount) || amount < 10) {
       return res.status(400).json({ message: 'Importo minimo €10' })
     }
 
@@ -179,9 +181,10 @@ router.post('/paypal/capture', async (req, res, next) => {
 // POST /api/payments/satispay/init
 router.post('/satispay/init', async (req, res, next) => {
   try {
-    const { amount, contributorName, collectiveToken } = req.body
+    const { contributorName, collectiveToken } = req.body
+    const amount = parseFloat(req.body.amount)
 
-    if (!amount || amount < 10) {
+    if (!Number.isFinite(amount) || amount < 10) {
       return res.status(400).json({ message: 'Importo minimo €10' })
     }
 

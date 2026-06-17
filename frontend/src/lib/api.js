@@ -17,17 +17,17 @@ export const checkEmailQuota = (email) => api.get(`/events/email-quota?email=${e
 
 // ─── Gifts ─────────────────────────────────────────────────────────────────
 
-export const addGift = (eventId, data) => api.post(`/events/${eventId}/gifts`, data)
-export const updateGift = (giftId, data) => api.put(`/gifts/${giftId}`, data)
-export const deleteGift = (giftId) => api.delete(`/gifts/${giftId}`)
+export const addGift = (eventId, data, parentToken) => api.post(`/events/${eventId}/gifts`, { ...data, parentToken })
+export const updateGift = (giftId, data, parentToken) => api.put(`/gifts/${giftId}`, { ...data, parentToken })
+export const deleteGift = (giftId, parentToken) => api.delete(`/gifts/${giftId}`, { data: { parentToken } })
 export const reserveGift = (giftId, data) => api.post(`/gifts/${giftId}/reserve`, data)
 export const cancelReservation = (giftId, data) => api.delete(`/gifts/${giftId}/reserve`, { data })
-export const reorderGifts = (eventId, order) => api.put(`/events/${eventId}/gifts/order`, { order })
+export const reorderGifts = (eventId, order, parentToken) => api.put(`/events/${eventId}/gifts/order`, { order, parentToken })
 
 // ─── RSVP ──────────────────────────────────────────────────────────────────
 
 export const submitRsvp = (eventId, data) => api.post(`/events/${eventId}/rsvp`, data)
-export const updateRsvp = (rsvpId, data) => api.put(`/rsvp/${rsvpId}`, data)
+export const updateRsvp = (rsvpId, data, guestToken) => api.put(`/rsvp/${rsvpId}`, { ...data, guestToken })
 
 // ─── Collective gift ───────────────────────────────────────────────────────
 

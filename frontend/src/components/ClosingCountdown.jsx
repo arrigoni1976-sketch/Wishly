@@ -1,14 +1,27 @@
 import { useState, useEffect } from 'react'
 import { Clock, Lock } from 'lucide-react'
 
+// Offset (in minuti) tra UTC e Europe/Rome nell'istante `date` — tiene conto dell'ora legale.
+function getRomeOffsetMinutes(date) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Rome', hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(date).reduce((acc, p) => { acc[p.type] = p.value; return acc }, {})
+  const asUTC = Date.UTC(
+    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+    parts.hour === '24' ? 0 : Number(parts.hour), Number(parts.minute), Number(parts.second)
+  )
+  return (asUTC - date.getTime()) / 60000
+}
+
 function getClosingMs(closingDate) {
   const [y, m, d] = closingDate.split('-').map(Number)
-  // Find Italy's UTC offset at midnight of that day
-  const midnight = new Date(Date.UTC(y, m - 1, d))
-  const italyOffsetHours = Number(
-    new Intl.DateTimeFormat('en', { timeZone: 'Europe/Rome', hour: 'numeric', hour12: false }).format(midnight)
-  )
-  return new Date(Date.UTC(y, m - 1, d, 19 - italyOffsetHours, 0, 0)).getTime()
+  // Stima iniziale trattando le 19:00 come UTC, poi corregge con l'offset reale Europe/Rome
+  // valido in quell'istante (gestisce correttamente anche i giorni di cambio ora legale)
+  const guess = Date.UTC(y, m - 1, d, 19, 0, 0)
+  const offsetMin = getRomeOffsetMinutes(new Date(guess))
+  return guess - offsetMin * 60000
 }
 
 function formatRemaining(ms) {

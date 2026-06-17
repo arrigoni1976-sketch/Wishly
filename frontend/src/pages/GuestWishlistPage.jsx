@@ -111,7 +111,7 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl })
 }
 
 // ─── RSVP Form ─────────────────────────────────────────────────────────────
-function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eventData = null, listClosed = false }) {
+function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsvps = [], eventData = null, listClosed = false }) {
   const [step, setStep] = useState(existingRsvp ? 'done' : 'prompt') // 'prompt' | 'form' | 'done' | 'recover'
   const [guestName, setGuestName] = useState(existingRsvp?.guest_name || '')
   const [guestEmail, setGuestEmail] = useState(existingRsvp?.guest_email || '')
@@ -137,7 +137,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
           adultsCount,
           guestName: guestName.trim(),
           guestEmail: guestEmail.trim(),
-        })
+        }, guestToken)
       } else {
         res = await submitRsvp(eventId, {
           guestName: guestName.trim(),
@@ -747,6 +747,7 @@ export default function GuestWishlistPage() {
         <div id="rsvp">
         <RsvpSection
           eventId={event.id}
+          guestToken={guestToken}
           existingRsvp={myRsvp}
           onRsvpSaved={handleRsvpSaved}
           serverRsvps={event.rsvp || []}
