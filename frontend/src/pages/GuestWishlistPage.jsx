@@ -260,7 +260,7 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
         )}
         {status === 'no' && (
           <p className="text-sm text-gray-500 bg-cipria/20 border border-cipria/30 rounded-2xl px-4 py-3 leading-relaxed">
-            Ci dispiace che non potrai esserci! Se cambi idea, torna qui e conferma la tua presenza — ci teniamo tanto.
+            Ci dispiace che non potrai esserci! Se cambi idea, torna qui e conferma la tua presenza.
           </p>
         )}
       </div>
