@@ -263,6 +263,11 @@ function RsvpSection({ eventId, existingRsvp, onRsvpSaved, serverRsvps = [], eve
             Ci dispiace che non potrai esserci! Se cambi idea, torna qui e conferma la tua presenza.
           </p>
         )}
+        {status === 'maybe' && (
+          <p className="text-sm text-gray-500 bg-cipria/20 border border-cipria/30 rounded-2xl px-4 py-3 leading-relaxed">
+            Capita di essere indecisi! Quando hai le idee più chiare, torna qui e aggiorna la tua risposta, speriamo di vederti!
+          </p>
+        )}
       </div>
     )
   }
