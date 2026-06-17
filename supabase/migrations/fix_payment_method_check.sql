@@ -9,18 +9,19 @@
 
 DO $$
 DECLARE
-  con record;
+  con_name text;
 BEGIN
-  FOR con IN
-    SELECT con.conname
-    FROM pg_constraint con
-    JOIN pg_class rel ON rel.oid = con.conrelid
-    WHERE rel.relname = 'contributions'
-      AND con.contype = 'c'
-      AND pg_get_constraintdef(con.oid) ILIKE '%payment_method%'
-  LOOP
-    EXECUTE format('ALTER TABLE contributions DROP CONSTRAINT %I', con.conname);
-  END LOOP;
+  SELECT con.conname INTO con_name
+  FROM pg_constraint con
+  JOIN pg_class rel ON rel.oid = con.conrelid
+  WHERE rel.relname = 'contributions'
+    AND con.contype = 'c'
+    AND pg_get_constraintdef(con.oid) ILIKE '%payment_method%'
+  LIMIT 1;
+
+  IF con_name IS NOT NULL THEN
+    EXECUTE format('ALTER TABLE contributions DROP CONSTRAINT %I', con_name);
+  END IF;
 END $$;
 
 ALTER TABLE contributions
