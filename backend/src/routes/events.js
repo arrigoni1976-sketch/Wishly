@@ -545,9 +545,39 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
       return res.status(403).json({ message: 'Lista chiusa' })
     }
 
+    // Richiesta già elaborata (es. retry di rete) — non duplicare riga/notifica/incremento.
+    // Va controllato PRIMA di riservare la capacità, altrimenti un retry
+    // incrementerebbe il totale due volte per lo stesso contributo logico.
+    if (idempotencyKey) {
+      const { data: dup } = await supabase
+        .from('contributions')
+        .select('*')
+        .eq('event_id', req.params.id)
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle()
+      if (dup) return res.status(200).json(dup)
+    }
+
     const remaining = event.collective_goal - event.collective_amount
     if (amount > remaining) {
       return res.status(400).json({ message: `Importo massimo €${remaining.toFixed(2)}` })
+    }
+
+    const isImmediate = paymentMethod !== 'paypal'
+
+    // Per i contanti: riserva subito la capacità in modo atomico (il controllo
+    // "remaining" sopra è solo un check rapido, non definitivo — questo invece
+    // evita davvero il superamento dell'obiettivo in caso di contributi
+    // concorrenti). Per PayPal: resta in attesa di conferma, nessuna riserva ora.
+    if (isImmediate) {
+      const { data: newTotal, error: incError } = await supabase.rpc('increment_collective_amount', {
+        p_event_id: req.params.id,
+        p_amount: amount,
+      })
+      if (incError) throw incError
+      if (newTotal === null) {
+        return res.status(409).json({ message: 'Obiettivo raggiunto proprio ora da un altro contributo, riprova con un importo più basso' })
+      }
     }
 
     const { data, error } = await supabase
@@ -557,7 +587,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
         contributor_name: contributorName,
         amount,
         payment_method: paymentMethod,
-        status: paymentMethod === 'paypal' ? 'pending' : 'completed',
+        status: isImmediate ? 'completed' : 'pending',
         idempotency_key: idempotencyKey || null,
         edit_token: crypto.randomUUID(),
       })
@@ -565,6 +595,10 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
       .single()
 
     if (error) {
+      // La capacità era già stata riservata sopra: se la riga non si salva, va liberata.
+      if (isImmediate) {
+        await supabase.rpc('increment_collective_amount', { p_event_id: req.params.id, p_amount: -amount })
+      }
       if (error.code === '23505' && idempotencyKey) {
         // Richiesta già elaborata (es. retry di rete) — non duplicare riga/notifica
         const { data: dup } = await supabase
@@ -578,14 +612,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
       throw error
     }
 
-    // Per i contanti: aggiorna subito il totale. Per PayPal: in attesa di conferma
-    if (paymentMethod !== 'paypal') {
-      const { error: incError } = await supabase.rpc('increment_collective_amount', {
-        p_event_id: req.params.id,
-        p_amount: amount,
-      })
-      if (incError) console.error('[contributions] increment_collective_amount failed', incError)
-
+    if (isImmediate) {
       // Notifica push per contributo in contanti (fire-and-forget)
       const giftName = event.collective_description || 'regalo collettivo'
       sendPushToParent(event.parent_token, {
@@ -654,10 +681,22 @@ router.put('/:id/contributions/:cid', async (req, res, next) => {
     }
 
     const oldAmount = parseFloat(existing.amount)
+    const delta = newAmount - oldAmount
     const remaining = event.collective_goal - event.collective_amount + oldAmount
 
     if (newAmount > remaining) {
       return res.status(400).json({ message: `Importo massimo €${remaining.toFixed(2)}` })
+    }
+
+    // Riserva il delta in modo atomico PRIMA di scrivere la riga (delta negativo
+    // — importo ridotto — passa sempre, dato che libera capacità invece di consumarla)
+    const { data: newTotal, error: incError } = await supabase.rpc('increment_collective_amount', {
+      p_event_id: req.params.id,
+      p_amount: delta,
+    })
+    if (incError) throw incError
+    if (newTotal === null) {
+      return res.status(400).json({ message: 'Importo massimo superato' })
     }
 
     const { data, error } = await supabase
@@ -667,14 +706,11 @@ router.put('/:id/contributions/:cid', async (req, res, next) => {
       .select()
       .single()
 
-    if (error) throw error
-
-    // Adjust event total atomically (delta può essere negativo)
-    const { error: incError } = await supabase.rpc('increment_collective_amount', {
-      p_event_id: req.params.id,
-      p_amount: newAmount - oldAmount,
-    })
-    if (incError) console.error('[contributions] increment_collective_amount failed', incError)
+    if (error) {
+      // Riserva già effettuata sopra: se la riga non si salva, va annullata.
+      await supabase.rpc('increment_collective_amount', { p_event_id: req.params.id, p_amount: -delta })
+      throw error
+    }
 
     res.json(data)
   } catch (err) {
@@ -708,16 +744,28 @@ router.patch('/:id/contributions/:cid/confirm', async (req, res, next) => {
     if (!contribution) return res.status(404).json({ message: 'Contributo non trovato' })
     if (contribution.status === 'completed') return res.json({ ok: true }) // già confermato
 
-    await supabase
+    // Riserva la capacità in modo atomico PRIMA di marcare il contributo come
+    // completato — se nel frattempo l'obiettivo è stato raggiunto da altri
+    // contributi, non si conferma per non sforare.
+    const { data: newTotal, error: incError } = await supabase.rpc('increment_collective_amount', {
+      p_event_id: req.params.id,
+      p_amount: parseFloat(contribution.amount),
+    })
+    if (incError) throw incError
+    if (newTotal === null) {
+      return res.status(409).json({ message: 'Obiettivo già raggiunto: confermando questo contributo verrebbe superato' })
+    }
+
+    const { error: updError } = await supabase
       .from('contributions')
       .update({ status: 'completed' })
       .eq('id', req.params.cid)
 
-    const { error: incError } = await supabase.rpc('increment_collective_amount', {
-      p_event_id: req.params.id,
-      p_amount: parseFloat(contribution.amount),
-    })
-    if (incError) console.error('[contributions] increment_collective_amount failed', incError)
+    if (updError) {
+      // Riserva già effettuata sopra: se la riga non si aggiorna, va annullata.
+      await supabase.rpc('increment_collective_amount', { p_event_id: req.params.id, p_amount: -parseFloat(contribution.amount) })
+      throw updError
+    }
 
     res.json({ ok: true })
   } catch (err) {
