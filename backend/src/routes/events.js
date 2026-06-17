@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 import { supabase } from '../lib/supabase.js'
 import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
 import { sendPushToParent } from '../services/push.js'
-import { isListClosed } from '../lib/utils.js'
+import { isListClosed, parsePrice, isValidUuid } from '../lib/utils.js'
 import { createResourceLimiter, emailSendLimiter } from '../lib/rateLimit.js'
 
 const router = Router()
@@ -85,7 +85,7 @@ router.post('/', createResourceLimiter, async (req, res, next) => {
         event_id: event.id,
         name: g.name,
         description: g.description || null,
-        price: g.price ? parseFloat(g.price) : null,
+        price: parsePrice(g.price),
         amazon_url: g.amazonUrl || null,
         store_url: g.storeUrl || null,
         sort_order: i,
@@ -327,6 +327,10 @@ router.put('/:id/gifts/order', async (req, res, next) => {
   try {
     const { order, parentToken } = req.body // array of gift IDs in new order
 
+    if (!Array.isArray(order)) {
+      return res.status(400).json({ message: 'order deve essere un array' })
+    }
+
     const { data: event } = await supabase
       .from('events')
       .select('id')
@@ -379,7 +383,7 @@ router.post('/:id/gifts', async (req, res, next) => {
         event_id: req.params.id,
         name,
         description: description || null,
-        price: price ? parseFloat(price) : null,
+        price: parsePrice(price),
         amazon_url: amazonUrl || null,
         store_url: storeUrl || null,
         sort_order: lastGift ? lastGift.sort_order + 1 : 0,
@@ -406,6 +410,10 @@ router.post('/:id/rsvp', createResourceLimiter, async (req, res, next) => {
 
     if (!['yes', 'maybe', 'no'].includes(status)) {
       return res.status(400).json({ message: 'Status non valido' })
+    }
+
+    if (idempotencyKey && !isValidUuid(idempotencyKey)) {
+      return res.status(400).json({ message: 'idempotencyKey non valido' })
     }
 
     // Check closing date
@@ -479,14 +487,34 @@ router.post('/:id/rsvp', createResourceLimiter, async (req, res, next) => {
       .single()
 
     if (error) {
-      if (error.code === '23505' && idempotencyKey) {
-        const { data: dup } = await supabase
+      if (error.code === '23505') {
+        if (idempotencyKey) {
+          const { data: dup } = await supabase
+            .from('rsvp')
+            .select('*')
+            .eq('event_id', req.params.id)
+            .eq('idempotency_key', idempotencyKey)
+            .maybeSingle()
+          if (dup) return res.status(200).json(dup)
+        }
+        // Una richiesta concorrente per lo stesso nome (anche con maiuscole/minuscole
+        // diverse) ha creato la riga tra il check ilike sopra e questo insert —
+        // applichiamo questa risposta come update invece di fallire.
+        const { data: race, error: raceErr } = await supabase
           .from('rsvp')
-          .select('*')
+          .update({
+            status,
+            children_count: childrenCount || 0,
+            adults_count: adultsCount ?? 1,
+            updated_at: new Date().toISOString(),
+            idempotency_key: idempotencyKey || null,
+          })
           .eq('event_id', req.params.id)
-          .eq('idempotency_key', idempotencyKey)
-          .maybeSingle()
-        if (dup) return res.status(200).json(dup)
+          .ilike('guest_name', guestName)
+          .select()
+          .single()
+        if (raceErr) throw raceErr
+        return res.json(race)
       }
       throw error
     }
@@ -529,6 +557,10 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
 
     if (!Number.isFinite(amount) || amount < 10) {
       return res.status(400).json({ message: 'Importo minimo €10' })
+    }
+
+    if (idempotencyKey && !isValidUuid(idempotencyKey)) {
+      return res.status(400).json({ message: 'idempotencyKey non valido' })
     }
 
     // Verify collective token matches event

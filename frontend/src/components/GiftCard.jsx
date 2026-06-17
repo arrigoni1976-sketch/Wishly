@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ExternalLink, ShoppingBag, Lock, Trash2, Pencil } from 'lucide-react'
 import clsx from 'clsx'
+import { getErrorMessage } from '../lib/api'
 
 export default function GiftCard({
   gift,
@@ -32,7 +33,7 @@ export default function GiftCard({
       })
       setShowReserveForm(false)
     } catch (e) {
-      setReserveError(e?.response?.data?.message || 'Errore nella prenotazione. Riprova.')
+      setReserveError(getErrorMessage(e))
     } finally {
       setLoading(false)
     }
@@ -44,7 +45,7 @@ export default function GiftCard({
     try {
       await onCancelReservation?.({ giftId: gift.id, reservedBy: gift.reserved_by })
     } catch (e) {
-      setReserveError(e?.response?.data?.message || 'Errore nella cancellazione. Riprova.')
+      setReserveError(getErrorMessage(e))
     } finally {
       setLoading(false)
     }

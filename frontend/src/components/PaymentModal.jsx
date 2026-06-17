@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import clsx from 'clsx'
+import { getErrorMessage } from '../lib/api'
 
 const QUICK_AMOUNTS = [10, 20, 30, 50]
 
@@ -28,7 +29,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
       await onSubmit({ method: 'contanti', amount: numAmount, name: name.trim() })
       onClose()
     } catch (e) {
-      setError(e.message || 'Errore. Riprova.')
+      setError(getErrorMessage(e))
     } finally {
       setLoading(false)
     }
@@ -45,7 +46,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
       // (window.open su iOS PWA naviga la finestra corrente, causando una pagina bianca)
       window.location.href = `https://paypal.me/${encodeURIComponent(paypalEmail)}/${numAmount}`
     } catch (e) {
-      setError(e.message || 'Errore. Riprova.')
+      setError(getErrorMessage(e))
     } finally {
       setLoading(false)
     }

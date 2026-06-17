@@ -103,6 +103,11 @@ create index if not exists rsvp_event_id_idx on rsvp(event_id);
 create unique index if not exists rsvp_event_idempotency_key_idx
   on rsvp(event_id, idempotency_key) where idempotency_key is not null;
 
+-- Chiude la race condition tra richieste concorrenti con varianti diverse di
+-- maiuscole/minuscole dello stesso nome (il vincolo unique sopra è case-sensitive).
+create unique index if not exists rsvp_event_guest_name_lower_idx
+  on rsvp(event_id, lower(guest_name));
+
 -- ─── LINK VIEWS ──────────────────────────────────────────────────────────────
 
 create table if not exists link_views (

@@ -10,3 +10,23 @@ export function isListClosed(closingDate) {
   }
   return false
 }
+
+// Returns a finite, non-negative price (or null if empty/omitted) — throws a 400
+// error for values that aren't a valid number, instead of silently storing NaN/null.
+export function parsePrice(value) {
+  if (value === undefined || value === null || value === '') return null
+  const n = parseFloat(value)
+  if (!Number.isFinite(n) || n < 0) {
+    const err = new Error('Prezzo non valido')
+    err.status = 400
+    throw err
+  }
+  return n
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// Returns true if the string is a syntactically valid UUID
+export function isValidUuid(value) {
+  return typeof value === 'string' && UUID_RE.test(value)
+}

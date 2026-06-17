@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
 import { sendPushToParent } from '../services/push.js'
-import { isListClosed } from '../lib/utils.js'
+import { isListClosed, parsePrice } from '../lib/utils.js'
 import { createResourceLimiter } from '../lib/rateLimit.js'
 
 const router = Router()
@@ -43,7 +43,7 @@ router.put('/:id', async (req, res, next) => {
       .update({
         name,
         description: description || null,
-        price: price ? parseFloat(price) : null,
+        price: parsePrice(price),
         amazon_url: amazonUrl || null,
         store_url: storeUrl || null,
       })
