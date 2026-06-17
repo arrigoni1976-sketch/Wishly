@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
 import { sendPushToParent } from '../services/push.js'
 import { isListClosed } from '../lib/utils.js'
+import { createResourceLimiter } from '../lib/rateLimit.js'
 
 const router = Router()
 
@@ -76,7 +77,7 @@ router.delete('/:id', async (req, res, next) => {
 })
 
 // ─── POST /api/gifts/:id/reserve — Reserve a gift ───────────────────────────
-router.post('/:id/reserve', async (req, res, next) => {
+router.post('/:id/reserve', createResourceLimiter, async (req, res, next) => {
   try {
     const { guestName, partnerName, purchasedOffline } = req.body
 

@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { getVapidPublicKey, saveSubscription, sendPushToParent } from '../services/push.js'
 import { supabase } from '../lib/supabase.js'
+import { createResourceLimiter, emailSendLimiter } from '../lib/rateLimit.js'
 
 const router = Router()
 
@@ -10,12 +11,23 @@ router.get('/vapid-public-key', (_req, res) => {
 })
 
 // POST /api/push/subscribe
-router.post('/subscribe', async (req, res, next) => {
+router.post('/subscribe', createResourceLimiter, async (req, res, next) => {
   try {
     const { parentToken, subscription } = req.body
     if (!parentToken || !subscription) {
       return res.status(400).json({ message: 'parentToken e subscription obbligatori' })
     }
+
+    // Senza questo controllo chiunque potrebbe registrare/sovrascrivere la
+    // subscription push di un parentToken altrui (saveSubscription fa upsert su parent_token).
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('parent_token', parentToken)
+      .maybeSingle()
+
+    if (!event) return res.status(403).json({ message: 'Token non valido' })
+
     await saveSubscription(parentToken, subscription)
     res.json({ ok: true })
   } catch (err) {
@@ -24,7 +36,7 @@ router.post('/subscribe', async (req, res, next) => {
 })
 
 // GET /api/push/diagnose/:parentToken — controlla subscription e manda push di test
-router.get('/diagnose/:parentToken', async (req, res) => {
+router.get('/diagnose/:parentToken', emailSendLimiter, async (req, res) => {
   const { parentToken } = req.params
   const vapidKey = getVapidPublicKey()
 

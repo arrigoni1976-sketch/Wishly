@@ -71,7 +71,7 @@ router.get('/:key', async (req, res, next) => {
 })
 
 // POST /api/user-keys/:key/link — Add an event or invite link to a key
-router.post('/:key/link', async (req, res, next) => {
+router.post('/:key/link', createResourceLimiter, async (req, res, next) => {
   try {
     const normalized = req.params.key.trim().toLowerCase()
     const { linkType, token, childName, partyDate, guestName } = req.body

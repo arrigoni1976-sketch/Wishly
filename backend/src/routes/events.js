@@ -144,7 +144,7 @@ router.get('/parent/:token', async (req, res, next) => {
 })
 
 // ─── GET /api/events/email-quota — Check events count for an email ──────────
-router.get('/email-quota', async (req, res, next) => {
+router.get('/email-quota', createResourceLimiter, async (req, res, next) => {
   try {
     const email = req.query.email?.trim().toLowerCase()
     if (!email) return res.status(400).json({ message: 'email obbligatoria' })
@@ -395,7 +395,7 @@ router.post('/:id/gifts', async (req, res, next) => {
 })
 
 // ─── POST /api/events/:id/rsvp — Submit RSVP ────────────────────────────────
-router.post('/:id/rsvp', async (req, res, next) => {
+router.post('/:id/rsvp', createResourceLimiter, async (req, res, next) => {
   try {
     const { guestEmail, status, childrenCount, adultsCount, idempotencyKey } = req.body
     const guestName = req.body.guestName?.trim()
@@ -518,7 +518,7 @@ router.post('/:id/rsvp', async (req, res, next) => {
 })
 
 // ─── POST /api/events/:id/contributions — Log contribution ──────────────────
-router.post('/:id/contributions', async (req, res, next) => {
+router.post('/:id/contributions', createResourceLimiter, async (req, res, next) => {
   try {
     const { contributorName, paymentMethod, collectiveToken, idempotencyKey } = req.body
     const amount = parseFloat(req.body.amount)
