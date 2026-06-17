@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="font-display text-lg font-bold text-gray-800">1. Titolare del trattamento</h2>
           <p className="text-sm leading-relaxed">
             Il titolare del trattamento dei dati personali è <strong>Alessio Arrigoni</strong>,
-            raggiungibile all'indirizzo email{' '}
+            P.IVA 03763500133, raggiungibile all'indirizzo email{' '}
             <a href="mailto:arrigoni1976@gmail.com" className="text-salvia underline">
               arrigoni1976@gmail.com
             </a>.
@@ -26,17 +26,24 @@ export default function PrivacyPolicyPage() {
             Piky raccoglie esclusivamente i dati che l'utente inserisce volontariamente durante l'utilizzo dell'app:
           </p>
           <ul className="text-sm leading-relaxed list-disc list-inside space-y-1 text-gray-600">
+            <li>Email del genitore/organizzatore (obbligatoria, per gestire l'evento e ricevere comunicazioni)</li>
             <li>Nome del bambino e data della festa (inseriti da chi organizza)</li>
             <li>Lista dei regali desiderati (titoli, descrizioni, link, prezzi)</li>
-            <li>Nome degli ospiti che prenotano un regalo o confermano la presenza</li>
-            <li>Indirizzo email PayPal (opzionale, solo per la raccolta fondi collettiva)</li>
+            <li>Nome (e, opzionalmente, email) degli ospiti che confermano la presenza o prenotano un regalo</li>
+            <li>Nome di chi contribuisce al regalo collettivo, importo dichiarato e metodo scelto (PayPal o contanti)</li>
+            <li>Indirizzo email PayPal dell'organizzatore (opzionale, solo per generare il link di pagamento)</li>
             <li>Codice personale anonimo (scelto dall'utente, es. "MARCO-7X2Q") per il recupero delle liste su altri dispositivi</li>
-            <li>Log anonimi di accesso ai link (data/ora, numero di visualizzazioni)</li>
+            <li>Dati tecnici anonimi sulle visualizzazioni dei link (tipo di dispositivo, sistema operativo, browser, data/ora) — non viene registrato l'indirizzo IP</li>
           </ul>
           <p className="text-sm leading-relaxed">
-            <strong>Non raccogliamo</strong> indirizzi email degli utenti, numeri di telefono,
-            dati di pagamento, né utilizziamo cookie di profilazione o strumenti di tracciamento
-            pubblicitario.
+            <strong>Pagamenti</strong>: i contributi al regalo collettivo via PayPal avvengono tramite
+            un link di pagamento personale dell'organizzatore (paypal.me) — il denaro passa
+            direttamente tra chi contribuisce e l'organizzatore, mai attraverso i server di Piky.
+            Piky registra solo l'importo dichiarato dall'ospite per tenere il conto del totale
+            raccolto, non riceve né gestisce dati di carte di credito o conti correnti.
+          </p>
+          <p className="text-sm leading-relaxed">
+            Non utilizziamo cookie di profilazione né strumenti di tracciamento pubblicitario.
           </p>
         </section>
 
@@ -46,8 +53,9 @@ export default function PrivacyPolicyPage() {
             I dati sono utilizzati esclusivamente per:
           </p>
           <ul className="text-sm leading-relaxed list-disc list-inside space-y-1 text-gray-600">
+            <li>Creare e gestire la lista regali e inviare comunicazioni relative all'evento</li>
             <li>Mostrare la lista dei regali agli ospiti invitati tramite link</li>
-            <li>Coordinare le prenotazioni dei regali tra gli ospiti</li>
+            <li>Coordinare le prenotazioni dei regali e i contributi al regalo collettivo tra gli ospiti</li>
             <li>Permettere all'organizzatore di vedere chi ha confermato la presenza</li>
             <li>Consentire il recupero delle proprie liste su altri dispositivi tramite codice personale</li>
           </ul>
@@ -68,6 +76,10 @@ export default function PrivacyPolicyPage() {
             <li><strong>Vercel</strong> (hosting frontend) — CDN globale con edge in Europa</li>
           </ul>
           <p className="text-sm leading-relaxed">
+            Le email vengono inviate tramite un comune servizio SMTP. I pagamenti via PayPal
+            avvengono direttamente sul sito di PayPal, secondo la sua privacy policy.
+          </p>
+          <p className="text-sm leading-relaxed">
             Alcuni dati (lista degli eventi visitati, codice personale) sono conservati anche
             localmente nel browser dell'utente tramite <em>localStorage</em>.
           </p>
@@ -76,9 +88,10 @@ export default function PrivacyPolicyPage() {
         <section className="space-y-3">
           <h2 className="font-display text-lg font-bold text-gray-800">5. Per quanto tempo</h2>
           <p className="text-sm leading-relaxed">
-            I dati relativi a un evento (lista regali, RSVP, log di accesso) non hanno una
-            scadenza automatica. Su richiesta dell'utente, i dati vengono eliminati
-            entro 30 giorni. Puoi richiedere la cancellazione scrivendo a{' '}
+            I dati relativi a un evento (lista regali, RSVP, contributi, log di accesso) vengono
+            conservati fino a <strong>3 mesi dopo la data della festa</strong>, trascorsi i quali
+            vengono cancellati automaticamente e definitivamente. Puoi comunque richiedere la
+            cancellazione anticipata in qualsiasi momento scrivendo a{' '}
             <a href="mailto:arrigoni1976@gmail.com" className="text-salvia underline">
               arrigoni1976@gmail.com
             </a>{' '}
