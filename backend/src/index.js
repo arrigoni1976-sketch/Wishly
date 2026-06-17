@@ -55,19 +55,24 @@ app.use((err, _req, res, _next) => {
 })
 
 // ─── Scheduled jobs ─────────────────────────────────────────────────────────
+// Run every day at 08:00 Italy time — follow-up reminder the morning after the party
+cron.schedule('0 8 * * *', async () => {
+  console.log('[cron] Running party follow-up job...')
+  await sendPartyFollowupPushes()
+}, { timezone: 'Europe/Rome' })
+
 // Run every day at 09:00 Italy time — send reminders 2 days before party
 cron.schedule('0 9 * * *', async () => {
   console.log('[cron] Running reminder job...')
   await sendReminders()
 }, { timezone: 'Europe/Rome' })
 
-// Run every day at 19:01 Italy time — closing summary + push + party follow-up
+// Run every day at 19:01 Italy time — closing summary + push
 // (list closes at 19:00; summary sent one minute later)
 cron.schedule('1 19 * * *', async () => {
   console.log('[cron] Running closing summary job...')
   await sendClosingSummaries()
   await sendClosingPushes()
-  await sendPartyFollowupPushes()
 }, { timezone: 'Europe/Rome' })
 
 // ─── Start ───────────────────────────────────────────────────────────────────
