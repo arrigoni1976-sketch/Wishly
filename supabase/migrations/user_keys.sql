@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS user_keys (
 CREATE TABLE IF NOT EXISTS user_key_links (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_key    TEXT        NOT NULL,
-  link_type   TEXT        NOT NULL CHECK (link_type IN ('event', 'invite')),
+  link_type   TEXT        NOT NULL CHECK (link_type IN ('event', 'invite', 'collective')),
   token       TEXT        NOT NULL,
   child_name  TEXT,
   party_date  DATE,

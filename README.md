@@ -62,8 +62,6 @@ FRONTEND_URL=http://localhost:3000
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_KEY=eyJ...  # service_role key!
 
-STRIPE_SECRET_KEY=sk_test_...
-
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=tuaemail@gmail.com

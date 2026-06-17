@@ -103,7 +103,7 @@ create table if not exists contributions (
 
   contributor_name        text not null,
   amount                  numeric(10,2) not null check (amount >= 10),
-  payment_method          text not null check (payment_method in ('stripe', 'paypal', 'satispay')),
+  payment_method          text not null check (payment_method in ('contanti', 'paypal', 'satispay')),
   status                  text not null default 'pending' check (status in ('pending', 'completed', 'failed')),
 
   -- Payment provider refs

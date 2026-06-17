@@ -43,10 +43,7 @@ app.use(cors({
     callback(new Error('Host not in allowlist'))
   },
 }))
-// Conserva il raw body per la verifica della firma del webhook Stripe
-app.use(express.json({
-  verify: (req, _res, buf) => { req.rawBody = buf },
-}))
+app.use(express.json())
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/events', eventsRouter)
