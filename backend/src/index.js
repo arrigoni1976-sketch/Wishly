@@ -12,6 +12,7 @@ import adminRouter from './routes/admin.js'
 import pushRouter from './routes/push.js'
 import { initVapid, sendClosingPushes, sendPartyFollowupPushes } from './services/push.js'
 import { sendReminders, sendClosingSummaries } from './services/email.js'
+import { deleteExpiredEvents } from './services/retention.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -86,6 +87,12 @@ cron.schedule('1 19 * * *', async () => {
   console.log('[cron] Running closing summary job...')
   await sendClosingSummaries()
   await sendClosingPushes()
+}, { timezone: 'Europe/Rome' })
+
+// Run every day at 04:00 Italy time — delete events older than 3 months (data retention, see Privacy Policy)
+cron.schedule('0 4 * * *', async () => {
+  console.log('[cron] Running data retention cleanup job...')
+  await deleteExpiredEvents()
 }, { timezone: 'Europe/Rome' })
 
 // ─── Start ───────────────────────────────────────────────────────────────────
