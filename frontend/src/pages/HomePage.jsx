@@ -88,7 +88,7 @@ const STEPS = [
     number: '04',
     title: 'Segui tutto dalla tua area',
     description:
-      'Vedi chi ha aperto il link, chi ha prenotato cosa, le presenze confermate e i contributi al collettivo.',
+      'Vedi chi ha aperto il link, chi ha prenotato cosa, le presenze confermate e i contributi al regalo collettivo.',
   },
 ]
 
