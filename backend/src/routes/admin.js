@@ -7,6 +7,8 @@ const router = Router()
 router.get('/stats', async (req, res, next) => {
   try {
     if (!process.env.ADMIN_KEY || req.query.key !== process.env.ADMIN_KEY) {
+      const mask = (s) => s ? `${s.slice(0, 3)}...${s.slice(-3)} (len ${s.length})` : 'undefined'
+      console.log('[admin debug] received:', mask(req.query.key), 'expected:', mask(process.env.ADMIN_KEY))
       return res.status(401).json({ message: 'Non autorizzato' })
     }
 
