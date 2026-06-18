@@ -7,11 +7,11 @@ export async function getAdminStats() {
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
   const weekStart = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
-  const eventsBase = () => supabase.from('events').gte('created_at', LAUNCH_DATE)
-  const rsvpBase = () => supabase.from('rsvp').gte('created_at', LAUNCH_DATE)
-  const giftsBase = () => supabase.from('gifts').gte('created_at', LAUNCH_DATE)
-  const viewsBase = () => supabase.from('link_views').gte('created_at', LAUNCH_DATE)
-  const userKeyBase = () => supabase.from('user_key_links').gte('created_at', LAUNCH_DATE)
+  const eventsFrom = () => supabase.from('events')
+  const rsvpFrom = () => supabase.from('rsvp')
+  const giftsFrom = () => supabase.from('gifts')
+  const viewsFrom = () => supabase.from('link_views')
+  const userKeyFrom = () => supabase.from('user_key_links')
 
   const [
     { count: total },
@@ -29,22 +29,23 @@ export async function getAdminStats() {
     { data: latencyEvents },
     { data: acquisitionRows },
   ] = await Promise.all([
-    eventsBase().select('*', { count: 'exact', head: true }),
-    eventsBase().select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
-    eventsBase().select('*', { count: 'exact', head: true }).gte('created_at', weekStart),
-    eventsBase().select('*', { count: 'exact', head: true }).eq('collective_enabled', true),
-    eventsBase()
+    eventsFrom().select('*', { count: 'exact', head: true }).gte('created_at', LAUNCH_DATE),
+    eventsFrom().select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
+    eventsFrom().select('*', { count: 'exact', head: true }).gte('created_at', weekStart),
+    eventsFrom().select('*', { count: 'exact', head: true }).gte('created_at', LAUNCH_DATE).eq('collective_enabled', true),
+    eventsFrom()
       .select('id, child_name, party_date, parent_email, collective_enabled, collective_goal, collective_amount, created_at')
+      .gte('created_at', LAUNCH_DATE)
       .order('created_at', { ascending: false }),
-    rsvpBase().select('event_id, status'),
-    giftsBase().select('event_id, reserved_by'),
-    viewsBase().select('view_count'),
-    rsvpBase().select('*', { count: 'exact', head: true }).eq('status', 'yes'),
-    giftsBase().select('*', { count: 'exact', head: true }).not('reserved_by', 'is', null),
-    userKeyBase().select('user_key, link_type'),
-    viewsBase().select('device_type, os, browser'),
-    eventsBase().select('created_at, first_rsvp_at, first_gift_reserved_at'),
-    eventsBase().select('utm_source, referral_source'),
+    rsvpFrom().select('event_id, status').gte('created_at', LAUNCH_DATE),
+    giftsFrom().select('event_id, reserved_by').gte('created_at', LAUNCH_DATE),
+    viewsFrom().select('view_count').gte('created_at', LAUNCH_DATE),
+    rsvpFrom().select('*', { count: 'exact', head: true }).gte('created_at', LAUNCH_DATE).eq('status', 'yes'),
+    giftsFrom().select('*', { count: 'exact', head: true }).gte('created_at', LAUNCH_DATE).not('reserved_by', 'is', null),
+    userKeyFrom().select('user_key, link_type').gte('created_at', LAUNCH_DATE),
+    viewsFrom().select('device_type, os, browser').gte('created_at', LAUNCH_DATE),
+    eventsFrom().select('created_at, first_rsvp_at, first_gift_reserved_at').gte('created_at', LAUNCH_DATE),
+    eventsFrom().select('utm_source, referral_source').gte('created_at', LAUNCH_DATE),
   ])
 
   // Collective totals
