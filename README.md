@@ -40,10 +40,10 @@ npm install
 
 1. Vai su https://supabase.com → crea un nuovo progetto
 2. Nel SQL Editor, incolla e lancia tutto il contenuto di `supabase/schema.sql`
-3. In **Settings → API** copia:
+3. In **Settings → API Keys** copia:
    - `Project URL` → `SUPABASE_URL`
-   - `anon public` key → `VITE_SUPABASE_ANON_KEY`
-   - `service_role` key → `SUPABASE_SERVICE_KEY`
+   - `Publishable key` (`sb_publishable_...`) → `VITE_SUPABASE_ANON_KEY`
+   - `Secret key` (`sb_secret_...`, sezione "Secret keys" — crea la tua se non esiste) → `SUPABASE_SERVICE_KEY`
 
 ---
 
@@ -52,7 +52,7 @@ npm install
 **Frontend** — crea `frontend/.env`:
 ```env
 VITE_SUPABASE_URL=https://xxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJ...
+VITE_SUPABASE_ANON_KEY=sb_publishable_...
 ```
 
 **Backend** — crea `backend/.env` (copia da `.env.example` e compila):
@@ -60,7 +60,7 @@ VITE_SUPABASE_ANON_KEY=eyJ...
 PORT=4000
 FRONTEND_URL=http://localhost:3000
 SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...  # service_role key!
+SUPABASE_SERVICE_KEY=sb_secret_...  # secret key, accesso privilegiato!
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
