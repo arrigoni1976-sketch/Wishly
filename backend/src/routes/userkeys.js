@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { supabase } from '../lib/supabase.js'
 import { sendUserKeyEmail } from '../services/email.js'
 import { createResourceLimiter } from '../lib/rateLimit.js'
+import { isValidEmail } from '../lib/utils.js'
 
 const router = Router()
 
@@ -30,7 +31,7 @@ router.post('/register', createResourceLimiter, async (req, res, next) => {
     if (error) throw error
 
     // Send key reminder email if provided (non-blocking)
-    if (email && email.includes('@')) {
+    if (email && isValidEmail(email)) {
       sendUserKeyEmail({ to: email, key: normalized })
         .catch((err) => console.error('[email] failed to send user key email:', err.message))
     }

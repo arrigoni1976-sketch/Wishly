@@ -30,3 +30,10 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export function isValidUuid(value) {
   return typeof value === 'string' && UUID_RE.test(value)
 }
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+// Returns true if the string is a syntactically valid email address
+export function isValidEmail(value) {
+  return typeof value === 'string' && EMAIL_RE.test(value.trim())
+}

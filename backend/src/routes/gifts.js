@@ -79,7 +79,8 @@ router.delete('/:id', async (req, res, next) => {
 // ─── POST /api/gifts/:id/reserve — Reserve a gift ───────────────────────────
 router.post('/:id/reserve', createResourceLimiter, async (req, res, next) => {
   try {
-    const { guestName, partnerName, purchasedOffline } = req.body
+    const { partnerName, purchasedOffline } = req.body
+    const guestName = (req.body.guestName || '').trim()
 
     if (!guestName) return res.status(400).json({ message: 'guestName obbligatorio' })
 

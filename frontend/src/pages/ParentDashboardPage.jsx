@@ -39,10 +39,12 @@ function GiftModal({ isOpen, onClose, onSave, initialData }) {
     initialData || { name: '', description: '', price: '', amazonUrl: '', storeUrl: '' }
   )
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (initialData) setForm(initialData)
     else setForm({ name: '', description: '', price: '', amazonUrl: '', storeUrl: '' })
+    setError('')
   }, [initialData, isOpen])
 
   if (!isOpen) return null
@@ -50,9 +52,16 @@ function GiftModal({ isOpen, onClose, onSave, initialData }) {
   const handleSave = async () => {
     if (!form.name.trim()) return
     setLoading(true)
-    await onSave(form)
-    setLoading(false)
-    onClose()
+    setError('')
+    try {
+      await onSave(form)
+      onClose()
+    } catch (e) {
+      console.error(e)
+      setError('Salvataggio non riuscito. Riprova.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -127,6 +136,10 @@ function GiftModal({ isOpen, onClose, onSave, initialData }) {
           </div>
         </div>
 
+        {error && (
+          <p className="text-sm text-red-600 mt-3">{error}</p>
+        )}
+
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="flex-1 btn-outline py-2.5">
             Annulla
@@ -172,11 +185,13 @@ export default function ParentDashboardPage() {
   const [collectiveModal, setCollectiveModal] = useState(false)
   const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
+  const [collectiveSaveError, setCollectiveSaveError] = useState('')
   const [eventModal, setEventModal] = useState(false)
   const [eventForm, setEventForm] = useState({
     child_name: '', gender: '', party_date: '', party_time: '', location: '', address: '', notes: '',
   })
   const [eventSaving, setEventSaving] = useState(false)
+  const [eventSaveError, setEventSaveError] = useState('')
   const [thankYouMsg, setThankYouMsg] = useState('')
   const [msgCopied, setMsgCopied] = useState(false)
 
@@ -188,11 +203,13 @@ export default function ParentDashboardPage() {
       goal: event.collective_goal || '',
       paypal_email: event.paypal_email || '',
     })
+    setCollectiveSaveError('')
     setCollectiveModal(true)
   }
 
   const saveCollective = async () => {
     setCollectiveSaving(true)
+    setCollectiveSaveError('')
     try {
       await updateEvent(event.id, {
         parentToken: parentToken,
@@ -204,6 +221,7 @@ export default function ParentDashboardPage() {
       setCollectiveModal(false)
     } catch (e) {
       console.error(e)
+      setCollectiveSaveError('Salvataggio non riuscito. Riprova.')
     } finally {
       setCollectiveSaving(false)
     }
@@ -219,12 +237,14 @@ export default function ParentDashboardPage() {
       address: event.address || '',
       notes: event.notes || '',
     })
+    setEventSaveError('')
     setEventModal(true)
   }
 
   const saveEventDetails = async () => {
     if (!eventForm.child_name.trim() || !eventForm.party_date) return
     setEventSaving(true)
+    setEventSaveError('')
     try {
       await updateEvent(event.id, {
         parentToken: parentToken,
@@ -240,6 +260,7 @@ export default function ParentDashboardPage() {
       setEventModal(false)
     } catch (e) {
       console.error(e)
+      setEventSaveError('Salvataggio non riuscito. Riprova.')
     } finally {
       setEventSaving(false)
     }
@@ -338,8 +359,13 @@ export default function ParentDashboardPage() {
 
   const handleDeleteGift = async (giftId) => {
     if (!confirm('Eliminare questo regalo?')) return
-    await deleteGift(giftId, parentToken)
-    await fetchEvent()
+    try {
+      await deleteGift(giftId, parentToken)
+      await fetchEvent()
+    } catch (e) {
+      console.error(e)
+      alert('Eliminazione non riuscita. Riprova.')
+    }
   }
 
   if (loading) {
@@ -835,6 +861,10 @@ export default function ParentDashboardPage() {
               </div>
             </div>
 
+            {collectiveSaveError && (
+              <p className="text-sm text-red-600">{collectiveSaveError}</p>
+            )}
+
             <div className="flex gap-3">
               <button onClick={() => setCollectiveModal(false)} className="flex-1 btn-outline text-sm py-2.5">
                 Annulla
@@ -921,6 +951,10 @@ export default function ParentDashboardPage() {
                 />
               </div>
             </div>
+
+            {eventSaveError && (
+              <p className="text-sm text-red-600">{eventSaveError}</p>
+            )}
 
             <div className="flex gap-3">
               <button onClick={() => setEventModal(false)} className="flex-1 btn-outline text-sm py-2.5">
