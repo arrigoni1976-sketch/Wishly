@@ -319,6 +319,87 @@ export async function sendUserKeyEmail({ to, key }) {
   await send(to, subject, html)
 }
 
+// ─── Email: resoconto settimanale admin ──────────────────────────────────────
+
+export async function sendWeeklyAdminReport({ to, stats }) {
+  const { overview, funnel, monetization, analytics } = stats
+  const topSources = Object.entries(analytics.acquisition || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+  const topSourcesHtml = topSources.length
+    ? topSources.map(([src, count]) => `
+        <tr>
+          <td style="padding: 6px 0; color: #444;">${escapeHtml(src)}</td>
+          <td style="padding: 6px 0; text-align: right; font-weight: 600; color: #1a1a1a;">${count}</td>
+        </tr>
+      `).join('')
+    : '<tr><td style="padding: 6px 0; color: #999;">Nessun dato ancora</td></tr>'
+
+  const row = (label, value) => `
+    <tr>
+      <td style="padding: 8px 0; color: #444; font-size: 14px;">${label}</td>
+      <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #1a1a1a; font-size: 14px;">${value}</td>
+    </tr>
+  `
+
+  const subject = `📊 Piky — Resoconto settimanale (${overview.thisWeek} nuovi eventi)`
+  const html = `
+    <div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a;">
+      <div style="background: #4A7A50; padding: 32px; border-radius: 16px 16px 0 0; text-align: center;">
+        <h1 style="color: white; font-size: 28px; margin: 0; font-family: Georgia, serif;">
+          🎁 Piky
+        </h1>
+        <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0;">Resoconto settimanale</p>
+      </div>
+
+      <div style="background: #FAF7F2; padding: 32px; border-radius: 0 0 16px 16px; border: 1px solid #F0EBE3;">
+
+        <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin: 0 0 12px;">Volume eventi</h2>
+        <table width="100%" style="border-collapse: collapse; margin-bottom: 24px;">
+          ${row('Nuovi eventi questa settimana', overview.thisWeek)}
+          ${row('Nuovi eventi questo mese', overview.thisMonth)}
+          ${row('Totale eventi da inizio', overview.total)}
+          ${row('Con regalo collettivo attivo', overview.withCollective)}
+        </table>
+
+        <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin: 0 0 12px;">Funnel di conversione (da inizio)</h2>
+        <table width="100%" style="border-collapse: collapse; margin-bottom: 24px;">
+          ${row('Invitati che hanno aperto il link', funnel.linkViews)}
+          ${row('Hanno confermato la presenza', funnel.rsvpYes)}
+          ${row('Hanno prenotato un regalo', funnel.giftsReserved)}
+          ${row('Organizzatori tornati per un 2° evento', funnel.returnOrganizers)}
+          ${row('Organizzatori arrivati da un invito', funnel.organizersFromInvite)}
+        </table>
+
+        <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin: 0 0 12px;">Regalo collettivo</h2>
+        <table width="100%" style="border-collapse: collapse; margin-bottom: 24px;">
+          ${row('Totale raccolto', `€${overview.totalCollectiveOrganized}`)}
+          ${row('Totale obiettivi impostati', `€${overview.totalCollectiveGoal}`)}
+        </table>
+
+        <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin: 0 0 12px;">Principali fonti di traffico</h2>
+        <table width="100%" style="border-collapse: collapse; margin-bottom: 24px;">
+          ${topSourcesHtml}
+        </table>
+
+        <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #999; margin: 0 0 12px;">Monetizzazione potenziale</h2>
+        <table width="100%" style="border-collapse: collapse; margin-bottom: 8px;">
+          ${row('Utenti di ritorno', monetization.returningUsers)}
+          ${row('Eventi aggiuntivi (oltre il primo gratuito)', monetization.additionalEvents)}
+          ${row('Ricavo potenziale', `€${monetization.potentialRevenue.toFixed(2)}`)}
+        </table>
+
+        <a href="${BASE}/admin"
+           style="display: inline-block; background: #4A7A50; color: white; padding: 14px 28px;
+                  border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 15px; margin-top: 16px;">
+          Apri la dashboard admin →
+        </a>
+      </div>
+    </div>
+  `
+  await send(to, subject, html)
+}
+
 // ─── Cron jobs ────────────────────────────────────────────────────────────────
 
 export async function sendReminders() {

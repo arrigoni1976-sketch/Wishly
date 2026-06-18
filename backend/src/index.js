@@ -11,8 +11,9 @@ import userKeysRouter from './routes/userkeys.js'
 import adminRouter from './routes/admin.js'
 import pushRouter from './routes/push.js'
 import { initVapid, sendClosingPushes, sendPartyFollowupPushes } from './services/push.js'
-import { sendReminders, sendClosingSummaries } from './services/email.js'
+import { sendReminders, sendClosingSummaries, sendWeeklyAdminReport } from './services/email.js'
 import { deleteExpiredEvents } from './services/retention.js'
+import { getAdminStats } from './services/adminStats.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -90,6 +91,21 @@ cron.schedule('1 19 * * *', async () => {
 cron.schedule('0 4 * * *', async () => {
   console.log('[cron] Running data retention cleanup job...')
   await deleteExpiredEvents()
+}, { timezone: 'Europe/Rome' })
+
+// Run every Monday at 08:00 Italy time — weekly admin report email
+cron.schedule('0 8 * * 1', async () => {
+  if (!process.env.ADMIN_EMAIL) {
+    console.log('[cron] Skipping weekly admin report — ADMIN_EMAIL not set')
+    return
+  }
+  console.log('[cron] Running weekly admin report job...')
+  try {
+    const stats = await getAdminStats()
+    await sendWeeklyAdminReport({ to: process.env.ADMIN_EMAIL, stats })
+  } catch (err) {
+    console.error('[cron] Weekly admin report failed:', err)
+  }
 }, { timezone: 'Europe/Rome' })
 
 // ─── Start ───────────────────────────────────────────────────────────────────
