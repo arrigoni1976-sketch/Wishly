@@ -102,6 +102,9 @@ function GiftModal({ isOpen, onClose, onSave, initialData }) {
               />
             </div>
           </div>
+          <p className="text-xs text-gray-400 italic -mt-1">
+            Cerca il regalo su Amazon o nel tuo negozio preferito, poi copia e incolla qui il link: aiuterai chi vuole farti questo regalo a trovarlo subito.
+          </p>
           <div>
             <label className="label">Link Amazon</label>
             <input
