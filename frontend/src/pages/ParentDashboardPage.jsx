@@ -169,6 +169,11 @@ export default function ParentDashboardPage() {
   const [collectiveModal, setCollectiveModal] = useState(false)
   const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
+  const [eventModal, setEventModal] = useState(false)
+  const [eventForm, setEventForm] = useState({
+    child_name: '', gender: '', party_date: '', party_time: '', location: '', address: '', notes: '',
+  })
+  const [eventSaving, setEventSaving] = useState(false)
   const [thankYouMsg, setThankYouMsg] = useState('')
   const [msgCopied, setMsgCopied] = useState(false)
 
@@ -198,6 +203,42 @@ export default function ParentDashboardPage() {
       console.error(e)
     } finally {
       setCollectiveSaving(false)
+    }
+  }
+
+  const openEventEdit = () => {
+    setEventForm({
+      child_name: event.child_name || '',
+      gender: event.gender || '',
+      party_date: event.party_date || '',
+      party_time: event.party_time ? event.party_time.slice(0, 5) : '',
+      location: event.location || '',
+      address: event.address || '',
+      notes: event.notes || '',
+    })
+    setEventModal(true)
+  }
+
+  const saveEventDetails = async () => {
+    if (!eventForm.child_name.trim() || !eventForm.party_date) return
+    setEventSaving(true)
+    try {
+      await updateEvent(event.id, {
+        parentToken: parentToken,
+        child_name: eventForm.child_name.trim(),
+        gender: eventForm.gender || null,
+        party_date: eventForm.party_date,
+        party_time: eventForm.party_time || null,
+        location: eventForm.location || null,
+        address: eventForm.address || null,
+        notes: eventForm.notes || null,
+      })
+      await fetchEvent()
+      setEventModal(false)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setEventSaving(false)
     }
   }
 
@@ -372,9 +413,18 @@ export default function ParentDashboardPage() {
                 }
               </div>
               <div>
-                <h1 className="font-display text-2xl font-bold text-gray-900">
-                  Compleanno di {event.child_name}
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-display text-2xl font-bold text-gray-900">
+                    Compleanno di {event.child_name}
+                  </h1>
+                  <button
+                    onClick={openEventEdit}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-salvia hover:bg-salvia/10 transition-colors flex-shrink-0"
+                    title="Modifica dettagli festa"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </div>
                 <div className="flex flex-col gap-1 mt-1 text-sm text-gray-500">
                   <div className="flex flex-wrap gap-3">
                     {event.party_date && (
@@ -792,6 +842,93 @@ export default function ParentDashboardPage() {
                 className="flex-1 btn-primary text-sm py-2.5"
               >
                 {collectiveSaving ? 'Salvo...' : 'Salva'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modifica dettagli festa ───────────────────────────────────── */}
+      {eventModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/50 flex items-end justify-center p-4"
+          onClick={() => setEventModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 animate-slide-up max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="font-display font-bold text-gray-900 text-lg">Modifica dettagli festa</h3>
+              <button onClick={() => setEventModal(false)} className="text-gray-300 hover:text-gray-500 text-xl">✕</button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="label">Nome del bambino/a *</label>
+                <input
+                  value={eventForm.child_name}
+                  onChange={(e) => setEventForm((f) => ({ ...f, child_name: e.target.value }))}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Data della festa *</label>
+                <input
+                  type="date"
+                  value={eventForm.party_date}
+                  onChange={(e) => setEventForm((f) => ({ ...f, party_date: e.target.value }))}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Orario</label>
+                <input
+                  type="time"
+                  value={eventForm.party_time}
+                  onChange={(e) => setEventForm((f) => ({ ...f, party_time: e.target.value }))}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Luogo</label>
+                <input
+                  value={eventForm.location}
+                  onChange={(e) => setEventForm((f) => ({ ...f, location: e.target.value }))}
+                  placeholder="Es. Oratorio di Vercurago, Bar Centrale"
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Indirizzo</label>
+                <input
+                  value={eventForm.address}
+                  onChange={(e) => setEventForm((f) => ({ ...f, address: e.target.value }))}
+                  placeholder="Per il link a Google Maps"
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Note</label>
+                <textarea
+                  value={eventForm.notes}
+                  onChange={(e) => setEventForm((f) => ({ ...f, notes: e.target.value }))}
+                  rows={3}
+                  className="input resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setEventModal(false)} className="flex-1 btn-outline text-sm py-2.5">
+                Annulla
+              </button>
+              <button
+                onClick={saveEventDetails}
+                disabled={eventSaving || !eventForm.child_name.trim() || !eventForm.party_date}
+                className="flex-1 btn-primary text-sm py-2.5"
+              >
+                {eventSaving ? 'Salvo...' : 'Salva'}
               </button>
             </div>
           </div>
