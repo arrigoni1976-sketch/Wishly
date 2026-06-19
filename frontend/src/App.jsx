@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { registerSW } from 'virtual:pwa-register'
 import { Analytics } from '@vercel/analytics/react'
@@ -26,9 +26,20 @@ const updateSW = registerSW({
 // Esponi la funzione di update globalmente per il pulsante in Navbar
 window.__pikyUpdateSW = updateSW
 
+// Riporta la pagina in cima a ogni cambio di rotta — senza, il browser mantiene
+// lo scroll della pagina precedente quando si naviga con React Router
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/crea" element={<CreateEventPage />} />
