@@ -599,11 +599,14 @@ export default function ParentDashboardPage() {
         {event.collective_enabled && (
           <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display font-bold text-lg text-gray-900">
-                {event.collective_description
-                  ? `${event.collective_description} — Regalo collettivo`
-                  : 'Regalo collettivo'}
-              </h2>
+              <div>
+                <h2 className="font-display font-bold text-lg text-gray-900">
+                  Regalo collettivo
+                </h2>
+                {event.collective_description && (
+                  <p className="text-sm text-gray-500 mt-0.5">{event.collective_description}</p>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={openCollectiveEdit}
