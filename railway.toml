@@ -1,2 +1,5 @@
 [build]
-rootDirectory = "backend"
+buildCommand = "npm ci --prefix backend"
+
+[deploy]
+startCommand = "node backend/src/index.js"
