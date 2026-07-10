@@ -136,7 +136,7 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
             {...register('partyTime')}
             type="time"
             className="input"
-            defaultValue="16:00"
+            defaultValue=""
           />
         </div>
 
@@ -556,7 +556,7 @@ export default function CreateEventPage() {
       childName: '',
       gender: '',
       partyDate: '',
-      partyTime: '16:00',
+      partyTime: '',
       location: '',
       address: '',
       notes: '',
