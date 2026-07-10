@@ -132,12 +132,19 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 
         <div>
           <label className="label">Orario</label>
-          <input
-            {...register('partyTime')}
-            type="time"
-            className="input"
-            defaultValue=""
-          />
+          <div className="relative">
+            <input
+              {...register('partyTime')}
+              type="time"
+              className="input"
+              style={!watch('partyTime') ? { color: 'transparent' } : {}}
+            />
+            {!watch('partyTime') && (
+              <span className="absolute inset-0 flex items-center px-3 text-gray-400 text-sm pointer-events-none">
+                Es. 16:00
+              </span>
+            )}
+          </div>
         </div>
 
         <div>
