@@ -396,7 +396,7 @@ export default function AdminPage() {
                   </div>
                 </div>
                 <p className="text-3xl font-display font-bold text-gray-900">
-                  {analytics.latency.avgRsvpHours !== null ? `${analytics.latency.avgRsvpHours}h` : '—'}
+                  {analytics.latency.avgRsvpHours !== null ? (analytics.latency.avgRsvpHours === 0 ? '< 1h' : `${analytics.latency.avgRsvpHours}h`) : '—'}
                 </p>
                 <p className="text-xs text-gray-400 mt-1">su {analytics.latency.eventsWithRsvp} eventi</p>
               </div>
