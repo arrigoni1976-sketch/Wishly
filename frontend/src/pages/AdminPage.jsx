@@ -1,10 +1,142 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { RefreshCw, Gift, Users, Calendar, TrendingUp, Star, Eye, CheckCircle, Repeat2, Share2, Smartphone, Monitor, Clock, BarChart2 } from 'lucide-react'
+import { RefreshCw, Gift, Users, Calendar, TrendingUp, Star, Eye, CheckCircle, Repeat2, Share2, Smartphone, Monitor, Clock, BarChart2, X, ChevronRight } from 'lucide-react'
 import api from '../lib/api'
 
 const getAdminStats = (key) => api.get(`/admin/stats?key=${encodeURIComponent(key)}`)
+const getEventDetail = (key, id) => api.get(`/admin/events/${id}?key=${encodeURIComponent(key)}`)
+
+// ── Event detail panel ────────────────────────────────────────────────────────
+function EventDetailPanel({ eventId, adminKey, onClose }) {
+  const [detail, setDetail] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getEventDetail(adminKey, eventId)
+      .then(r => setDetail(r.data))
+      .catch(() => setDetail(null))
+      .finally(() => setLoading(false))
+  }, [eventId, adminKey])
+
+  if (loading) return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-3xl p-8 text-gray-500">Carico...</div>
+    </div>
+  )
+  if (!detail) return null
+
+  const { event, gifts, rsvp, views, contributions } = detail
+  const totalViews = views.reduce((a, v) => a + (v.view_count || 1), 0)
+  const giftsReserved = gifts.filter(g => g.reserved_by)
+
+  // Funnel steps
+  const steps = [
+    { label: 'Evento creato', done: true, detail: format(new Date(event.created_at), 'd MMM yyyy HH:mm', { locale: it }) },
+    { label: 'Regali aggiunti', done: gifts.length > 0, detail: `${gifts.length} regalo${gifts.length !== 1 ? 'i' : ''}` },
+    { label: 'Link aperto dagli invitati', done: totalViews > 0, detail: `${totalViews} visualizzazion${totalViews !== 1 ? 'i' : 'e'}` },
+    { label: 'RSVP ricevuti', done: rsvp.length > 0, detail: `${rsvp.filter(r => r.status === 'yes').length} sì / ${rsvp.length} totali` },
+    { label: 'Regali prenotati', done: giftsReserved.length > 0, detail: `${giftsReserved.length} su ${gifts.length}` },
+  ]
+  if (event.collective_enabled) {
+    steps.push({ label: 'Contributi collettivo', done: contributions.length > 0, detail: `€${event.collective_amount || 0} / €${event.collective_goal}` })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+      <div className="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-avorio-dark px-5 py-4 flex items-center justify-between rounded-t-3xl">
+          <div>
+            <h2 className="font-display font-bold text-lg text-gray-900">{event.child_name}</h2>
+            <p className="text-xs text-gray-400">{event.parent_email}</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+            <X className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-5">
+          {/* Funnel percorso */}
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Percorso</p>
+            <div className="space-y-2">
+              {steps.map((s, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${s.done ? 'bg-salvia text-white' : 'bg-gray-100 text-gray-300'}`}>
+                    {s.done ? '✓' : i + 1}
+                  </div>
+                  <div className="flex-1 flex items-center justify-between">
+                    <span className={`text-sm ${s.done ? 'text-gray-800' : 'text-gray-300'}`}>{s.label}</span>
+                    {s.done && <span className="text-xs text-gray-400">{s.detail}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Regali */}
+          {gifts.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Regali</p>
+              <div className="space-y-1.5">
+                {gifts.map(g => (
+                  <div key={g.id} className="flex items-center justify-between text-sm py-1.5 border-b border-avorio-dark last:border-0">
+                    <span className="text-gray-700 flex-1">{g.name}{g.price ? ` · €${g.price}` : ''}</span>
+                    {g.reserved_by
+                      ? <span className="text-xs bg-salvia/10 text-salvia rounded-lg px-2 py-0.5 ml-2">{g.reserved_by}</span>
+                      : <span className="text-xs text-gray-300 ml-2">non prenotato</span>
+                    }
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* RSVP */}
+          {rsvp.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">RSVP</p>
+              <div className="space-y-1.5">
+                {rsvp.map((r, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-avorio-dark last:border-0">
+                    <span className="text-gray-700">{r.guest_name}</span>
+                    <span className={`text-xs font-medium ${r.status === 'yes' ? 'text-salvia' : 'text-red-400'}`}>
+                      {r.status === 'yes' ? 'Presente' : 'Assente'}
+                      {r.status === 'yes' && r.adults ? ` · ${r.adults + (r.children || 0)} pers.` : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Contributi collettivo */}
+          {contributions.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Contributi collettivo</p>
+              <div className="space-y-1.5">
+                {contributions.map((c, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-avorio-dark last:border-0">
+                    <span className="text-gray-700">{c.contributor_name}</span>
+                    <span className="text-amber-600 font-medium">€{c.amount}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Info evento */}
+          <div className="text-xs text-gray-400 space-y-1 pt-2 border-t border-avorio-dark">
+            {event.party_date && <p>Festa: {format(new Date(event.party_date), 'd MMMM yyyy', { locale: it })}{event.party_time ? ` ore ${event.party_time}` : ''}</p>}
+            {event.location && <p>Luogo: {event.location}</p>}
+            {event.address && <p>Indirizzo: {event.address}</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, icon: Icon, color = 'salvia' }) {
@@ -89,6 +221,7 @@ export default function AdminPage() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [selectedEventId, setSelectedEventId] = useState(null)
 
   const fetchStats = async (k) => {
     setLoading(true)
@@ -438,8 +571,8 @@ export default function AdminPage() {
               </thead>
               <tbody className="divide-y divide-avorio-dark">
                 {recentEvents.map((e) => (
-                  <tr key={e.id} className="hover:bg-avorio/50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-gray-800">{e.child_name}</td>
+                  <tr key={e.id} className="hover:bg-avorio/50 transition-colors cursor-pointer" onClick={() => setSelectedEventId(e.id)}>
+                    <td className="px-4 py-3 font-medium text-gray-800 flex items-center gap-1">{e.child_name}<ChevronRight className="w-3 h-3 text-gray-300 inline" /></td>
                     <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
                       {e.party_date ? format(new Date(e.party_date), 'd MMM yyyy', { locale: it }) : '—'}
                     </td>
@@ -470,6 +603,14 @@ export default function AdminPage() {
         </div>
 
       </div>
+
+      {selectedEventId && (
+        <EventDetailPanel
+          eventId={selectedEventId}
+          adminKey={key}
+          onClose={() => setSelectedEventId(null)}
+        />
+      )}
     </div>
   )
 }
