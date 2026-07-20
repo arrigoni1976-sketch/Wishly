@@ -11,17 +11,28 @@ const getEventDetail = (key, id) => api.get(`/admin/events/${id}?key=${encodeURI
 function EventDetailPanel({ eventId, adminKey, onClose }) {
   const [detail, setDetail] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
+    setLoading(true)
+    setFetchError(false)
     getEventDetail(adminKey, eventId)
       .then(r => setDetail(r.data))
-      .catch(() => setDetail(null))
+      .catch(() => setFetchError(true))
       .finally(() => setLoading(false))
   }, [eventId, adminKey])
 
   if (loading) return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
       <div className="bg-white rounded-3xl p-8 text-gray-500">Carico...</div>
+    </div>
+  )
+  if (fetchError) return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-3xl p-8 text-center" onClick={e => e.stopPropagation()}>
+        <p className="text-red-500 mb-4">Impossibile caricare i dettagli.</p>
+        <button onClick={onClose} className="btn-primary">Chiudi</button>
+      </div>
     </div>
   )
   if (!detail) return null
@@ -103,7 +114,7 @@ function EventDetailPanel({ eventId, adminKey, onClose }) {
                     <span className="text-gray-700">{r.guest_name}</span>
                     <span className={`text-xs font-medium ${r.status === 'yes' ? 'text-salvia' : 'text-red-400'}`}>
                       {r.status === 'yes' ? 'Presente' : 'Assente'}
-                      {r.status === 'yes' && r.adults ? ` · ${r.adults + (r.children || 0)} pers.` : ''}
+                      {r.status === 'yes' && r.adults_count ? ` · ${r.adults_count + (r.children_count || 0)} pers.` : ''}
                     </span>
                   </div>
                 ))}
