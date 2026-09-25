@@ -740,6 +740,9 @@ export default function ParentDashboardPage() {
                   <div key={r.id} className="flex items-center justify-between text-sm">
                     <div>
                       <span className="font-medium text-gray-700">{r.guest_name}</span>
+                      {r.parent_name && (
+                        <span className="ml-1.5 text-gray-400 text-xs">· {r.parent_name}</span>
+                      )}
                       {(r.adults_count > 1 || r.with_partner) && (
                         <span className="ml-2 text-gray-400 text-xs">
                           {r.adults_count > 1 ? `${r.adults_count} adulti` : '+ partner'}

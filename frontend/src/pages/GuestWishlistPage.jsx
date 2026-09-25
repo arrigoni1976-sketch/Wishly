@@ -114,7 +114,7 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl })
 function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsvps = [], eventData = null, listClosed = false }) {
   const [step, setStep] = useState(existingRsvp ? 'done' : 'prompt') // 'prompt' | 'form' | 'done' | 'recover'
   const [guestName, setGuestName] = useState(existingRsvp?.guest_name || '')
-  const [guestEmail, setGuestEmail] = useState(existingRsvp?.guest_email || '')
+  const [parentName, setParentName] = useState(existingRsvp?.parent_name || '')
   const [status, setStatus] = useState(existingRsvp?.status || '')
   const [childrenCount, setChildrenCount] = useState(existingRsvp?.children_count || 0)
   const [adultsCount, setAdultsCount] = useState(existingRsvp?.adults_count || 1)
@@ -126,7 +126,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
   const idempotencyKeyRef = useRef(null)
 
   const handleSubmit = async () => {
-    if (!guestName.trim() || !status) return
+    if (!guestName.trim() || !parentName.trim() || !status) return
     setLoading(true)
     setSubmitError('')
     try {
@@ -137,7 +137,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           childrenCount,
           adultsCount,
           guestName: guestName.trim(),
-          guestEmail: guestEmail.trim(),
+          parentName: parentName.trim(),
         }, guestToken)
       } else {
         // Stessa chiave riusata sui retry (es. dopo un errore di rete) per evitare
@@ -145,7 +145,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
         if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID()
         res = await submitRsvp(eventId, {
           guestName: guestName.trim(),
-          guestEmail: guestEmail.trim(),
+          parentName: parentName.trim(),
           status,
           childrenCount,
           adultsCount,
@@ -226,7 +226,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
         <div className="flex items-start justify-between">
           <div>
             <p className="font-semibold text-gray-800">
-              {`Ciao, ${guestName || existingRsvp?.guest_name}!`}
+              {`Ciao, ${parentName || existingRsvp?.parent_name || guestName || existingRsvp?.guest_name}!`}
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
               Hai risposto:{' '}
@@ -338,21 +338,20 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
 
       <div className="grid sm:grid-cols-2 gap-3">
           <div>
-            <label className="label">Il tuo nome *</label>
+            <label className="label">Nome del bambino *</label>
             <input
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
-              placeholder="Nome Cognome"
+              placeholder="es. Giulia"
               className="input"
             />
           </div>
           <div>
-            <label className="label">Email (opzionale)</label>
+            <label className="label">Il tuo nome (genitore) *</label>
             <input
-              type="email"
-              value={guestEmail}
-              onChange={(e) => setGuestEmail(e.target.value)}
-              placeholder="nome@email.it"
+              value={parentName}
+              onChange={(e) => setParentName(e.target.value)}
+              placeholder="es. Marco Rossi"
               className="input"
             />
           </div>
@@ -427,7 +426,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
         )}
         <button
           onClick={handleSubmit}
-          disabled={!guestName.trim() || !status || loading}
+          disabled={!guestName.trim() || !parentName.trim() || !status || loading}
           className="flex-1 btn-primary text-sm py-2.5"
         >
           {loading ? 'Salvo...' : 'Conferma risposta'}

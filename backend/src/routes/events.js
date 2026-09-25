@@ -401,8 +401,9 @@ router.post('/:id/gifts', async (req, res, next) => {
 // ─── POST /api/events/:id/rsvp — Submit RSVP ────────────────────────────────
 router.post('/:id/rsvp', createResourceLimiter, async (req, res, next) => {
   try {
-    const { guestEmail, status, childrenCount, adultsCount, idempotencyKey } = req.body
+    const { status, childrenCount, adultsCount, idempotencyKey } = req.body
     const guestName = req.body.guestName?.trim()
+    const parentName = req.body.parentName?.trim() || null
 
     if (!guestName || !status) {
       return res.status(400).json({ message: 'guestName e status obbligatori' })
@@ -477,7 +478,7 @@ router.post('/:id/rsvp', createResourceLimiter, async (req, res, next) => {
       .insert({
         event_id: req.params.id,
         guest_name: guestName,
-        guest_email: guestEmail || null,
+        parent_name: parentName,
         status,
         children_count: childrenCount || 0,
         adults_count: adultsCount ?? 1,
