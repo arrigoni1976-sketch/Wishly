@@ -43,7 +43,7 @@ export default async function middleware(request) {
         const event = await res.json()
         const html = buildHTML({
           title: `Sei invitato alla festa di compleanno di ${event.child_name}!`,
-          description: `Conferma la tua presenza. Se vuoi, scopri anche la lista dei desideri — ogni regalo è in esclusiva, nessun doppione garantito.`,
+          description: `Conferma la tua presenza.`,
           imageUrl,
           url: `${baseUrl}${pathname}`,
         })
