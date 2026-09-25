@@ -116,8 +116,12 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
   const [guestName, setGuestName] = useState(existingRsvp?.guest_name || '')
   const [parentName, setParentName] = useState(existingRsvp?.parent_name || '')
   const [status, setStatus] = useState(existingRsvp?.status || '')
-  const [childrenCount, setChildrenCount] = useState(existingRsvp?.children_count || 0)
-  const [adultsCount, setAdultsCount] = useState(existingRsvp?.adults_count || 1)
+  const [extraAdults, setExtraAdults] = useState(
+    Array(Math.max(0, (existingRsvp?.adults_count || 1) - 1)).fill('')
+  )
+  const [extraChildren, setExtraChildren] = useState(
+    Array(Math.max(0, (existingRsvp?.children_count || 1) - 1)).fill('')
+  )
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -134,8 +138,8 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
       if (existingRsvp?.id) {
         res = await updateRsvp(existingRsvp.id, {
           status,
-          childrenCount,
-          adultsCount,
+          childrenCount: 1 + extraChildren.length,
+          adultsCount: 1 + extraAdults.length,
           guestName: guestName.trim(),
           parentName: parentName.trim(),
         }, guestToken)
@@ -147,8 +151,8 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           guestName: guestName.trim(),
           parentName: parentName.trim(),
           status,
-          childrenCount,
-          adultsCount,
+          childrenCount: 1 + extraChildren.length,
+          adultsCount: 1 + extraAdults.length,
           idempotencyKey: idempotencyKeyRef.current,
         })
       }
@@ -364,49 +368,81 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
 
       {status === 'yes' && (
         <>
-          <div>
+          <div className="space-y-4">
             <label className="label">In quanti sarete?</label>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Adulti</span>
-                <div className="flex items-center gap-3">
+
+            {/* Adulti */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Adulti</span>
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-salvia/10 rounded-xl">
+                <span className="text-sm font-medium text-salvia flex-1">{parentName || 'Tu'}</span>
+              </div>
+              {extraAdults.map((name, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => {
+                      const next = [...extraAdults]
+                      next[i] = e.target.value
+                      setExtraAdults(next)
+                    }}
+                    placeholder="Nome adulto"
+                    className="input text-sm py-2 flex-1"
+                  />
                   <button
                     type="button"
-                    onClick={() => setAdultsCount((n) => Math.max(1, n - 1))}
-                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
+                    onClick={() => setExtraAdults(extraAdults.filter((_, j) => j !== i))}
+                    className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
                   >
-                    −
-                  </button>
-                  <span className="text-lg font-bold text-gray-800 w-6 text-center">{adultsCount}</span>
-                  <button
-                    type="button"
-                    onClick={() => setAdultsCount((n) => n + 1)}
-                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
-                  >
-                    +
+                    ×
                   </button>
                 </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setExtraAdults([...extraAdults, ''])}
+                className="text-sm text-salvia hover:text-salvia/80 font-medium flex items-center gap-1"
+              >
+                + Aggiungi adulto
+              </button>
+            </div>
+
+            {/* Bambini */}
+            <div className="space-y-2 pt-3 border-t border-avorio-dark">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Bambini</span>
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-salvia/10 rounded-xl">
+                <span className="text-sm font-medium text-salvia flex-1">{guestName || 'Bambino'}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Bambini</span>
-                <div className="flex items-center gap-3">
+              {extraChildren.map((name, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => {
+                      const next = [...extraChildren]
+                      next[i] = e.target.value
+                      setExtraChildren(next)
+                    }}
+                    placeholder="Nome bambino"
+                    className="input text-sm py-2 flex-1"
+                  />
                   <button
                     type="button"
-                    onClick={() => setChildrenCount((n) => Math.max(0, n - 1))}
-                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
+                    onClick={() => setExtraChildren(extraChildren.filter((_, j) => j !== i))}
+                    className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
                   >
-                    −
-                  </button>
-                  <span className="text-lg font-bold text-gray-800 w-6 text-center">{childrenCount}</span>
-                  <button
-                    type="button"
-                    onClick={() => setChildrenCount((n) => n + 1)}
-                    className="w-9 h-9 rounded-xl border border-gray-200 text-gray-600 flex items-center justify-center hover:border-salvia hover:text-salvia transition-colors"
-                  >
-                    +
+                    ×
                   </button>
                 </div>
-              </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setExtraChildren([...extraChildren, ''])}
+                className="text-sm text-salvia hover:text-salvia/80 font-medium flex items-center gap-1"
+              >
+                + Aggiungi bambino
+              </button>
             </div>
           </div>
         </>
