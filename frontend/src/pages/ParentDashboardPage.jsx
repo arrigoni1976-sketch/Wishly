@@ -506,8 +506,7 @@ export default function ParentDashboardPage() {
               >
                 <span className="inline-flex items-center gap-1">
                   <CelebrationIcon size={14} />
-                  {totalAdults + totalChildren} confermati · {totalAdults} adulti
-                  {totalChildren > 0 && ` · ${totalChildren} bambini`}
+                  {totalAdults} adulti · {totalChildren} bambini
                 </span>
               </button>
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
