@@ -213,6 +213,7 @@ export default function ParentDashboardPage() {
     try {
       await updateEvent(event.id, {
         parentToken: parentToken,
+        collective_enabled: true,
         collective_description: collectiveForm.description || null,
         collective_goal: parseFloat(collectiveForm.goal) || event.collective_goal,
         paypal_email: collectiveForm.paypal_email || null,
@@ -595,6 +596,21 @@ export default function ParentDashboardPage() {
         </div>
 
         {/* ── Regalo collettivo ────────────────────────────────────────── */}
+        {!event.collective_enabled && (
+          <button
+            onClick={openCollectiveEdit}
+            className="w-full card flex items-center gap-3 text-left hover:bg-avorio-dark transition-colors"
+          >
+            <div className="w-9 h-9 rounded-xl bg-salvia/10 flex items-center justify-center flex-shrink-0">
+              <HeartRibbonIcon size={18} />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-800 text-sm">Aggiungi regalo collettivo</p>
+              <p className="text-xs text-gray-400 mt-0.5">Raccogli contributi dagli invitati per un regalo speciale</p>
+            </div>
+            <Plus className="w-4 h-4 text-gray-400 ml-auto flex-shrink-0" />
+          </button>
+        )}
         {event.collective_enabled && (
           <div className="card">
             <div className="flex items-center justify-between mb-4">
