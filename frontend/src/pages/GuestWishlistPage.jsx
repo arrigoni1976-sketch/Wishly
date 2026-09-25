@@ -340,113 +340,90 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
     <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-4 animate-fade-in">
       <h3 className="font-display font-bold text-gray-900">La tua risposta</h3>
 
-      <div className="grid sm:grid-cols-2 gap-3">
-          <div>
-            <label className="label">Nome del bambino *</label>
+      {/* Nome bambino + extra bambini */}
+      <div className="space-y-2">
+        <label className="label">Nome del bambino *</label>
+        <input
+          value={guestName}
+          onChange={(e) => setGuestName(e.target.value)}
+          placeholder="es. Giulia"
+          className="input"
+        />
+        {extraChildren.map((name, i) => (
+          <div key={i} className="flex items-center gap-2">
             <input
-              value={guestName}
-              onChange={(e) => setGuestName(e.target.value)}
-              placeholder="es. Giulia"
-              className="input"
+              type="text"
+              value={name}
+              onChange={(e) => {
+                const next = [...extraChildren]
+                next[i] = e.target.value
+                setExtraChildren(next)
+              }}
+              placeholder="Nome bambino"
+              className="input text-sm py-2 flex-1"
             />
+            <button
+              type="button"
+              onClick={() => setExtraChildren(extraChildren.filter((_, j) => j !== i))}
+              className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
+            >
+              ×
+            </button>
           </div>
-          <div>
-            <label className="label">Il tuo nome (genitore) *</label>
+        ))}
+        <button
+          type="button"
+          onClick={() => setExtraChildren([...extraChildren, ''])}
+          className="text-sm text-salvia hover:text-salvia/80 font-medium"
+        >
+          + Aggiungi bambino
+        </button>
+      </div>
+
+      {/* Nome genitore + extra adulti */}
+      <div className="space-y-2">
+        <label className="label">Il tuo nome (genitore) *</label>
+        <input
+          value={parentName}
+          onChange={(e) => setParentName(e.target.value)}
+          placeholder="es. Marco Rossi"
+          className="input"
+        />
+        {extraAdults.map((name, i) => (
+          <div key={i} className="flex items-center gap-2">
             <input
-              value={parentName}
-              onChange={(e) => setParentName(e.target.value)}
-              placeholder="es. Marco Rossi"
-              className="input"
+              type="text"
+              value={name}
+              onChange={(e) => {
+                const next = [...extraAdults]
+                next[i] = e.target.value
+                setExtraAdults(next)
+              }}
+              placeholder="Nome adulto"
+              className="input text-sm py-2 flex-1"
             />
+            <button
+              type="button"
+              onClick={() => setExtraAdults(extraAdults.filter((_, j) => j !== i))}
+              className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
+            >
+              ×
+            </button>
           </div>
-        </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setExtraAdults([...extraAdults, ''])}
+          className="text-sm text-salvia hover:text-salvia/80 font-medium"
+        >
+          + Aggiungi adulto
+        </button>
+      </div>
 
       <div>
         <label className="label">Parteciperai?</label>
         <RSVPSelector value={status} onChange={setStatus} />
       </div>
-
-      {status === 'yes' && (
-        <>
-          <div className="space-y-4">
-            <label className="label">In quanti sarete?</label>
-
-            {/* Adulti */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Adulti</span>
-              <div className="flex items-center gap-2 px-3 py-2.5 bg-salvia/10 rounded-xl">
-                <span className="text-sm font-medium text-salvia flex-1">{parentName || 'Tu'}</span>
-              </div>
-              {extraAdults.map((name, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => {
-                      const next = [...extraAdults]
-                      next[i] = e.target.value
-                      setExtraAdults(next)
-                    }}
-                    placeholder="Nome adulto"
-                    className="input text-sm py-2 flex-1"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setExtraAdults(extraAdults.filter((_, j) => j !== i))}
-                    className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => setExtraAdults([...extraAdults, ''])}
-                className="text-sm text-salvia hover:text-salvia/80 font-medium flex items-center gap-1"
-              >
-                + Aggiungi adulto
-              </button>
-            </div>
-
-            {/* Bambini */}
-            <div className="space-y-2 pt-3 border-t border-avorio-dark">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Bambini</span>
-              <div className="flex items-center gap-2 px-3 py-2.5 bg-salvia/10 rounded-xl">
-                <span className="text-sm font-medium text-salvia flex-1">{guestName || 'Bambino'}</span>
-              </div>
-              {extraChildren.map((name, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => {
-                      const next = [...extraChildren]
-                      next[i] = e.target.value
-                      setExtraChildren(next)
-                    }}
-                    placeholder="Nome bambino"
-                    className="input text-sm py-2 flex-1"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setExtraChildren(extraChildren.filter((_, j) => j !== i))}
-                    className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => setExtraChildren([...extraChildren, ''])}
-                className="text-sm text-salvia hover:text-salvia/80 font-medium flex items-center gap-1"
-              >
-                + Aggiungi bambino
-              </button>
-            </div>
-          </div>
-        </>
-      )}
 
       {submitError && (
         <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
