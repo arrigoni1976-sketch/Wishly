@@ -183,7 +183,7 @@ export default function ParentDashboardPage() {
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
   const [collectiveModal, setCollectiveModal] = useState(false)
-  const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '' })
+  const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '', fixed_quota: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
   const [collectiveSaveError, setCollectiveSaveError] = useState('')
   const [eventModal, setEventModal] = useState(false)
@@ -202,9 +202,20 @@ export default function ParentDashboardPage() {
       description: event.collective_description || '',
       goal: event.collective_goal || '',
       paypal_email: event.paypal_email || '',
+      fixed_quota: event.collective_fixed_quota || '',
     })
     setCollectiveSaveError('')
     setCollectiveModal(true)
+  }
+
+  const disableCollective = async () => {
+    if (!window.confirm('Sei sicuro di voler rimuovere il regalo collettivo?')) return
+    try {
+      await updateEvent(event.id, { parentToken, collective_enabled: false })
+      await fetchEvent()
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const saveCollective = async () => {
@@ -217,6 +228,7 @@ export default function ParentDashboardPage() {
         collective_description: collectiveForm.description || null,
         collective_goal: parseFloat(collectiveForm.goal) || event.collective_goal,
         paypal_email: collectiveForm.paypal_email || null,
+        collective_fixed_quota: parseFloat(collectiveForm.fixed_quota) || null,
       })
       await fetchEvent()
       setCollectiveModal(false)
@@ -863,7 +875,7 @@ export default function ParentDashboardPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h3 className="font-display font-bold text-gray-900 text-lg">Modifica regalo collettivo</h3>
+              <h3 className="font-display font-bold text-gray-900 text-lg">Regalo collettivo</h3>
               <button onClick={() => setCollectiveModal(false)} className="text-gray-300 hover:text-gray-500 text-xl">✕</button>
             </div>
 
@@ -887,6 +899,18 @@ export default function ParentDashboardPage() {
                   placeholder="es. 150"
                   className="input"
                 />
+              </div>
+              <div>
+                <label className="label">Quota fissa per persona (€, opzionale)</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={collectiveForm.fixed_quota}
+                  onChange={(e) => setCollectiveForm((f) => ({ ...f, fixed_quota: e.target.value }))}
+                  placeholder="es. 10"
+                  className="input"
+                />
+                <p className="text-xs text-gray-400 mt-1">Se impostata, ogni invitato vedrà questa quota suggerita</p>
               </div>
               <div>
                 <label className="label">Username PayPal.me (opzionale)</label>
@@ -916,6 +940,15 @@ export default function ParentDashboardPage() {
                 {collectiveSaving ? 'Salvo...' : 'Salva'}
               </button>
             </div>
+
+            {event.collective_enabled && (
+              <button
+                onClick={() => { setCollectiveModal(false); disableCollective() }}
+                className="w-full text-xs text-red-400 hover:text-red-600 text-center pt-1"
+              >
+                Rimuovi regalo collettivo
+              </button>
+            )}
           </div>
         </div>
       )}
