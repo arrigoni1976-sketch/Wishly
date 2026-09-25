@@ -997,14 +997,17 @@ export default function GuestWishlistPage() {
           onClick={() => setShowRsvpModal(false)}
         >
           <div
-            className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 animate-slide-up"
+            className="bg-white rounded-3xl w-full max-w-sm animate-slide-up flex flex-col"
+            style={{ maxHeight: '80vh' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between">
+            {/* Header fisso */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-3 flex-shrink-0">
               <h3 className="font-display font-bold text-gray-900 text-lg">Chi partecipa 🎉</h3>
               <button onClick={() => setShowRsvpModal(false)} className="text-gray-300 hover:text-gray-500 text-xl leading-none">✕</button>
             </div>
-            <ul className="space-y-2">
+            {/* Lista scrollabile */}
+            <ul className="overflow-y-auto px-6 flex-1">
               {event.rsvp
                 .filter((r) => r.status === 'yes')
                 .map((r, i) => (
@@ -1021,7 +1024,8 @@ export default function GuestWishlistPage() {
                   </li>
                 ))}
             </ul>
-            <p className="text-xs text-gray-400 text-center">
+            {/* Footer fisso */}
+            <p className="text-xs text-gray-400 text-center px-6 py-4 flex-shrink-0">
               {totalAdults + totalChildren} confermati · {totalAdults} adulti{totalChildren > 0 ? ` · ${totalChildren} bambini` : ''}
             </p>
           </div>
