@@ -742,15 +742,33 @@ export default function ParentDashboardPage() {
                       {r.parent_name && (
                         <span className="ml-1.5 text-gray-400 text-xs">· {r.parent_name}</span>
                       )}
-                      {(r.adults_count > 1 || r.with_partner) && (
-                        <span className="ml-2 text-gray-400 text-xs">
-                          {r.adults_count > 1 ? `${r.adults_count} adulti` : '+ partner'}
-                        </span>
-                      )}
-                      {r.children_count > 0 && (
-                        <span className="ml-2 text-gray-400 text-xs">
-                          + {r.children_count} {r.children_count === 1 ? 'bambino' : 'bambini'}
-                        </span>
+                      {/* Se nuovo formato (parent_name presente): mostra solo gli extra oltre ai nomi già indicati */}
+                      {r.parent_name ? (
+                        <>
+                          {r.adults_count > 1 && (
+                            <span className="ml-2 text-gray-400 text-xs">
+                              + {r.adults_count - 1} {r.adults_count - 1 === 1 ? 'adulto' : 'adulti'}
+                            </span>
+                          )}
+                          {r.children_count > 1 && (
+                            <span className="ml-2 text-gray-400 text-xs">
+                              + {r.children_count - 1} {r.children_count - 1 === 1 ? 'bambino' : 'bambini'}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {(r.adults_count > 1 || r.with_partner) && (
+                            <span className="ml-2 text-gray-400 text-xs">
+                              {r.adults_count > 1 ? `${r.adults_count} adulti` : '+ partner'}
+                            </span>
+                          )}
+                          {r.children_count > 0 && (
+                            <span className="ml-2 text-gray-400 text-xs">
+                              + {r.children_count} {r.children_count === 1 ? 'bambino' : 'bambini'}
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                     <span className={RSVP_COLORS[r.status]}>{RSVP_LABELS[r.status]}</span>
