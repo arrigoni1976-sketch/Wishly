@@ -124,7 +124,7 @@ export default function GiftCard({
             className="flex items-center gap-1.5 text-xs font-medium text-orange-600 bg-orange-50 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            Amazon
+            Compralo su Amazon
           </a>
         )}
         {gift.store_url && (
@@ -135,7 +135,7 @@ export default function GiftCard({
             className="flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
-            Negozio
+            Compralo qui
           </a>
         )}
       </div>
