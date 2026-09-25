@@ -807,10 +807,10 @@ export default function GuestWishlistPage() {
         {/* ── Welcome / invitation message — seconda parte ─────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark px-6 py-4 space-y-3">
           <p className="text-sm text-gray-600 leading-relaxed">
-            Se hai voglia, trovi anche la lista dei desideri di{' '}
-            <span className="font-semibold text-gray-800">{event.child_name}</span>:
-            ogni regalo è in esclusiva, così nessuno si sovrappone.{' '}
-            Nessun obbligo, naturalmente!
+            Il regalo più bello per{' '}
+            <span className="font-semibold text-gray-800">{event.child_name}</span>{' '}
+            sarà la tua presenza. Ma se non resisti e vuoi esaudire un suo piccolo desiderio,
+            qui trovi la lista: ogni regalo è in esclusiva, nessun doppione garantito!
           </p>
           <div className="flex items-center gap-2">
             <BalloonIcon size={18} />
