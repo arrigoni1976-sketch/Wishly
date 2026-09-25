@@ -7,7 +7,7 @@ const router = Router()
 // ─── PUT /api/rsvp/:id — Update RSVP ────────────────────────────────────────
 router.put('/:id', async (req, res, next) => {
   try {
-    const { status, childrenCount, adultsCount, guestName, guestEmail, guestToken } = req.body
+    const { status, childrenCount, adultsCount, guestName, parentName, guestToken } = req.body
 
     if (!status || !['yes', 'maybe', 'no'].includes(status)) {
       return res.status(400).json({ message: 'Status non valido' })
@@ -40,7 +40,7 @@ router.put('/:id', async (req, res, next) => {
       updated_at: new Date().toISOString(),
     }
     if (guestName?.trim()) updateData.guest_name = guestName.trim()
-    if (guestEmail?.trim()) updateData.guest_email = guestEmail.trim()
+    if (parentName?.trim()) updateData.parent_name = parentName.trim()
 
     const { data, error } = await supabase
       .from('rsvp')

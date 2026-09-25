@@ -272,7 +272,7 @@ export default function ParentDashboardPage() {
       try {
         await navigator.share({
           title: `Compleanno di ${event.child_name}`,
-          text: `Sei invitato al compleanno di ${event.child_name}! Qui puoi prenotare un regalo e confermare la tua presenza.`,
+          text: `Sei invitato al compleanno di ${event.child_name}! Qui puoi confermare la tua presenza.`,
           url,
         })
         return
@@ -506,8 +506,7 @@ export default function ParentDashboardPage() {
               >
                 <span className="inline-flex items-center gap-1">
                   <CelebrationIcon size={14} />
-                  {totalAdults + totalChildren} confermati · {totalAdults} adulti
-                  {totalChildren > 0 && ` · ${totalChildren} bambini`}
+                  {totalAdults} adulti · {totalChildren} bambini
                 </span>
               </button>
               <div className="bg-cipria/20 text-gray-700 rounded-xl px-3 py-1.5 text-sm font-medium">
@@ -740,6 +739,9 @@ export default function ParentDashboardPage() {
                   <div key={r.id} className="flex items-center justify-between text-sm">
                     <div>
                       <span className="font-medium text-gray-700">{r.guest_name}</span>
+                      {r.parent_name && (
+                        <span className="ml-1.5 text-gray-400 text-xs">· {r.parent_name}</span>
+                      )}
                       {(r.adults_count > 1 || r.with_partner) && (
                         <span className="ml-2 text-gray-400 text-xs">
                           {r.adults_count > 1 ? `${r.adults_count} adulti` : '+ partner'}
