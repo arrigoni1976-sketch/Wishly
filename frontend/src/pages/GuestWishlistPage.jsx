@@ -739,7 +739,7 @@ export default function GuestWishlistPage() {
 
           {/* Confirmed count — visible to guests, cliccabile */}
           {rsvpYesCount > 0 && (
-            <p className="text-sm text-gray-500 mt-1 mb-2 flex items-center gap-1.5">
+            <p className="text-sm text-gray-500 mt-1 mb-2 flex items-center justify-center gap-1.5">
               Guarda chi ci sarà al compleanno <BalloonIcon size={18} />
             </p>
           )}
