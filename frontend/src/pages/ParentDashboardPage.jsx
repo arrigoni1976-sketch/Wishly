@@ -272,7 +272,7 @@ export default function ParentDashboardPage() {
       try {
         await navigator.share({
           title: `Compleanno di ${event.child_name}`,
-          text: `Sei invitato al compleanno di ${event.child_name}! Qui puoi prenotare un regalo e confermare la tua presenza.`,
+          text: `Sei invitato al compleanno di ${event.child_name}! Qui puoi confermare la tua presenza.`,
           url,
         })
         return
