@@ -738,6 +738,11 @@ export default function GuestWishlistPage() {
           </div>
 
           {/* Confirmed count — visible to guests, cliccabile */}
+          {rsvpYesCount > 0 && (
+            <p className="text-sm text-gray-500 mt-1">
+              Guarda chi ci sarà al compleanno 🎈
+            </p>
+          )}
           <button
             onClick={() => rsvpYesCount > 0 && setShowRsvpModal(true)}
             className={`inline-flex items-center gap-2 bg-green-50 text-green-700 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${rsvpYesCount > 0 ? 'hover:bg-green-100 cursor-pointer' : 'cursor-default'}`}
