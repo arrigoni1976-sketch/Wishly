@@ -1019,16 +1019,10 @@ export default function GuestWishlistPage() {
                       <span className="font-medium text-gray-800 text-sm">{r.guest_name}</span>
                     </div>
                     <span className="text-xs text-gray-400">
-                      {r.parent_name ? (
-                        // nuovo formato: guest_name = bambino, mostro adulti e bambini extra
-                        [
-                          r.adults_count > 0 && `+${r.adults_count} ${r.adults_count === 1 ? 'adulto' : 'adulti'}`,
-                          r.children_count > 1 && `+${r.children_count - 1} ${r.children_count - 1 === 1 ? 'bambino' : 'bambini'}`,
-                        ].filter(Boolean).join(' · ')
-                      ) : (
-                        // vecchio formato: guest_name = adulto
-                        r.children_count > 0 ? `+${r.children_count} bambini` : ''
-                      )}
+                      {[
+                        r.adults_count > 0 && `+${r.adults_count} ${r.adults_count === 1 ? 'adulto' : 'adulti'}`,
+                        r.children_count > 1 && `+${r.children_count - 1} ${r.children_count - 1 === 1 ? 'bambino' : 'bambini'}`,
+                      ].filter(Boolean).join(' · ')}
                     </span>
                   </li>
                 ))}
