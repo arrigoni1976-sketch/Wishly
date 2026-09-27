@@ -298,6 +298,20 @@ export default function ParentDashboardPage() {
     setTimeout(() => setCopied(false), 2500)
   }
 
+  const shareUpdate = async () => {
+    const url = `${baseUrl}/lista/${event?.guest_token}`
+    const text = `Ci sono novità sulla festa di ${event.child_name}! Entra a dare un'occhiata 👀\n${url}`
+    if (navigator.share) {
+      try {
+        await navigator.share({ text })
+        return
+      } catch (e) {
+        if (e.name === 'AbortError') return
+      }
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
 
   const fetchEvent = async () => {
     try {
@@ -584,6 +598,13 @@ export default function ParentDashboardPage() {
               Anteprima →
             </a>
           </div>
+          <button
+            onClick={shareUpdate}
+            className="mt-2 w-full py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            Condividi aggiornamento
+          </button>
           {notifStatus === 'default' && (
             <button
               onClick={handleEnableNotifications}
