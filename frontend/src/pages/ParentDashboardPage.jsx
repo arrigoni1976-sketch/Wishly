@@ -598,13 +598,16 @@ export default function ParentDashboardPage() {
               Anteprima →
             </a>
           </div>
-          <button
-            onClick={shareUpdate}
-            className="mt-2 w-full py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
-          >
-            <Share2 className="w-4 h-4" />
-            Condividi aggiornamento
-          </button>
+          <div className="mt-3 pt-3 border-t border-avorio-dark">
+            <p className="text-sm text-gray-600 mb-2">Hai aggiornato qualcosa? Fallo sapere ai tuoi invitati.</p>
+            <button
+              onClick={shareUpdate}
+              className="w-full py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
+            >
+              <Share2 className="w-4 h-4" />
+              Condividi aggiornamento
+            </button>
+          </div>
           {notifStatus === 'default' && (
             <button
               onClick={handleEnableNotifications}
