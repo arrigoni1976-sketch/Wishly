@@ -2,3 +2,11 @@ node_modules/
 dist/
 .env
 *.env
+
+# Capacitor — build artifacts (keep native project files)
+android/.gradle/
+android/app/build/
+android/build/
+ios/App/Pods/
+ios/App/App.xcworkspace/xcuserdata/
+ios/DerivedData/

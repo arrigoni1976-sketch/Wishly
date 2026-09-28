@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Piky</string>
+    <string name="title_activity_main">Piky</string>
+    <string name="package_name">it.pikyapp.piky</string>
+    <string name="custom_url_scheme">it.pikyapp.piky</string>
+</resources>

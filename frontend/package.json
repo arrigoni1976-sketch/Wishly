@@ -10,6 +10,10 @@
     "generate-icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
     "@supabase/supabase-js": "^2.43.4",
     "@vercel/analytics": "^2.0.1",
     "@vercel/edge": "^1.1.1",
@@ -30,6 +34,7 @@
     "postcss": "^8.4.39",
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.4",
+    "typescript": "^7.0.2",
     "vite": "^5.3.1",
     "vite-plugin-pwa": "^0.20.0",
     "workbox-window": "^7.1.0"
