@@ -97,7 +97,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
             <div className="mb-6">
               <div className="bg-avorio rounded-2xl border border-avorio-dark px-4 py-3 flex items-center justify-between">
                 <span className="text-sm text-gray-600 font-medium">Quota per persona</span>
-                <span className="text-xl font-bold text-salvia">€{effectiveFixed.toFixed(2)}</span>
+                <span className="text-xl font-bold text-salvia">€{formatEur(effectiveFixed)}</span>
               </div>
             </div>
           ) : (

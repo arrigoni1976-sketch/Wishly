@@ -860,7 +860,7 @@ export default function GuestWishlistPage() {
                 </div>
                 {myCollectiveTotal > 0 ? (
                   <p className="text-sm text-gray-600 mt-0.5 mb-3">
-                    Hai contribuito con <span className="font-semibold text-salvia">€{myCollectiveTotal.toFixed(2)}</span>
+                    Hai contribuito con <span className="font-semibold text-salvia">€{formatEur(myCollectiveTotal)}</span>
                     {myCollectiveContributions.length > 1 && ` (${myCollectiveContributions.length} versamenti)`}
                   </p>
                 ) : (
