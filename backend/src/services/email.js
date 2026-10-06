@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import { supabase } from '../lib/supabase.js'
+import { formatEur, formatEurInt } from '../lib/utils.js'
 
 // ─── Transporter ─────────────────────────────────────────────────────────────
 
@@ -164,7 +165,7 @@ export async function sendClosingSummaryEmail({ to, event }) {
             ${g.reserved_by ? `${escapeHtml(g.reserved_by)}${g.reserved_partner ? ` & ${escapeHtml(g.reserved_partner)}` : ''}` : '<em>—</em>'}
           </td>
           <td style="padding: 8px 12px; border-bottom: 1px solid #F0EBE3; color: #4A7A50; font-weight: 600;">
-            ${g.price ? `€${parseFloat(g.price).toFixed(2)}` : '—'}
+            ${g.price ? `€${formatEur(g.price)}` : '—'}
           </td>
         </tr>`
       )
@@ -192,8 +193,8 @@ export async function sendClosingSummaryEmail({ to, event }) {
           </div>
           ${goal > 0 ? `
           <div style="background: white; border-radius: 12px; padding: 16px 20px; border: 1px solid #F0EBE3; flex: 1; min-width: 120px; text-align: center;">
-            <p style="font-size: 24px; font-weight: 700; margin: 0; color: #4A7A50;">€${collected.toFixed(0)}</p>
-            <p style="font-size: 12px; color: #999; margin: 4px 0 0;">Collettivo su €${goal.toFixed(0)}</p>
+            <p style="font-size: 24px; font-weight: 700; margin: 0; color: #4A7A50;">€${formatEurInt(collected)}</p>
+            <p style="font-size: 12px; color: #999; margin: 4px 0 0;">Collettivo su €${formatEurInt(goal)}</p>
           </div>` : ''}
         </div>
 
@@ -231,7 +232,7 @@ export async function sendClosingSummaryEmail({ to, event }) {
               <tr>
                 <td style="padding: 8px 12px; border-bottom: 1px solid #F0EBE3;">${escapeHtml(c.contributor_name)}</td>
                 <td style="padding: 8px 12px; border-bottom: 1px solid #F0EBE3; color: #666; text-transform: capitalize;">${c.payment_method}</td>
-                <td style="padding: 8px 12px; border-bottom: 1px solid #F0EBE3; font-weight: 600; color: #4A7A50;">€${parseFloat(c.amount).toFixed(2)}</td>
+                <td style="padding: 8px 12px; border-bottom: 1px solid #F0EBE3; font-weight: 600; color: #4A7A50;">€${formatEur(c.amount)}</td>
               </tr>`
               )
               .join('')}

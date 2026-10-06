@@ -1,5 +1,6 @@
 import webpush from 'web-push'
 import { supabase } from '../lib/supabase.js'
+import { formatEur } from '../lib/utils.js'
 
 const VAPID_EMAIL = process.env.VAPID_EMAIL || 'mailto:noreply@pikyapp.it'
 
@@ -117,7 +118,7 @@ export async function sendClosingPushes() {
     parts.push(`${totalPeople} ${totalPeople === 1 ? 'confermato' : 'confermati'}`)
     if (totalGifts > 0) parts.push(`${reservedGifts}/${totalGifts} regali prenotati`)
     if (event.collective_enabled && event.collective_amount > 0)
-      parts.push(`€${parseFloat(event.collective_amount).toFixed(2)} raccolti`)
+      parts.push(`€${formatEur(event.collective_amount)} raccolti`)
 
     await sendPushToParent(event.parent_token, {
       title: `Piky — La lista di ${event.child_name} è chiusa 🎉`,

@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 import { supabase } from '../lib/supabase.js'
 import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
 import { sendPushToParent } from '../services/push.js'
-import { isListClosed, parsePrice, isValidUuid } from '../lib/utils.js'
+import { isListClosed, parsePrice, isValidUuid, formatEur, formatEurInt } from '../lib/utils.js'
 import { createResourceLimiter, emailSendLimiter } from '../lib/rateLimit.js'
 
 const router = Router()
@@ -593,7 +593,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
 
     const remaining = event.collective_goal - event.collective_amount
     if (amount > remaining) {
-      return res.status(400).json({ message: `Importo massimo €${remaining.toFixed(2)}` })
+      return res.status(400).json({ message: `Importo massimo €${formatEur(remaining)}` })
     }
 
     const isImmediate = paymentMethod !== 'paypal'
@@ -650,7 +650,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
       const giftName = event.collective_description || 'regalo collettivo'
       sendPushToParent(event.parent_token, {
         title: `Piky — ${contributorName} ha contribuito 💛`,
-        body: `€${amount.toFixed(2)} per "${giftName}" al compleanno di ${event.child_name}`,
+        body: `€${formatEur(amount)} per "${giftName}" al compleanno di ${event.child_name}`,
         url: `/dashboard/${event.parent_token}`,
       })
     } else {
@@ -658,7 +658,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
       const giftName = event.collective_description || 'regalo collettivo'
       sendPushToParent(event.parent_token, {
         title: `Piky — ${contributorName} vuole contribuire con PayPal 💛`,
-        body: `€${amount.toFixed(2)} per "${giftName}" — verifica nel tuo dashboard`,
+        body: `€${formatEur(amount)} per "${giftName}" — verifica nel tuo dashboard`,
         url: `/dashboard/${event.parent_token}`,
       })
     }
@@ -718,7 +718,7 @@ router.put('/:id/contributions/:cid', async (req, res, next) => {
     const remaining = event.collective_goal - event.collective_amount + oldAmount
 
     if (newAmount > remaining) {
-      return res.status(400).json({ message: `Importo massimo €${remaining.toFixed(2)}` })
+      return res.status(400).json({ message: `Importo massimo €${formatEur(remaining)}` })
     }
 
     // Riserva il delta in modo atomico PRIMA di scrivere la riga (delta negativo
