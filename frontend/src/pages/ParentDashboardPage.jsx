@@ -14,6 +14,7 @@ import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, getPushVapidKey, subscribePush } from '../lib/api'
+import { formatEur } from '../lib/format'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -695,7 +696,7 @@ export default function ParentDashboardPage() {
                       <div className="flex items-center gap-2 text-gray-500">
                         <span className="text-xs">{format(new Date(c.created_at), 'd MMM', { locale: it })}</span>
                         <span className="text-xs capitalize bg-gray-100 px-2 py-0.5 rounded-full">{c.payment_method}</span>
-                        <span className="font-semibold text-salvia">€{parseFloat(c.amount).toFixed(2)}</span>
+                        <span className="font-semibold text-salvia">€{formatEur(c.amount)}</span>
                       </div>
                     </div>
                   ))}
@@ -706,7 +707,7 @@ export default function ParentDashboardPage() {
                         <div key={c.id} className="flex items-center justify-between text-sm bg-amber-50 rounded-xl px-3 py-2">
                           <div>
                             <span className="font-medium text-gray-700">{c.contributor_name}</span>
-                            <span className="text-xs text-gray-400 ml-2">{format(new Date(c.created_at), 'd MMM', { locale: it })} · €{parseFloat(c.amount).toFixed(2)}</span>
+                            <span className="text-xs text-gray-400 ml-2">{format(new Date(c.created_at), 'd MMM', { locale: it })} · €{formatEur(c.amount)}</span>
                           </div>
                           <button
                             onClick={async () => {

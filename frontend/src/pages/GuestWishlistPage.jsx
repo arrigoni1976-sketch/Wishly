@@ -24,6 +24,7 @@ import {
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import clsx from 'clsx'
+import { formatEur } from '../lib/format'
 
 // ─── Closing date check ────────────────────────────────────────────────────
 function isListClosed(closingDate) {
@@ -878,7 +879,7 @@ export default function GuestWishlistPage() {
                       />
                     </div>
                     <p className="text-xs text-gray-500 mb-3">
-                      €{(event.collective_amount || 0).toFixed(2)} su €{(event.collective_goal || 0).toFixed(2)}
+                      €{formatEur(event.collective_amount || 0)} su €{formatEur(event.collective_goal || 0)}
                     </p>
                   </>
                 )}

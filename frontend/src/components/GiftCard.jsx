@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ExternalLink, ShoppingBag, Lock, Trash2, Pencil } from 'lucide-react'
 import clsx from 'clsx'
 import { getErrorMessage } from '../lib/api'
+import { formatEur } from '../lib/format'
 
 export default function GiftCard({
   gift,
@@ -111,7 +112,7 @@ export default function GiftCard({
 
       {/* Price */}
       {gift.price && (
-        <p className="text-salvia font-bold text-lg mt-2">€{parseFloat(gift.price).toFixed(2)}</p>
+        <p className="text-salvia font-bold text-lg mt-2">€{formatEur(gift.price)}</p>
       )}
 
       {/* Links */}

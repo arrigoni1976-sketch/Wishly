@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import clsx from 'clsx'
 import { getErrorMessage } from '../lib/api'
+import { formatEur, formatEurInt } from '../lib/format'
 
 const QUICK_AMOUNTS = [10, 20, 30, 50]
 
@@ -101,7 +102,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
             </div>
           ) : (
             <div className="mb-6">
-              <label className="label">Importo (min €10, max €{remaining.toFixed(0)})</label>
+              <label className="label">Importo (min €10, max €{formatEurInt(remaining)})</label>
 
               {!customAmount && (
                 <div className="grid grid-cols-4 gap-2 mb-2">
@@ -174,7 +175,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
                   bg-[#0070ba] hover:bg-[#005ea6] text-white
                   disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {loading ? 'Salvataggio...' : isValid ? `Paga €${numAmount.toFixed(2)} con PayPal` : 'Paga con PayPal'}
+                {loading ? 'Salvataggio...' : isValid ? `Paga €${formatEur(numAmount)} con PayPal` : 'Paga con PayPal'}
               </button>
             )}
 
@@ -191,7 +192,7 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
               {loading
                 ? 'Salvataggio...'
                 : isValid
-                ? `Prenota €${numAmount.toFixed(2)} — porto i contanti`
+                ? `Prenota €${formatEur(numAmount)} — porto i contanti`
                 : 'Inserisci il tuo nome'}
             </button>
           </div>
