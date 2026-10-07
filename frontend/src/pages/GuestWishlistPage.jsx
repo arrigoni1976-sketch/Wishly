@@ -11,6 +11,7 @@ import WaveIcon from '../components/WaveIcon'
 import RSVPSelector from '../components/RSVPSelector'
 import CopyLink from '../components/CopyLink'
 import ClosingCountdown from '../components/ClosingCountdown'
+import DownloadButton from '../components/DownloadButton'
 import {
   getEventByGuestToken,
   trackLinkView,
@@ -962,12 +963,7 @@ export default function GuestWishlistPage() {
 
         {/* ── Scarica / Condividi ───────────────────────────────────────── */}
         <div className="flex gap-3">
-          <button
-            onClick={() => window.dispatchEvent(new Event('piky:trigger-install'))}
-            className="flex-1 inline-flex items-center justify-center bg-salvia text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia-dark transition-colors duration-200 text-sm"
-          >
-            Scarica l'app
-          </button>
+          <DownloadButton className="flex-1 inline-flex items-center justify-center bg-salvia text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia-dark transition-colors duration-200 text-sm" />
           <button
             onClick={async () => {
               const shareData = {
