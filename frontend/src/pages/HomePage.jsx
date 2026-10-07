@@ -192,24 +192,26 @@ export default function HomePage() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-3 shadow-sm">
-                <LogIn className="w-5 h-5 text-salvia flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 text-sm">{t('home.auth.box.title')}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{t('home.auth.box.subtitle')}</p>
+              <div className="flex flex-col gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-4 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <LogIn className="w-5 h-5 text-salvia flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-gray-800 text-sm">{t('home.auth.box.title')}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{t('home.auth.box.subtitle')}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => openAuth('login')}
-                    className="text-xs font-medium text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
+                    className="flex-1 text-sm font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
                   >
                     {t('home.auth.box.login')}
                   </button>
                   <button
                     onClick={() => openAuth('register')}
-                    className="text-sm font-medium text-salvia bg-salvia/10 px-3 py-1.5 rounded-xl hover:bg-salvia/20 transition-colors"
+                    className="flex-1 text-sm font-medium text-salvia bg-salvia/10 px-3 py-2 rounded-xl hover:bg-salvia/20 transition-colors"
                   >
-                    {t('home.auth.box.register')}
+                    {t('home.auth.box.register')} →
                   </button>
                 </div>
               </div>
