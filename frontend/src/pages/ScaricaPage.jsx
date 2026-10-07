@@ -1,8 +1,11 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { isIosBrowser, isAndroidBrowser, APP_STORE_URL, PLAY_STORE_URL } from '../lib/platform'
 import GiftIcon from '../components/GiftIcon'
 
 export default function ScaricaPage() {
+  const { t } = useTranslation()
+
   useEffect(() => {
     if (isIosBrowser()) {
       window.location.replace(APP_STORE_URL)
@@ -11,13 +14,13 @@ export default function ScaricaPage() {
     }
   }, [])
 
-  // Desktop: mostra entrambi i bottoni
+  // Mobile: redirect in corso
   if (isIosBrowser() || isAndroidBrowser()) {
     return (
       <div className="min-h-screen bg-avorio flex items-center justify-center px-4">
         <div className="text-center">
           <GiftIcon size={40} />
-          <p className="mt-4 text-gray-500 text-sm">Apertura store in corso…</p>
+          <p className="mt-4 text-gray-500 text-sm">{t('scarica.redirecting')}</p>
         </div>
       </div>
     )
@@ -29,8 +32,8 @@ export default function ScaricaPage() {
         <div className="flex justify-center mb-4">
           <GiftIcon size={40} />
         </div>
-        <p className="font-display text-xl font-bold text-salvia mb-2">Piky</p>
-        <p className="text-gray-500 text-sm mb-6">Organizza compleanni senza caos. Disponibile su App Store e Google Play.</p>
+        <p className="font-display text-xl font-bold text-salvia mb-2">{t('scarica.logo')}</p>
+        <p className="text-gray-500 text-sm mb-6">{t('scarica.subtitle')}</p>
         <div className="flex flex-col gap-3">
           <a
             href={APP_STORE_URL}
@@ -38,7 +41,7 @@ export default function ScaricaPage() {
             rel="noopener noreferrer"
             className="btn-primary text-center py-3 text-sm font-semibold rounded-2xl"
           >
-            🍎 Scarica su App Store
+            {t('scarica.app_store_btn')}
           </a>
           <a
             href={PLAY_STORE_URL}
@@ -46,7 +49,7 @@ export default function ScaricaPage() {
             rel="noopener noreferrer"
             className="btn-outline text-center py-3 text-sm font-semibold rounded-2xl"
           >
-            🤖 Scarica su Google Play
+            {t('scarica.play_store_btn')}
           </a>
         </div>
       </div>

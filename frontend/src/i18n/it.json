@@ -1,0 +1,443 @@
+{
+  "nav": {
+    "logo": "Piky",
+    "cta": "Organizza la festa"
+  },
+  "auth": {
+    "tab": { "login": "Accedi", "register": "Registrati" },
+    "title": { "register": "Crea account" },
+    "registered": {
+      "title": "Controlla la tua email",
+      "body": "Abbiamo inviato un link di conferma a <strong>{{email}}</strong>. Clicca il link per attivare il tuo account."
+    },
+    "forgot": {
+      "hint": "Inserisci la tua email e ti mandiamo un link per reimpostare la password.",
+      "email": { "label": "Email", "placeholder": "la-tua@email.it" },
+      "loading": "Invio…",
+      "submit_btn": "Invia link di recupero →",
+      "back": "Torna al login",
+      "error": "Errore nell'invio. Controlla l'email inserita.",
+      "sent": {
+        "title": "Email inviata!",
+        "body": "Abbiamo inviato un link a <strong>{{email}}</strong>. Controlla anche la cartella spam.",
+        "back": "Torna al login"
+      }
+    },
+    "form": {
+      "email": { "label": "Email", "placeholder": "la-tua@email.it" },
+      "password": {
+        "label": "Password",
+        "placeholder": { "register": "Almeno 6 caratteri", "login": "••••••••" }
+      },
+      "error": {
+        "login": "Email o password non corretti.",
+        "short_pwd": "La password deve avere almeno 6 caratteri.",
+        "already_registered": "Email già registrata. Prova ad accedere.",
+        "register_generic": "Errore nella registrazione."
+      },
+      "loading": { "login": "Accesso...", "register": "Registrazione..." },
+      "submit": { "login": "Accedi →", "register": "Crea account →" },
+      "forgot_link": "Hai dimenticato la password?"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Già usato da più di <strong>500 mamme</strong>",
+      "h1a": "Organizzare un compleanno",
+      "h1b": "non è mai stato così semplice",
+      "body1": "Messaggi WhatsApp a non finire, gruppi caotici, conferme che arrivano e non arrivano, regali doppi o inutili.",
+      "body2": "Con <strong>Piky</strong> organizza la festa, condividi il link e gli invitati confermano la presenza e prenotano i regali. Senza sovrapposizioni, senza caos.",
+      "cta": { "primary": "Organizza la festa", "secondary": "Come funziona" }
+    },
+    "auth": {
+      "box": {
+        "title": "Salva le tue feste",
+        "subtitle": "Accedi per ritrovarle su qualsiasi dispositivo",
+        "login": "Accedi",
+        "register": "Registrati →"
+      }
+    },
+    "account": {
+      "logout": "Esci",
+      "delete": {
+        "confirm": "Eliminare questo account e tutti gli eventi?",
+        "cancel": "Annulla",
+        "loading": "Eliminando…",
+        "confirm_btn": "Sì, elimina",
+        "trigger": "Elimina account"
+      }
+    },
+    "myevents": {
+      "title": "Le tue feste",
+      "refresh": { "title": "Aggiorna" },
+      "hint": "Spariscono 60 giorni dopo la festa",
+      "loggedout": "Accedi per vedere le tue feste",
+      "loggedout_link": "Accedi →",
+      "open": "Apri →",
+      "create_more": "+ Crea una nuova festa",
+      "empty": "Nessuna lista ancora",
+      "empty_link": "Crea la prima →"
+    },
+    "invites": {
+      "title": "Inviti ricevuti",
+      "item_label": "Compleanno di {{name}}",
+      "open": "Apri →",
+      "remove": { "no": "No", "yes": "Sì", "title": "Rimuovi" },
+      "empty": "Nessun invito — comparirà qui quando aprirai un link invito"
+    },
+    "mockup": {
+      "label": "Così lo vede l'invitato",
+      "event_title": "Compleanno di Bianca!",
+      "date": "5 ottobre · 16:00",
+      "location": "Giardino di casa",
+      "confirmed": "8 persone confermate",
+      "invite_msg": "Ci farebbe molto piacere festeggiare insieme a te!",
+      "rsvp": { "label": "Conferma la tua presenza", "yes": "✓ Ci sarò", "maybe": "Forse", "no": "Non vengo" },
+      "wishlist": { "label": "Lista desideri" },
+      "reserve": "Prenota"
+    },
+    "discover": {
+      "title": "Scopri di più",
+      "subtitle": "Semplice per chi organizza, comodo per gli invitati"
+    },
+    "features": { "title": "Tutto quello che ti serve" },
+    "how": { "title": "Come funziona", "subtitle": "Quattro passi e la festa è pronta" },
+    "final_cta": {
+      "title": "Pronto a organizzare la festa?",
+      "body": "Ci vogliono meno di 5 minuti. Nome, data e luogo, aggiungi i regali, copia il link e condividilo con gli invitati.",
+      "btn": "Organizza la festa",
+      "share": "Condividi",
+      "share_copied_alert": "Link copiato!"
+    }
+  },
+  "features": {
+    "rsvp": { "title": "Conferma presenza", "description": "Gli invitati confermano la loro presenza (ci sarò / forse / non vengo) direttamente nella lista." },
+    "nodup": { "title": "Lista regali senza doppioni", "description": "Chi prenota un regalo lo rende invisibile agli altri invitati. Zero sovrapposizioni, zero imbarazzo." },
+    "collective": { "title": "Regalo collettivo", "description": "Gli invitati prenotano la loro quota e portano i contanti il giorno della festa, oppure pagano direttamente tramite PayPal. Barra di progresso in tempo reale." },
+    "private": { "title": "Link privato", "description": "Link privato da condividere con gli invitati — solo chi ha il link può vedere la lista." },
+    "reminders": { "title": "Promemoria automatici", "description": "Notifica automatica alla chiusura della lista con il riepilogo di presenze e regali prenotati. Promemoria il giorno dopo la festa per ricordare di ringraziare gli invitati." },
+    "thanks": { "title": "Messaggi di ringraziamento", "description": "Invia messaggi personalizzati post-festa a tutti i partecipanti in un click." }
+  },
+  "steps": {
+    "1": { "title": "Organizza la festa", "description": "Inserisci i dettagli della festa: nome del festeggiato, date, luogo e i regali desiderati con link Amazon o negozio." },
+    "2": { "title": "Condividi il link", "description": "Ricevi un link privato da condividere con gli invitati — solo chi lo riceve può vedere la lista e confermare la presenza." },
+    "3": { "title": "Gli invitati prenotano", "description": "Ogni invitato conferma la presenza e, se vuole, prenota un regalo in esclusiva. Zero doppioni, zero imbarazzo." },
+    "4": { "title": "Segui tutto dalla tua area", "description": "Vedi chi ha aperto il link, chi ha prenotato cosa, le presenze confermate e i contributi al regalo collettivo." }
+  },
+  "create": {
+    "header": { "back": "Torna alla home", "title": "Organizza la festa" },
+    "step": { "party_info": "Info festa", "organizer": "Chi organizza", "gifts": "Regali", "preview": "Anteprima", "create": "Crea lista" },
+    "step1": {
+      "title": "Chi festeggia?",
+      "subtitle": "Inserisci i dettagli del compleanno",
+      "name": { "label": "Nome del festeggiato *", "placeholder": "Es. Sofia" },
+      "date": { "label": "Data della festa *", "day": "GG", "month": "MM", "year": "AAAA", "year_error": "Anno non valido" },
+      "time": { "label": "Orario", "placeholder": "Es. 16:00" },
+      "location": { "label": "Luogo", "placeholder": "Es. Oratorio di Vercurago, Bar Centrale" },
+      "address": { "label": "Aggiungi indirizzo", "map_link": "Verifica su mappa →", "placeholder": "Es. Via Roma 12, Vercurago BG" },
+      "notes": { "label": "Note per gli invitati", "placeholder": "Es. Parcheggio disponibile, tema festa, cosa portare..." }
+    },
+    "step2": {
+      "title": "Chi organizza?",
+      "subtitle": "La tua email ci permette di ritrovare il tuo evento",
+      "email": { "label": "La tua email *", "placeholder": "nome@esempio.it", "error": "Email non valida" },
+      "returning": {
+        "title": "Bentornato su Piky! 👋",
+        "body": "Hai già creato {{count}} {{festa}} con questa email — stai organizzando il tuo {{next}}° compleanno.",
+        "free": "Piky è ancora completamente gratuita, goditi la festa!"
+      },
+      "closing": { "label": "Chiudi le prenotazioni il", "hint": "Dopo questa data gli invitati non potranno più prenotare regali né confermare la presenza." }
+    },
+    "step3": {
+      "title": "Regali desiderati",
+      "subtitle": "Aggiungi i regali che vuoi. Puoi modificarli anche dopo.",
+      "list": { "title": "Lista dei regali", "hint": "Ogni regalo sarà prenotabile in esclusiva da un invitato." }
+    },
+    "step4": {
+      "title": "Quasi pronto!",
+      "subtitle": "Controlla i dati prima di creare la lista"
+    },
+    "step5": {
+      "title": "Tutto pronto!",
+      "subtitle": "Clicca il bottone qui sotto per generare il link da condividere con gli invitati.",
+      "free": { "title": "Piky è ancora completamente gratuita 🎁", "body": "Goditi la festa senza pensieri." }
+    },
+    "confirm": {
+      "location": { "label": "Luogo" },
+      "email": { "label": "Email" },
+      "closing": { "label": "Chiusura lista", "not_set": "Non impostata" },
+      "gifts": { "label": "Regali", "unit": "regali" },
+      "notes": { "label": "Note per gli invitati" },
+      "collective": "Regalo collettivo: obiettivo €{{goal}}"
+    },
+    "gift": {
+      "card_label": "Regalo {{index}}",
+      "name": { "placeholder": "Nome del regalo *" },
+      "description": { "placeholder": "Descrizione (opzionale)" },
+      "price": { "placeholder": "Prezzo" },
+      "amazon": { "placeholder": "Link Amazon" },
+      "store": { "placeholder": "Link negozio" },
+      "add_btn": "Aggiungi regalo",
+      "empty_hint": "Puoi aggiungere regali anche dopo, direttamente dalla tua lista"
+    },
+    "collective": {
+      "title": "Regalo collettivo",
+      "hint": "Attiva per raccogliere una quota dagli invitati — es. per un regalo importante insieme",
+      "goal": { "placeholder": "Obiettivo (€) *", "error": "Inserisci un obiettivo", "min_error": "Minimo €10" },
+      "description": { "placeholder": "Descrizione (opzionale) — es. Per la bicicletta di Sofia" },
+      "fixed_quota": { "label": "Quota fissa per persona", "placeholder": "Quota per persona (€) *", "error": "Inserisci la quota", "min_error": "Minimo €1" },
+      "paypal": { "prefix": "paypal.me/", "placeholder": "username (opzionale)" }
+    },
+    "nav": {
+      "back": "Indietro",
+      "next": "Avanti",
+      "submit": { "loading": "Creo la lista...", "btn": "Crea la lista e ottieni il link →" }
+    },
+    "error": { "required": "Campo obbligatorio", "generic": "Errore nella creazione. Riprova." }
+  },
+  "dashboard": {
+    "loading": "Carico il tuo dashboard...",
+    "error": { "not_found": "Lista non trovata o link non valido.", "back": "Torna alla home" },
+    "new_banner": {
+      "title": "Evento attivo e pronto!",
+      "body": "La lista è pronta! Condividi il link con i tuoi invitati con il pulsante qui sotto."
+    },
+    "header": {
+      "title": "Compleanno di {{name}}",
+      "edit_title": "Modifica dettagli festa",
+      "gifts_reserved": "prenotati",
+      "collective": "collettivo",
+      "adults_children": "{{adults}} adulti · {{children}} bambini"
+    },
+    "refresh": { "loading": "Aggiorno...", "btn": "Aggiorna" },
+    "share": {
+      "title": "Invita i tuoi ospiti",
+      "body1": "Condividi il link con gli invitati al compleanno di {{name}}.",
+      "body2": "Potranno confermare la presenza e prenotare un regalo — senza doppioni.",
+      "copied": "Link copiato!",
+      "btn": "Condividi invito",
+      "preview": "Anteprima →",
+      "preview_title": "Vedi come appare il link agli invitati",
+      "update_hint": "Hai aggiornato qualcosa? Fallo sapere ai tuoi invitati.",
+      "update_btn": "Condividi aggiornamento",
+      "return_hint": "Torna qui per vedere chi ha risposto e chi ha prenotato un regalo",
+      "share_text": "Sei invitato al compleanno di {{name}}! Qui puoi confermare la tua presenza.",
+      "update_text": "Ci sono novità sulla festa di {{name}}! Entra a dare un'occhiata 👀"
+    },
+    "notif": {
+      "enable": "🔔 Attiva notifiche — avvisami quando qualcuno risponde",
+      "active": "🔔 Notifiche attive — ti avvisiamo quando qualcuno risponde o prenota",
+      "blocked": "Notifiche bloccate — abilitale dalle impostazioni del browser"
+    },
+    "collective": {
+      "add": { "title": "Aggiungi regalo collettivo", "subtitle": "Raccogli contributi dagli invitati per un regalo speciale" },
+      "section_title": "Regalo collettivo",
+      "edit_title": "Modifica regalo collettivo",
+      "hide": "Nascondi",
+      "show": "Contribuenti",
+      "paypal_pending": "Da verificare su PayPal",
+      "confirm_btn": "Conferma",
+      "empty": "Nessun contributo ancora",
+      "disable_confirm": "Sei sicuro di voler rimuovere il regalo collettivo?"
+    },
+    "gifts": {
+      "title": "Regali ({{count}})",
+      "add_btn": "Aggiungi",
+      "empty": { "title": "Nessun regalo aggiunto", "body": "Aggiungi i regali che desideri" },
+      "delete_confirm": "Eliminare questo regalo?",
+      "delete_error": "Eliminazione non riuscita. Riprova."
+    },
+    "rsvp": {
+      "title": "Presenze",
+      "yes": "sì",
+      "maybe": "forse",
+      "no": "no",
+      "adults_one": "adulto",
+      "adults_other": "adulti",
+      "children_one": "bambino",
+      "children_other": "bambini",
+      "partner": "+ partner",
+      "empty": "Nessuna risposta ancora"
+    },
+    "thanks": {
+      "title": "Ringrazia gli invitati",
+      "body": "Ricordati di ringraziare chi ha partecipato alla festa, scrivi un messaggio e condividilo su WhatsApp.",
+      "whatsapp_btn": "Apri su WhatsApp",
+      "copy_done": "Copiato!",
+      "copy_btn": "Copia",
+      "placeholder": "Grazie di cuore per aver festeggiato con noi il compleanno di {{name}}! È stata una giornata bellissima e la tua, la vostra presenza l'ha resa ancora più speciale. A presto!"
+    },
+    "gift_modal": {
+      "title": { "edit": "Modifica regalo", "add": "Aggiungi regalo" },
+      "name": { "label": "Nome *", "placeholder": "Es. LEGO Technic 42175" },
+      "description": { "label": "Descrizione", "placeholder": "Dettagli aggiuntivi" },
+      "price": { "label": "Prezzo (€)" },
+      "link_hint": "Cerca il regalo su Amazon o nel tuo negozio preferito, poi copia e incolla qui il link: aiuterai chi vuole farti questo regalo a trovarlo subito.",
+      "amazon": { "label": "Link Amazon", "placeholder": "https://amazon.it/..." },
+      "store": { "label": "Link negozio", "placeholder": "https://..." },
+      "error": "Salvataggio non riuscito. Riprova.",
+      "cancel": "Annulla",
+      "save": "Salva",
+      "add": "Aggiungi"
+    },
+    "collective_modal": {
+      "title": "Regalo collettivo",
+      "description": { "label": "Descrizione", "placeholder": "es. Bicicletta nuova" },
+      "goal": { "label": "Obiettivo (€)", "placeholder": "es. 150" },
+      "fixed": { "label": "Quota fissa per persona (€, opzionale)", "placeholder": "es. 10", "hint": "Se impostata, ogni invitato vedrà questa quota suggerita" },
+      "paypal": { "label": "Username PayPal.me (opzionale)", "placeholder": "tuousername" },
+      "error": "Salvataggio non riuscito. Riprova.",
+      "cancel": "Annulla",
+      "saving": "Salvo...",
+      "save": "Salva",
+      "remove": "Rimuovi regalo collettivo"
+    },
+    "event_modal": {
+      "title": "Modifica dettagli festa",
+      "name": { "label": "Nome del bambino/a *" },
+      "date": { "label": "Data della festa *" },
+      "time": { "label": "Orario" },
+      "location": { "label": "Luogo", "placeholder": "Es. Oratorio di Vercurago, Bar Centrale" },
+      "address": { "label": "Indirizzo", "placeholder": "Per il link a Google Maps" },
+      "notes": { "label": "Note" },
+      "error": "Salvataggio non riuscito. Riprova.",
+      "cancel": "Annulla",
+      "saving": "Salvo...",
+      "save": "Salva"
+    }
+  },
+  "guest": {
+    "preview": { "banner": "Stai visualizzando l'anteprima come ospite", "close": "← Chiudi anteprima" },
+    "header": {
+      "title": "Compleanno di {{name}}!",
+      "rsvp_hint": "Guarda chi ci sarà al compleanno",
+      "no_confirm": "Nessuna conferma ancora",
+      "confirmed": "{{total}} confermati · {{adults}} adulti{{children}}"
+    },
+    "ics": {
+      "summary": "Compleanno di {{name}}",
+      "alarm1": "Domani è il compleanno di {{name}}! 🎉",
+      "alarm2": "Tra 2 ore inizia il compleanno di {{name}}! 🎂",
+      "description": "Evento salvato da Piky",
+      "link_label": "Link invito:"
+    },
+    "rsvp": {
+      "recover": {
+        "title": "Ritrova la tua risposta",
+        "label": "Il tuo nome",
+        "placeholder": "Nome Cognome",
+        "not_found": "Nessuna conferma trovata per questo evento.",
+        "error": "\"{{name}}\" non corrisponde a nessuna risposta. Prova con il nome esatto usato quando hai confermato.",
+        "cancel": "Annulla",
+        "submit": "Cerca"
+      },
+      "done": {
+        "greeting": "Ciao, {{name}}!",
+        "answered": "Hai risposto:",
+        "yes": "Ci sarò",
+        "maybe": "Forse",
+        "no": "Non vengo",
+        "calendar": "Aggiungi al calendario",
+        "no_msg": "Ci dispiace che non potrai esserci! Se cambi idea, torna qui e conferma la tua presenza.",
+        "maybe_msg": "Capita di essere indecisi! Quando hai le idee più chiare, torna qui e aggiorna la tua risposta, speriamo di vederti!"
+      },
+      "closed": {
+        "title": "Le prenotazioni sono chiuse",
+        "body": "Se non hai fatto in tempo, non preoccuparti! Contatta direttamente chi organizza la festa, sarà felice di sentirti!"
+      },
+      "prompt": {
+        "recover_title": "Hai già risposto da un altro dispositivo?",
+        "recover_subtitle": "Inserisci il tuo nome per ritrovare la tua risposta",
+        "title": "Sei invitato al compleanno di {{name}}!",
+        "body": "Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci.",
+        "btn": "Conferma la tua presenza"
+      },
+      "form": {
+        "title": "La tua risposta",
+        "child_name": { "label": "Nome del bambino *", "placeholder": "es. Giulia" },
+        "extra_child": { "placeholder": "Nome bambino" },
+        "add_child": "+ Aggiungi bambino",
+        "parent_name": { "label": "Il tuo nome (genitore) *", "placeholder": "es. Marco Rossi" },
+        "extra_adult": { "placeholder": "Nome adulto" },
+        "add_adult": "+ Aggiungi adulto",
+        "status": { "label": "Parteciperai?" },
+        "error": "Errore nel salvataggio. Controlla la connessione e riprova.",
+        "cancel": "Annulla",
+        "loading": "Salvo...",
+        "submit": "Conferma risposta"
+      }
+    },
+    "key": {
+      "prompt": {
+        "title": "Vuoi ritrovare questo invito in futuro?",
+        "body": "Se hai già un codice Piky, inseriscilo qui per salvare questo invito e ritrovarlo sempre.",
+        "placeholder": "Es. MARCO-7X2Q",
+        "btn": "Collega",
+        "error_notfound": "Codice non trovato. Controlla di averlo inserito correttamente.",
+        "error_generic": "Errore. Riprova.",
+        "dismiss": "Non ora"
+      },
+      "linked": {
+        "title": "✓ Invito collegato al tuo codice Piky!",
+        "body": "Lo troverai nella home dell'app."
+      }
+    },
+    "welcome": {
+      "body": "Il regalo più bello per <strong>{{name}}</strong> sarà la tua presenza. Ma se non resisti e vuoi esaudire un suo piccolo desiderio, qui trovi la lista: ogni regalo è in esclusiva, nessun doppione garantito!",
+      "closing": "A presto!"
+    },
+    "collective": {
+      "label": "Regalo collettivo",
+      "default_title": "Regalo di gruppo",
+      "my_contrib": "Hai contribuito con <strong>€{{amount}}</strong>",
+      "payments_count": "({{count}} versamenti)",
+      "join_hint": "Unisciti agli altri invitati per completare la raccolta",
+      "progress_label": "€{{current}} su €{{goal}}",
+      "contribute_btn": "Contribuisci",
+      "add_more": "+ Aggiungi un altro contributo"
+    },
+    "wishlist": {
+      "title": "Lista desideri",
+      "available": "{{count}} disponibili",
+      "reserved_separator": "Già prenotati",
+      "empty": "Nessun regalo ancora — controlla più tardi"
+    },
+    "share": { "btn": "Condividi", "copied_alert": "Link copiato!" },
+    "rsvp_modal": {
+      "title": "Chi partecipa 🎉",
+      "adults_one": "adulto",
+      "adults_other": "adulti",
+      "children_one": "bambino",
+      "children_other": "bambini"
+    },
+    "error": { "not_found": "Lista non trovata o link non valido." }
+  },
+  "reset": {
+    "logo": "Piky",
+    "waiting": { "title": "Verifica in corso…" },
+    "ready": {
+      "title": "Nuova password",
+      "subtitle": "Scegli una password di almeno 6 caratteri.",
+      "new_label": "Nuova password",
+      "new_placeholder": "Almeno 6 caratteri",
+      "confirm_label": "Conferma password",
+      "confirm_placeholder": "Ripeti la password"
+    },
+    "error": {
+      "too_short": "La password deve avere almeno 6 caratteri.",
+      "mismatch": "Le password non coincidono.",
+      "save": "Errore nel salvataggio."
+    },
+    "saving": "Salvataggio…",
+    "submit_btn": "Salva nuova password →",
+    "success": { "title": "Password aggiornata!", "body": "Torna all'app e accedi con la nuova password." },
+    "error_state": { "title": "Link non valido", "body": "Il link è scaduto o già usato. Torna all'app e richiedi un nuovo link." }
+  },
+  "scarica": {
+    "redirecting": "Apertura store in corso…",
+    "logo": "Piky",
+    "subtitle": "Organizza compleanni senza caos. Disponibile su App Store e Google Play.",
+    "app_store_btn": "🍎 Scarica su App Store",
+    "play_store_btn": "🤖 Scarica su Google Play"
+  }
+}

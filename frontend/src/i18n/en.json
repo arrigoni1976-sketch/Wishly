@@ -1,0 +1,443 @@
+{
+  "nav": {
+    "logo": "Piky",
+    "cta": "Plan the party"
+  },
+  "auth": {
+    "tab": { "login": "Sign in", "register": "Sign up" },
+    "title": { "register": "Create account" },
+    "registered": {
+      "title": "Check your email",
+      "body": "We sent a confirmation link to <strong>{{email}}</strong>. Click the link to activate your account."
+    },
+    "forgot": {
+      "hint": "Enter your email and we'll send you a link to reset your password.",
+      "email": { "label": "Email", "placeholder": "your@email.com" },
+      "loading": "Sending…",
+      "submit_btn": "Send reset link →",
+      "back": "Back to sign in",
+      "error": "Error sending. Check the email you entered.",
+      "sent": {
+        "title": "Email sent!",
+        "body": "We sent a link to <strong>{{email}}</strong>. Check your spam folder too.",
+        "back": "Back to sign in"
+      }
+    },
+    "form": {
+      "email": { "label": "Email", "placeholder": "your@email.com" },
+      "password": {
+        "label": "Password",
+        "placeholder": { "register": "At least 6 characters", "login": "••••••••" }
+      },
+      "error": {
+        "login": "Incorrect email or password.",
+        "short_pwd": "Password must be at least 6 characters.",
+        "already_registered": "Email already registered. Try signing in.",
+        "register_generic": "Registration error."
+      },
+      "loading": { "login": "Signing in...", "register": "Creating account..." },
+      "submit": { "login": "Sign in →", "register": "Create account →" },
+      "forgot_link": "Forgot your password?"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "Already used by over <strong>500 mums</strong>",
+      "h1a": "Planning a birthday party",
+      "h1b": "has never been this easy",
+      "body1": "Endless WhatsApp messages, chaotic group chats, confirmations that never arrive, duplicate or useless gifts.",
+      "body2": "With <strong>Piky</strong> you plan the party, share the link and guests confirm their attendance and book gifts. No overlaps, no chaos.",
+      "cta": { "primary": "Plan the party", "secondary": "How it works" }
+    },
+    "auth": {
+      "box": {
+        "title": "Save your parties",
+        "subtitle": "Sign in to find them on any device",
+        "login": "Sign in",
+        "register": "Sign up →"
+      }
+    },
+    "account": {
+      "logout": "Sign out",
+      "delete": {
+        "confirm": "Delete this account and all events?",
+        "cancel": "Cancel",
+        "loading": "Deleting…",
+        "confirm_btn": "Yes, delete",
+        "trigger": "Delete account"
+      }
+    },
+    "myevents": {
+      "title": "Your parties",
+      "refresh": { "title": "Refresh" },
+      "hint": "They disappear 60 days after the party",
+      "loggedout": "Sign in to see your parties",
+      "loggedout_link": "Sign in →",
+      "open": "Open →",
+      "create_more": "+ Create a new party",
+      "empty": "No lists yet",
+      "empty_link": "Create the first →"
+    },
+    "invites": {
+      "title": "Received invites",
+      "item_label": "{{name}}'s birthday",
+      "open": "Open →",
+      "remove": { "no": "No", "yes": "Yes", "title": "Remove" },
+      "empty": "No invites yet — they'll appear here when you open an invite link"
+    },
+    "mockup": {
+      "label": "This is what guests see",
+      "event_title": "Bianca's Birthday!",
+      "date": "5 October · 4:00 PM",
+      "location": "Home garden",
+      "confirmed": "8 people confirmed",
+      "invite_msg": "We'd love to celebrate with you!",
+      "rsvp": { "label": "Confirm your attendance", "yes": "✓ I'll be there", "maybe": "Maybe", "no": "Can't make it" },
+      "wishlist": { "label": "Wish list" },
+      "reserve": "Reserve"
+    },
+    "discover": {
+      "title": "Learn more",
+      "subtitle": "Simple for the organiser, convenient for guests"
+    },
+    "features": { "title": "Everything you need" },
+    "how": { "title": "How it works", "subtitle": "Four steps and the party is ready" },
+    "final_cta": {
+      "title": "Ready to plan the party?",
+      "body": "It takes less than 5 minutes. Name, date and venue, add the gifts, copy the link and share it with your guests.",
+      "btn": "Plan the party",
+      "share": "Share",
+      "share_copied_alert": "Link copied!"
+    }
+  },
+  "features": {
+    "rsvp": { "title": "Attendance confirmation", "description": "Guests confirm their attendance (I'll be there / maybe / can't make it) directly in the list." },
+    "nodup": { "title": "Gift list without duplicates", "description": "When someone books a gift it becomes invisible to other guests. Zero overlaps, zero awkwardness." },
+    "collective": { "title": "Group gift", "description": "Guests book their share and bring cash on the day, or pay directly via PayPal. Real-time progress bar." },
+    "private": { "title": "Private link", "description": "A private link to share with your guests — only those who receive it can see the list." },
+    "reminders": { "title": "Automatic reminders", "description": "Automatic notification when the list closes with a summary of attendees and booked gifts. Reminder the day after the party to thank your guests." },
+    "thanks": { "title": "Thank-you messages", "description": "Send personalised post-party messages to all attendees in one click." }
+  },
+  "steps": {
+    "1": { "title": "Plan the party", "description": "Enter the party details: name of the birthday child, date, venue and desired gifts with Amazon or shop links." },
+    "2": { "title": "Share the link", "description": "Get a private link to share with guests — only those who receive it can see the list and confirm their attendance." },
+    "3": { "title": "Guests book gifts", "description": "Each guest confirms their attendance and, if they wish, exclusively books a gift. Zero duplicates, zero awkwardness." },
+    "4": { "title": "Track everything from your area", "description": "See who opened the link, who booked what, confirmed attendees and contributions to the group gift." }
+  },
+  "create": {
+    "header": { "back": "Back to home", "title": "Plan the party" },
+    "step": { "party_info": "Party info", "organizer": "Organiser", "gifts": "Gifts", "preview": "Preview", "create": "Create list" },
+    "step1": {
+      "title": "Who's celebrating?",
+      "subtitle": "Enter the birthday details",
+      "name": { "label": "Name of the birthday child *", "placeholder": "e.g. Sofia" },
+      "date": { "label": "Party date *", "day": "DD", "month": "MM", "year": "YYYY", "year_error": "Invalid year" },
+      "time": { "label": "Time", "placeholder": "e.g. 4:00 PM" },
+      "location": { "label": "Venue", "placeholder": "e.g. Community hall, Central Bar" },
+      "address": { "label": "Add address", "map_link": "Verify on map →", "placeholder": "e.g. 12 Main Street, London" },
+      "notes": { "label": "Notes for guests", "placeholder": "e.g. Parking available, party theme, what to bring..." }
+    },
+    "step2": {
+      "title": "Who's organising?",
+      "subtitle": "Your email lets us find your event again",
+      "email": { "label": "Your email *", "placeholder": "name@example.com", "error": "Invalid email" },
+      "returning": {
+        "title": "Welcome back to Piky! 👋",
+        "body": "You've already created {{count}} {{party}} with this email — you're organising your {{next}}th birthday.",
+        "free": "Piky is still completely free, enjoy the party!"
+      },
+      "closing": { "label": "Close bookings on", "hint": "After this date guests will no longer be able to book gifts or confirm their attendance." }
+    },
+    "step3": {
+      "title": "Desired gifts",
+      "subtitle": "Add the gifts you want. You can edit them afterwards too.",
+      "list": { "title": "Gift list", "hint": "Each gift can be exclusively booked by one guest." }
+    },
+    "step4": {
+      "title": "Almost ready!",
+      "subtitle": "Check the details before creating the list"
+    },
+    "step5": {
+      "title": "All set!",
+      "subtitle": "Click the button below to generate the link to share with your guests.",
+      "free": { "title": "Piky is still completely free 🎁", "body": "Enjoy the party worry-free." }
+    },
+    "confirm": {
+      "location": { "label": "Venue" },
+      "email": { "label": "Email" },
+      "closing": { "label": "List closes", "not_set": "Not set" },
+      "gifts": { "label": "Gifts", "unit": "gifts" },
+      "notes": { "label": "Notes for guests" },
+      "collective": "Group gift: goal €{{goal}}"
+    },
+    "gift": {
+      "card_label": "Gift {{index}}",
+      "name": { "placeholder": "Gift name *" },
+      "description": { "placeholder": "Description (optional)" },
+      "price": { "placeholder": "Price" },
+      "amazon": { "placeholder": "Amazon link" },
+      "store": { "placeholder": "Shop link" },
+      "add_btn": "Add gift",
+      "empty_hint": "You can also add gifts later, directly from your list"
+    },
+    "collective": {
+      "title": "Group gift",
+      "hint": "Enable to collect a contribution from guests — e.g. for an important shared gift",
+      "goal": { "placeholder": "Goal (€) *", "error": "Enter a goal", "min_error": "Minimum €10" },
+      "description": { "placeholder": "Description (optional) — e.g. For Sofia's bicycle" },
+      "fixed_quota": { "label": "Fixed amount per person", "placeholder": "Amount per person (€) *", "error": "Enter the amount", "min_error": "Minimum €1" },
+      "paypal": { "prefix": "paypal.me/", "placeholder": "username (optional)" }
+    },
+    "nav": {
+      "back": "Back",
+      "next": "Next",
+      "submit": { "loading": "Creating list...", "btn": "Create list and get the link →" }
+    },
+    "error": { "required": "Required field", "generic": "Error creating list. Please try again." }
+  },
+  "dashboard": {
+    "loading": "Loading your dashboard...",
+    "error": { "not_found": "List not found or invalid link.", "back": "Back to home" },
+    "new_banner": {
+      "title": "Event active and ready!",
+      "body": "Your list is ready! Share the link with your guests using the button below."
+    },
+    "header": {
+      "title": "{{name}}'s Birthday",
+      "edit_title": "Edit party details",
+      "gifts_reserved": "reserved",
+      "collective": "group gift",
+      "adults_children": "{{adults}} adults · {{children}} children"
+    },
+    "refresh": { "loading": "Refreshing...", "btn": "Refresh" },
+    "share": {
+      "title": "Invite your guests",
+      "body1": "Share the link with guests for {{name}}'s birthday.",
+      "body2": "They can confirm their attendance and book a gift — no duplicates.",
+      "copied": "Link copied!",
+      "btn": "Share invite",
+      "preview": "Preview →",
+      "preview_title": "See how the link appears to guests",
+      "update_hint": "Updated something? Let your guests know.",
+      "update_btn": "Share update",
+      "return_hint": "Come back here to see who responded and who booked a gift",
+      "share_text": "You're invited to {{name}}'s birthday! Come and confirm your attendance.",
+      "update_text": "Updates for {{name}}'s party! Take a look 👀"
+    },
+    "notif": {
+      "enable": "🔔 Enable notifications — alert me when someone responds",
+      "active": "🔔 Notifications active — we'll alert you when someone responds or books",
+      "blocked": "Notifications blocked — enable them in your browser settings"
+    },
+    "collective": {
+      "add": { "title": "Add group gift", "subtitle": "Collect contributions from guests for a special gift" },
+      "section_title": "Group gift",
+      "edit_title": "Edit group gift",
+      "hide": "Hide",
+      "show": "Contributors",
+      "paypal_pending": "To verify on PayPal",
+      "confirm_btn": "Confirm",
+      "empty": "No contributions yet",
+      "disable_confirm": "Are you sure you want to remove the group gift?"
+    },
+    "gifts": {
+      "title": "Gifts ({{count}})",
+      "add_btn": "Add",
+      "empty": { "title": "No gifts added", "body": "Add the gifts you'd like" },
+      "delete_confirm": "Delete this gift?",
+      "delete_error": "Deletion failed. Please try again."
+    },
+    "rsvp": {
+      "title": "Attendance",
+      "yes": "yes",
+      "maybe": "maybe",
+      "no": "no",
+      "adults_one": "adult",
+      "adults_other": "adults",
+      "children_one": "child",
+      "children_other": "children",
+      "partner": "+ partner",
+      "empty": "No responses yet"
+    },
+    "thanks": {
+      "title": "Thank your guests",
+      "body": "Remember to thank those who attended the party, write a message and share it on WhatsApp.",
+      "whatsapp_btn": "Open on WhatsApp",
+      "copy_done": "Copied!",
+      "copy_btn": "Copy",
+      "placeholder": "Thank you so much for celebrating {{name}}'s birthday with us! It was a wonderful day and your presence made it even more special. See you soon!"
+    },
+    "gift_modal": {
+      "title": { "edit": "Edit gift", "add": "Add gift" },
+      "name": { "label": "Name *", "placeholder": "e.g. LEGO Technic 42175" },
+      "description": { "label": "Description", "placeholder": "Additional details" },
+      "price": { "label": "Price (€)" },
+      "link_hint": "Search for the gift on Amazon or your favourite shop, then copy and paste the link here: it'll help whoever wants to get this gift find it straight away.",
+      "amazon": { "label": "Amazon link", "placeholder": "https://amazon.co.uk/..." },
+      "store": { "label": "Shop link", "placeholder": "https://..." },
+      "error": "Save failed. Please try again.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "add": "Add"
+    },
+    "collective_modal": {
+      "title": "Group gift",
+      "description": { "label": "Description", "placeholder": "e.g. New bicycle" },
+      "goal": { "label": "Goal (€)", "placeholder": "e.g. 150" },
+      "fixed": { "label": "Fixed amount per person (€, optional)", "placeholder": "e.g. 10", "hint": "If set, each guest will see this suggested amount" },
+      "paypal": { "label": "PayPal.me username (optional)", "placeholder": "yourusername" },
+      "error": "Save failed. Please try again.",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save",
+      "remove": "Remove group gift"
+    },
+    "event_modal": {
+      "title": "Edit party details",
+      "name": { "label": "Child's name *" },
+      "date": { "label": "Party date *" },
+      "time": { "label": "Time" },
+      "location": { "label": "Venue", "placeholder": "e.g. Community hall, Central Bar" },
+      "address": { "label": "Address", "placeholder": "For the Google Maps link" },
+      "notes": { "label": "Notes" },
+      "error": "Save failed. Please try again.",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "save": "Save"
+    }
+  },
+  "guest": {
+    "preview": { "banner": "You are viewing a guest preview", "close": "← Close preview" },
+    "header": {
+      "title": "{{name}}'s Birthday!",
+      "rsvp_hint": "See who will be at the party",
+      "no_confirm": "No confirmations yet",
+      "confirmed": "{{total}} confirmed · {{adults}} adults{{children}}"
+    },
+    "ics": {
+      "summary": "{{name}}'s Birthday",
+      "alarm1": "Tomorrow is {{name}}'s birthday! 🎉",
+      "alarm2": "{{name}}'s birthday starts in 2 hours! 🎂",
+      "description": "Event saved from Piky",
+      "link_label": "Invite link:"
+    },
+    "rsvp": {
+      "recover": {
+        "title": "Find your response",
+        "label": "Your name",
+        "placeholder": "First Last",
+        "not_found": "No confirmation found for this event.",
+        "error": "\"{{name}}\" doesn't match any response. Try the exact name you used when you confirmed.",
+        "cancel": "Cancel",
+        "submit": "Search"
+      },
+      "done": {
+        "greeting": "Hi, {{name}}!",
+        "answered": "You responded:",
+        "yes": "I'll be there",
+        "maybe": "Maybe",
+        "no": "Can't make it",
+        "calendar": "Add to calendar",
+        "no_msg": "Sorry you can't make it! If you change your mind, come back here and confirm your attendance.",
+        "maybe_msg": "It happens! When you know for sure, come back here and update your response. We hope to see you!"
+      },
+      "closed": {
+        "title": "Bookings are closed",
+        "body": "If you didn't make it in time, don't worry! Contact the party organiser directly, they'll be happy to hear from you!"
+      },
+      "prompt": {
+        "recover_title": "Already responded from another device?",
+        "recover_subtitle": "Enter your name to find your response",
+        "title": "You're invited to {{name}}'s birthday!",
+        "body": "We'd love to celebrate with you — let us know if you can make it.",
+        "btn": "Confirm your attendance"
+      },
+      "form": {
+        "title": "Your response",
+        "child_name": { "label": "Child's name *", "placeholder": "e.g. Julia" },
+        "extra_child": { "placeholder": "Child's name" },
+        "add_child": "+ Add child",
+        "parent_name": { "label": "Your name (parent) *", "placeholder": "e.g. John Smith" },
+        "extra_adult": { "placeholder": "Adult's name" },
+        "add_adult": "+ Add adult",
+        "status": { "label": "Will you attend?" },
+        "error": "Save error. Check your connection and try again.",
+        "cancel": "Cancel",
+        "loading": "Saving...",
+        "submit": "Confirm response"
+      }
+    },
+    "key": {
+      "prompt": {
+        "title": "Want to find this invite again in the future?",
+        "body": "If you already have a Piky code, enter it here to save this invite and always find it again.",
+        "placeholder": "e.g. JOHN-7X2Q",
+        "btn": "Link",
+        "error_notfound": "Code not found. Check you entered it correctly.",
+        "error_generic": "Error. Try again.",
+        "dismiss": "Not now"
+      },
+      "linked": {
+        "title": "✓ Invite linked to your Piky code!",
+        "body": "You'll find it on the app home."
+      }
+    },
+    "welcome": {
+      "body": "The best gift for <strong>{{name}}</strong> will be your presence. But if you can't resist and want to make one of their wishes come true, here's the list: each gift is exclusive, no duplicates guaranteed!",
+      "closing": "See you soon!"
+    },
+    "collective": {
+      "label": "Group gift",
+      "default_title": "Group gift",
+      "my_contrib": "You contributed <strong>€{{amount}}</strong>",
+      "payments_count": "({{count}} payments)",
+      "join_hint": "Join the other guests to complete the collection",
+      "progress_label": "€{{current}} of €{{goal}}",
+      "contribute_btn": "Contribute",
+      "add_more": "+ Add another contribution"
+    },
+    "wishlist": {
+      "title": "Wish list",
+      "available": "{{count}} available",
+      "reserved_separator": "Already booked",
+      "empty": "No gifts yet — check back later"
+    },
+    "share": { "btn": "Share", "copied_alert": "Link copied!" },
+    "rsvp_modal": {
+      "title": "Who's coming 🎉",
+      "adults_one": "adult",
+      "adults_other": "adults",
+      "children_one": "child",
+      "children_other": "children"
+    },
+    "error": { "not_found": "List not found or invalid link." }
+  },
+  "reset": {
+    "logo": "Piky",
+    "waiting": { "title": "Verifying…" },
+    "ready": {
+      "title": "New password",
+      "subtitle": "Choose a password of at least 6 characters.",
+      "new_label": "New password",
+      "new_placeholder": "At least 6 characters",
+      "confirm_label": "Confirm password",
+      "confirm_placeholder": "Repeat the password"
+    },
+    "error": {
+      "too_short": "Password must be at least 6 characters.",
+      "mismatch": "Passwords don't match.",
+      "save": "Error saving."
+    },
+    "saving": "Saving…",
+    "submit_btn": "Save new password →",
+    "success": { "title": "Password updated!", "body": "Go back to the app and sign in with your new password." },
+    "error_state": { "title": "Invalid link", "body": "The link has expired or already been used. Go back to the app and request a new link." }
+  },
+  "scarica": {
+    "redirecting": "Opening store…",
+    "logo": "Piky",
+    "subtitle": "Plan birthday parties without the chaos. Available on the App Store and Google Play.",
+    "app_store_btn": "🍎 Download on App Store",
+    "play_store_btn": "🤖 Get it on Google Play"
+  }
+}

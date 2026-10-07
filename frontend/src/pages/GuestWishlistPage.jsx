@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Calendar, CalendarPlus, Clock, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil, Lock } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
@@ -41,7 +42,7 @@ function isListClosed(closingDate) {
 }
 
 // ─── Calendar helper ───────────────────────────────────────────────────────
-function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl }) {
+function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl, t }) {
   const pad = (n) => String(n).padStart(2, '0')
   const isAndroid = /android/i.test(navigator.userAgent)
 
@@ -60,12 +61,16 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl })
     dtEnd = `${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`
   }
 
+  const summary = t('guest.ics.summary', { name: childName })
+  const descBase = t('guest.ics.description')
+  const linkLabel = t('guest.ics.link_label')
+
   if (isAndroid) {
     const params = new URLSearchParams({
       action: 'TEMPLATE',
-      text: `Compleanno di ${childName}`,
+      text: summary,
       dates: `${dtStart}/${dtEnd}`,
-      details: inviteUrl ? `Evento salvato da Piky\nLink invito: ${inviteUrl}` : 'Evento salvato da Piky',
+      details: inviteUrl ? `${descBase}\n${linkLabel} ${inviteUrl}` : descBase,
     })
     if (location) params.set('location', location)
     window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank')
@@ -75,15 +80,15 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl })
   // iOS / desktop: download .ics
   const isAllDay = !partyTime
   const description = inviteUrl
-    ? `Evento salvato da Piky\\nLink invito: ${inviteUrl}`
-    : 'Evento salvato da Piky'
+    ? `${descBase}\\n${linkLabel} ${inviteUrl}`
+    : descBase
 
   const ics = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//Piky//Piky App//IT',
     'BEGIN:VEVENT',
-    `SUMMARY:Compleanno di ${childName}`,
+    `SUMMARY:${summary}`,
     isAllDay ? `DTSTART;VALUE=DATE:${dtStart}` : `DTSTART:${dtStart}`,
     isAllDay ? `DTEND;VALUE=DATE:${dtEnd}` : `DTEND:${dtEnd}`,
     location ? `LOCATION:${location}` : '',
@@ -92,12 +97,12 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl })
     'BEGIN:VALARM',
     'TRIGGER:-P1D',
     'ACTION:DISPLAY',
-    `DESCRIPTION:Domani è il compleanno di ${childName}! 🎉`,
+    `DESCRIPTION:${t('guest.ics.alarm1', { name: childName })}`,
     'END:VALARM',
     'BEGIN:VALARM',
     'TRIGGER:-PT2H',
     'ACTION:DISPLAY',
-    `DESCRIPTION:Tra 2 ore inizia il compleanno di ${childName}! 🎂`,
+    `DESCRIPTION:${t('guest.ics.alarm2', { name: childName })}`,
     'END:VALARM',
     'END:VEVENT',
     'END:VCALENDAR',
@@ -107,7 +112,7 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `compleanno-${childName.toLowerCase().replace(/\s+/g, '-')}.ics`
+  a.download = `birthday-${childName.toLowerCase().replace(/\s+/g, '-')}.ics`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -130,6 +135,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
   const [recoverName, setRecoverName] = useState('')
   const [recoverError, setRecoverError] = useState('')
   const idempotencyKeyRef = useRef(null)
+  const { t } = useTranslation()
 
   const handleSubmit = async () => {
     if (!guestName.trim() || !parentName.trim() || !status) return
@@ -162,7 +168,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
       setStep('done')
       setSaved(true)
     } catch {
-      setSubmitError('Errore nel salvataggio. Controlla la connessione e riprova.')
+      setSubmitError(t('guest.rsvp.form.error'))
     } finally {
       setLoading(false)
     }
@@ -179,14 +185,12 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
     if (found) {
       onRsvpSaved(found)
       setStatus(found.status)
-      setChildrenCount(found.children_count || 0)
-      setAdultsCount(found.adults_count || (found.with_partner ? 2 : 1))
       setStep('done')
     } else {
       setRecoverError(
         serverRsvps.length === 0
-          ? 'Nessuna conferma trovata per questo evento.'
-          : `"${recoverName.trim()}" non corrisponde a nessuna risposta. Prova con il nome esatto usato quando hai confermato.`
+          ? t('guest.rsvp.recover.not_found')
+          : t('guest.rsvp.recover.error', { name: recoverName.trim() })
       )
     }
   }
@@ -194,13 +198,13 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
   if (step === 'recover') {
     return (
       <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-4 animate-fade-in">
-        <h3 className="font-display font-bold text-gray-900">Ritrova la tua risposta</h3>
+        <h3 className="font-display font-bold text-gray-900">{t('guest.rsvp.recover.title')}</h3>
         <div>
-          <label className="label">Il tuo nome</label>
+          <label className="label">{t('guest.rsvp.recover.label')}</label>
           <input
             value={recoverName}
             onChange={(e) => { setRecoverName(e.target.value); setRecoverError('') }}
-            placeholder="Nome Cognome"
+            placeholder={t('guest.rsvp.recover.placeholder')}
             className="input"
             onKeyDown={(e) => e.key === 'Enter' && handleRecover()}
           />
@@ -212,14 +216,14 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
         </div>
         <div className="flex gap-3">
           <button onClick={() => setStep('prompt')} className="flex-1 btn-outline text-sm py-2.5">
-            Annulla
+            {t('guest.rsvp.recover.cancel')}
           </button>
           <button
             onClick={handleRecover}
             disabled={!recoverName.trim()}
             className="flex-1 btn-primary text-sm py-2.5"
           >
-            Cerca
+            {t('guest.rsvp.recover.submit')}
           </button>
         </div>
       </div>
@@ -232,15 +236,15 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
         <div className="flex items-start justify-between">
           <div>
             <p className="font-semibold text-gray-800">
-              {`Ciao, ${parentName || existingRsvp?.parent_name || guestName || existingRsvp?.guest_name}!`}
+              {t('guest.rsvp.done.greeting', { name: parentName || existingRsvp?.parent_name || guestName || existingRsvp?.guest_name })}
             </p>
             <p className="text-sm text-gray-500 mt-0.5">
-              Hai risposto:{' '}
+              {t('guest.rsvp.done.answered')}{' '}
               <span className="font-medium">
                 <span className="flex items-center gap-1">
-                  {status === 'yes' ? <><CelebrationIcon size={14} /> Ci sarò</>
-                   : status === 'maybe' ? <><HelpCircle className="w-3.5 h-3.5" /> Forse</>
-                   : <><Frown className="w-3.5 h-3.5" /> Non vengo</>}
+                  {status === 'yes' ? <><CelebrationIcon size={14} /> {t('guest.rsvp.done.yes')}</>
+                   : status === 'maybe' ? <><HelpCircle className="w-3.5 h-3.5" /> {t('guest.rsvp.done.maybe')}</>
+                   : <><Frown className="w-3.5 h-3.5" /> {t('guest.rsvp.done.no')}</>}
                 </span>
               </span>
             </p>
@@ -262,21 +266,22 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
               partyTime: eventData.party_time,
               location: eventData.address || eventData.location,
               inviteUrl: window.location.href,
+              t,
             })}
             className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-salvia bg-salvia/10 border border-salvia/40 rounded-2xl hover:bg-salvia/20 transition-colors"
           >
             <CalendarPlus className="w-4 h-4" />
-            Aggiungi al calendario
+            {t('guest.rsvp.done.calendar')}
           </button>
         )}
         {status === 'no' && (
           <p className="text-sm text-gray-500 bg-cipria/20 border border-cipria/30 rounded-2xl px-4 py-3 leading-relaxed">
-            Ci dispiace che non potrai esserci! Se cambi idea, torna qui e conferma la tua presenza.
+            {t('guest.rsvp.done.no_msg')}
           </p>
         )}
         {status === 'maybe' && (
           <p className="text-sm text-gray-500 bg-cipria/20 border border-cipria/30 rounded-2xl px-4 py-3 leading-relaxed">
-            Capita di essere indecisi! Quando hai le idee più chiare, torna qui e aggiorna la tua risposta, speriamo di vederti!
+            {t('guest.rsvp.done.maybe_msg')}
           </p>
         )}
       </div>
@@ -287,9 +292,9 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
     return (
       <div className="bg-avorio rounded-3xl border border-avorio-dark p-6 text-center space-y-2">
         <Lock className="w-6 h-6 text-gray-400 mx-auto" />
-        <p className="font-display font-semibold text-gray-700">Le prenotazioni sono chiuse</p>
+        <p className="font-display font-semibold text-gray-700">{t('guest.rsvp.closed.title')}</p>
         <p className="text-sm text-gray-400 leading-relaxed">
-          Se non hai fatto in tempo, non preoccuparti! Contatta direttamente chi organizza la festa, sarà felice di sentirti!
+          {t('guest.rsvp.closed.body')}
         </p>
       </div>
     )
@@ -306,10 +311,10 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
             <span className="text-xl flex-shrink-0">↩️</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-700 group-hover:text-salvia transition-colors">
-                Hai già risposto da un altro dispositivo?
+                {t('guest.rsvp.prompt.recover_title')}
               </p>
               <p className="text-xs text-gray-400 mt-0.5">
-                Inserisci il tuo nome per ritrovare la tua risposta
+                {t('guest.rsvp.prompt.recover_subtitle')}
               </p>
             </div>
             <span className="text-gray-300 group-hover:text-salvia transition-colors text-lg flex-shrink-0">›</span>
@@ -321,17 +326,17 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
               <WaveIcon size={26} />
             </div>
             <h2 className="font-display font-bold text-gray-900 text-lg leading-snug">
-              Sei invitato al compleanno di {eventData?.child_name}!
+              {t('guest.rsvp.prompt.title', { name: eventData?.child_name })}
             </h2>
           </div>
           <p className="text-sm text-gray-600 leading-relaxed">
-            Ci farebbe molto piacere festeggiare insieme a te — facci sapere se riesci a esserci.
+            {t('guest.rsvp.prompt.body')}
           </p>
           <button
             onClick={() => setStep('form')}
             className="btn-primary w-full text-sm py-3"
           >
-            Conferma la tua presenza
+            {t('guest.rsvp.prompt.btn')}
           </button>
         </div>
       </div>
@@ -340,15 +345,15 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
 
   return (
     <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-4 animate-fade-in">
-      <h3 className="font-display font-bold text-gray-900">La tua risposta</h3>
+      <h3 className="font-display font-bold text-gray-900">{t('guest.rsvp.form.title')}</h3>
 
       {/* Nome bambino + extra bambini */}
       <div className="space-y-2">
-        <label className="label">Nome del bambino *</label>
+        <label className="label">{t('guest.rsvp.form.child_name.label')}</label>
         <input
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
-          placeholder="es. Giulia"
+          placeholder={t('guest.rsvp.form.child_name.placeholder')}
           className="input"
         />
         {extraChildren.map((name, i) => (
@@ -361,7 +366,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
                 next[i] = e.target.value
                 setExtraChildren(next)
               }}
-              placeholder="Nome bambino"
+              placeholder={t('guest.rsvp.form.extra_child.placeholder')}
               className="input text-sm py-2 flex-1"
             />
             <button
@@ -378,17 +383,17 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           onClick={() => setExtraChildren([...extraChildren, ''])}
           className="text-sm text-salvia hover:text-salvia/80 font-medium"
         >
-          + Aggiungi bambino
+          {t('guest.rsvp.form.add_child')}
         </button>
       </div>
 
       {/* Nome genitore + extra adulti */}
       <div className="space-y-2">
-        <label className="label">Il tuo nome (genitore) *</label>
+        <label className="label">{t('guest.rsvp.form.parent_name.label')}</label>
         <input
           value={parentName}
           onChange={(e) => setParentName(e.target.value)}
-          placeholder="es. Marco Rossi"
+          placeholder={t('guest.rsvp.form.parent_name.placeholder')}
           className="input"
         />
         {extraAdults.map((name, i) => (
@@ -401,7 +406,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
                 next[i] = e.target.value
                 setExtraAdults(next)
               }}
-              placeholder="Nome adulto"
+              placeholder={t('guest.rsvp.form.extra_adult.placeholder')}
               className="input text-sm py-2 flex-1"
             />
             <button
@@ -418,12 +423,12 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           onClick={() => setExtraAdults([...extraAdults, ''])}
           className="text-sm text-salvia hover:text-salvia/80 font-medium"
         >
-          + Aggiungi adulto
+          {t('guest.rsvp.form.add_adult')}
         </button>
       </div>
 
       <div>
-        <label className="label">Parteciperai?</label>
+        <label className="label">{t('guest.rsvp.form.status.label')}</label>
         <RSVPSelector value={status} onChange={setStatus} />
       </div>
 
@@ -436,7 +441,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
       <div className="flex gap-3">
         {existingRsvp && (
           <button onClick={() => setStep('done')} className="flex-1 btn-outline text-sm py-2.5">
-            Annulla
+            {t('guest.rsvp.form.cancel')}
           </button>
         )}
         <button
@@ -444,7 +449,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           disabled={!guestName.trim() || !parentName.trim() || !status || loading}
           className="flex-1 btn-primary text-sm py-2.5"
         >
-          {loading ? 'Salvo...' : 'Conferma risposta'}
+          {loading ? t('guest.rsvp.form.loading') : t('guest.rsvp.form.submit')}
         </button>
       </div>
     </div>
@@ -455,6 +460,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
 export default function GuestWishlistPage() {
   const { guestToken } = useParams()
   const [searchParams] = useSearchParams()
+  const { t, i18n } = useTranslation()
   const isPreview = searchParams.get('preview') === '1'
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -522,7 +528,7 @@ export default function GuestWishlistPage() {
         if (reservedByMe.length > 0) setMyReservations(reservedByMe)
       }
     } catch {
-      setError('Lista non trovata o link non valido.')
+      setError(t('guest.error.not_found'))
     } finally {
       setLoading(false)
     }
@@ -559,9 +565,9 @@ export default function GuestWishlistPage() {
       setKeyLinked(true)
     } catch (e) {
       if (e?.response?.status === 404) {
-        setKeyError('Codice non trovato. Controlla di averlo inserito correttamente.')
+        setKeyError(t('guest.key.prompt.error_notfound'))
       } else {
-        setKeyError('Errore. Riprova.')
+        setKeyError(t('guest.key.prompt.error_generic'))
       }
     } finally {
       setKeyLoading(false)
@@ -669,12 +675,12 @@ export default function GuestWishlistPage() {
       {/* Banner anteprima */}
       {isPreview && (
         <div className="sticky top-0 z-40 bg-salvia text-white text-sm flex items-center justify-between px-4 py-2.5 shadow-md">
-          <span>Stai visualizzando l'anteprima come ospite</span>
+          <span>{t('guest.preview.banner')}</span>
           <button
             onClick={() => window.close()}
             className="font-medium underline hover:no-underline ml-4 whitespace-nowrap"
           >
-            ← Chiudi anteprima
+            {t('guest.preview.close')}
           </button>
         </div>
       )}
@@ -694,7 +700,7 @@ export default function GuestWishlistPage() {
             }
           </div>
           <h1 className="font-display text-3xl font-bold text-gray-900 mb-2">
-            Compleanno di {event.child_name}!
+            {t('guest.header.title', { name: event.child_name })}
           </h1>
 
           <div className="flex flex-col items-center gap-2 text-sm text-gray-500 mb-4">
@@ -742,7 +748,7 @@ export default function GuestWishlistPage() {
           {/* Confirmed count — visible to guests, cliccabile */}
           {rsvpYesCount > 0 && (
             <p className="text-sm text-gray-500 mt-1 mb-2 flex items-center justify-center gap-1.5">
-              Guarda chi ci sarà al compleanno <BalloonIcon size={18} />
+              {t('guest.header.rsvp_hint')} <BalloonIcon size={18} />
             </p>
           )}
           <button
@@ -751,8 +757,8 @@ export default function GuestWishlistPage() {
           >
             <Users className="w-4 h-4" />
             {rsvpYesCount > 0
-              ? `${totalAdults + totalChildren} confermati · ${totalAdults} adulti${totalChildren > 0 ? ` · ${totalChildren} bambini` : ''}`
-              : 'Nessuna conferma ancora'}
+              ? `${totalAdults + totalChildren} ${t('guest.rsvp_modal.adults_other')} · ${totalAdults} ${totalAdults === 1 ? t('guest.rsvp_modal.adults_one') : t('guest.rsvp_modal.adults_other')}${totalChildren > 0 ? ` · ${totalChildren} ${totalChildren === 1 ? t('guest.rsvp_modal.children_one') : t('guest.rsvp_modal.children_other')}` : ''}`
+              : t('guest.header.no_confirm')}
             {rsvpYesCount > 0 && <span className="text-green-500 text-xs ml-1">›</span>}
           </button>
 
@@ -784,9 +790,9 @@ export default function GuestWishlistPage() {
         {myRsvp && !userKey && !keyPromptDismissed && !keyLinked && (
           <div className="bg-avorio rounded-2xl border border-avorio-dark p-4 space-y-3">
             <div>
-              <p className="text-sm font-semibold text-gray-700">Vuoi ritrovare questo invito in futuro?</p>
+              <p className="text-sm font-semibold text-gray-700">{t('guest.key.prompt.title')}</p>
               <p className="text-xs text-gray-400 mt-0.5">
-                Se hai già un codice Piky, inseriscilo qui per salvare questo invito e ritrovarlo sempre.
+                {t('guest.key.prompt.body')}
               </p>
             </div>
             <div className="flex gap-2">
@@ -794,7 +800,7 @@ export default function GuestWishlistPage() {
                 type="text"
                 value={keyInput}
                 onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
-                placeholder="Es. MARCO-7X2Q"
+                placeholder={t('guest.key.prompt.placeholder')}
                 className="input flex-1 font-mono tracking-wider text-sm py-2"
                 onKeyDown={(e) => e.key === 'Enter' && handleLinkKey()}
               />
@@ -803,7 +809,7 @@ export default function GuestWishlistPage() {
                 disabled={!keyInput.trim() || keyLoading}
                 className="btn-primary px-4 py-2 text-sm whitespace-nowrap"
               >
-                {keyLoading ? '...' : 'Collega'}
+                {keyLoading ? '...' : t('guest.key.prompt.btn')}
               </button>
             </div>
             {keyError && <p className="text-xs text-red-500">{keyError}</p>}
@@ -811,29 +817,26 @@ export default function GuestWishlistPage() {
               onClick={() => setKeyPromptDismissed(true)}
               className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
-              Non ora
+              {t('guest.key.prompt.dismiss')}
             </button>
           </div>
         )}
 
         {keyLinked && (
           <div className="bg-salvia/10 border border-salvia/30 rounded-2xl p-3 text-center">
-            <p className="text-sm text-salvia font-semibold">✓ Invito collegato al tuo codice Piky!</p>
-            <p className="text-xs text-gray-500 mt-0.5">Lo troverai nella home dell'app.</p>
+            <p className="text-sm text-salvia font-semibold">{t('guest.key.linked.title')}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('guest.key.linked.body')}</p>
           </div>
         )}
 
         {/* ── Welcome / invitation message — seconda parte ─────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark px-6 py-4 space-y-3">
-          <p className="text-sm text-gray-600 leading-relaxed">
-            Il regalo più bello per{' '}
-            <span className="font-semibold text-gray-800">{event.child_name}</span>{' '}
-            sarà la tua presenza. Ma se non resisti e vuoi esaudire un suo piccolo desiderio,
-            qui trovi la lista: ogni regalo è in esclusiva, nessun doppione garantito!
-          </p>
+          <p className="text-sm text-gray-600 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: t('guest.welcome.body', { name: event.child_name }) }}
+          />
           <div className="flex items-center gap-2">
             <BalloonIcon size={18} />
-            <span className="text-sm font-semibold text-salvia">A presto!</span>
+            <span className="text-sm font-semibold text-salvia">{t('guest.welcome.closing')}</span>
           </div>
         </div>
 
@@ -845,9 +848,9 @@ export default function GuestWishlistPage() {
               <div className="flex-1">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-medium text-salvia uppercase tracking-wide mb-0.5">Regalo collettivo</p>
+                    <p className="text-xs font-medium text-salvia uppercase tracking-wide mb-0.5">{t('guest.collective.label')}</p>
                     <p className="font-display font-bold text-gray-900 text-lg leading-tight">
-                      {event.collective_description || 'Regalo di gruppo'}
+                      {event.collective_description || t('guest.collective.default_title')}
                     </p>
                   </div>
                   {myCollectiveTotal > 0 && (
@@ -860,13 +863,12 @@ export default function GuestWishlistPage() {
                   )}
                 </div>
                 {myCollectiveTotal > 0 ? (
-                  <p className="text-sm text-gray-600 mt-0.5 mb-3">
-                    Hai contribuito con <span className="font-semibold text-salvia">€{formatEur(myCollectiveTotal)}</span>
-                    {myCollectiveContributions.length > 1 && ` (${myCollectiveContributions.length} versamenti)`}
-                  </p>
+                  <p className="text-sm text-gray-600 mt-0.5 mb-3"
+                    dangerouslySetInnerHTML={{ __html: t('guest.collective.my_contrib', { amount: formatEur(myCollectiveTotal) }) + (myCollectiveContributions.length > 1 ? ` ${t('guest.collective.payments_count', { count: myCollectiveContributions.length })}` : '') }}
+                  />
                 ) : (
                   <p className="text-sm text-gray-500 mt-1 mb-3">
-                    Unisciti agli altri invitati per completare la raccolta
+                    {t('guest.collective.join_hint')}
                   </p>
                 )}
                 {(event.collective_amount > 0 || event.collective_goal > 0) && (
@@ -889,14 +891,14 @@ export default function GuestWishlistPage() {
                     href={`${baseUrl}/collettivo/${event.collective_token}`}
                     className="btn-primary text-sm py-2 px-4 inline-block"
                   >
-                    Contribuisci
+                    {t('guest.collective.contribute_btn')}
                   </a>
                 ) : (
                   <a
                     href={`${baseUrl}/collettivo/${event.collective_token}`}
                     className="text-xs text-gray-400 hover:text-salvia transition-colors"
                   >
-                    + Aggiungi un altro contributo
+                    {t('guest.collective.add_more')}
                   </a>
                 )}
               </div>
@@ -908,10 +910,10 @@ export default function GuestWishlistPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-bold text-xl text-gray-900 flex items-center gap-2">
-              Lista desideri <GiftIcon size={22} />
+              {t('guest.wishlist.title')} <GiftIcon size={22} />
             </h2>
             <span className="text-sm text-gray-400">
-              {giftsWithMyFlag.filter((g) => !g.reserved_by).length} disponibili
+              {t('guest.wishlist.available', { count: giftsWithMyFlag.filter((g) => !g.reserved_by).length })}
             </span>
           </div>
 
@@ -938,7 +940,7 @@ export default function GuestWishlistPage() {
                 <>
                   <div className="flex items-center gap-3 text-xs text-gray-400 font-medium uppercase tracking-wide">
                     <div className="flex-1 h-px bg-gray-200" />
-                    Già prenotati
+                    {t('guest.wishlist.reserved_separator')}
                     <div className="flex-1 h-px bg-gray-200" />
                   </div>
                   {giftsWithMyFlag
@@ -956,7 +958,7 @@ export default function GuestWishlistPage() {
           ) : (
             <div className="card text-center py-12 text-gray-400">
               <Gift className="w-10 h-10 mx-auto mb-3 text-gray-200" />
-              <p>Nessun regalo ancora — controlla più tardi</p>
+              <p>{t('guest.wishlist.empty')}</p>
             </div>
           )}
         </div>
@@ -975,13 +977,13 @@ export default function GuestWishlistPage() {
                 await navigator.share(shareData)
               } else {
                 await navigator.clipboard.writeText(window.location.origin)
-                alert('Link copiato!')
+                alert(t('guest.share.copied_alert'))
               }
             }}
             className="flex-1 inline-flex items-center justify-center gap-2 bg-salvia text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia-dark transition-colors duration-200 text-sm"
           >
             <Share2 className="w-4 h-4" />
-            Condividi
+            {t('guest.share.btn')}
           </button>
         </div>
 
@@ -1000,7 +1002,7 @@ export default function GuestWishlistPage() {
           >
             {/* Header fisso */}
             <div className="flex items-center justify-between px-6 pt-6 pb-3 flex-shrink-0">
-              <h3 className="font-display font-bold text-gray-900 text-lg">Chi partecipa 🎉</h3>
+              <h3 className="font-display font-bold text-gray-900 text-lg">{t('guest.rsvp_modal.title')}</h3>
               <button onClick={() => setShowRsvpModal(false)} className="text-gray-300 hover:text-gray-500 text-xl leading-none">✕</button>
             </div>
             {/* Lista scrollabile */}
@@ -1017,8 +1019,8 @@ export default function GuestWishlistPage() {
                     </div>
                     <span className="text-xs text-gray-400">
                       {[
-                        r.adults_count > 0 && `+${r.adults_count} ${r.adults_count === 1 ? 'adulto' : 'adulti'}`,
-                        r.children_count > 1 && `+${r.children_count - 1} ${r.children_count - 1 === 1 ? 'bambino' : 'bambini'}`,
+                        r.adults_count > 0 && `+${r.adults_count} ${r.adults_count === 1 ? t('guest.rsvp_modal.adults_one') : t('guest.rsvp_modal.adults_other')}`,
+                        r.children_count > 1 && `+${r.children_count - 1} ${r.children_count - 1 === 1 ? t('guest.rsvp_modal.children_one') : t('guest.rsvp_modal.children_other')}`,
                       ].filter(Boolean).join(' · ')}
                     </span>
                   </li>
@@ -1026,7 +1028,7 @@ export default function GuestWishlistPage() {
             </ul>
             {/* Footer fisso */}
             <p className="text-xs text-gray-400 text-center px-6 py-4 flex-shrink-0">
-              {totalAdults + totalChildren} confermati · {totalAdults} adulti{totalChildren > 0 ? ` · ${totalChildren} bambini` : ''}
+              {totalAdults + totalChildren} {t('guest.rsvp_modal.adults_other')} · {totalAdults} {totalAdults === 1 ? t('guest.rsvp_modal.adults_one') : t('guest.rsvp_modal.adults_other')}{totalChildren > 0 ? ` · ${totalChildren} ${totalChildren === 1 ? t('guest.rsvp_modal.children_one') : t('guest.rsvp_modal.children_other')}` : ''}
             </p>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import GiftIcon from '../components/GiftIcon'
 
@@ -7,6 +8,7 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+  const { t } = useTranslation()
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -20,17 +22,17 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (password.length < 6) {
-      setErrorMsg('La password deve avere almeno 6 caratteri.')
+      setErrorMsg(t('reset.error.too_short'))
       return
     }
     if (password !== confirm) {
-      setErrorMsg('Le password non coincidono.')
+      setErrorMsg(t('reset.error.mismatch'))
       return
     }
     setStatus('saving')
     const { error } = await supabase.auth.updateUser({ password })
     if (error) {
-      setErrorMsg(error.message || 'Errore nel salvataggio.')
+      setErrorMsg(error.message || t('reset.error.save'))
       setStatus('ready')
     } else {
       setStatus('success')
@@ -43,46 +45,46 @@ export default function ResetPasswordPage() {
         <div className="flex justify-center mb-4">
           <GiftIcon size={40} />
         </div>
-        <p className="font-display text-xl font-bold text-salvia mb-4">Piky</p>
+        <p className="font-display text-xl font-bold text-salvia mb-4">{t('reset.logo')}</p>
 
         {status === 'waiting' && (
           <>
             <p className="text-2xl mb-3">⏳</p>
-            <p className="font-semibold text-gray-800">Verifica in corso…</p>
+            <p className="font-semibold text-gray-800">{t('reset.waiting.title')}</p>
           </>
         )}
 
         {(status === 'ready' || status === 'saving') && (
           <>
-            <p className="font-semibold text-gray-900 text-lg mb-1">Nuova password</p>
-            <p className="text-sm text-gray-500 mb-5">Scegli una password di almeno 6 caratteri.</p>
+            <p className="font-semibold text-gray-900 text-lg mb-1">{t('reset.ready.title')}</p>
+            <p className="text-sm text-gray-500 mb-5">{t('reset.ready.subtitle')}</p>
             <form onSubmit={handleSubmit} className="space-y-3 text-left">
               <div>
-                <label className="label">Nuova password</label>
+                <label className="label">{t('reset.ready.new_label')}</label>
                 <input
                   type="password"
                   className="input"
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setErrorMsg('') }}
-                  placeholder="Almeno 6 caratteri"
+                  placeholder={t('reset.ready.new_placeholder')}
                   required
                   autoFocus
                 />
               </div>
               <div>
-                <label className="label">Conferma password</label>
+                <label className="label">{t('reset.ready.confirm_label')}</label>
                 <input
                   type="password"
                   className="input"
                   value={confirm}
                   onChange={(e) => { setConfirm(e.target.value); setErrorMsg('') }}
-                  placeholder="Ripeti la password"
+                  placeholder={t('reset.ready.confirm_placeholder')}
                   required
                 />
               </div>
               {errorMsg && <p className="text-sm text-red-500">{errorMsg}</p>}
               <button type="submit" disabled={status === 'saving'} className="btn-primary w-full py-3">
-                {status === 'saving' ? 'Salvataggio…' : 'Salva nuova password →'}
+                {status === 'saving' ? t('reset.saving') : t('reset.submit_btn')}
               </button>
             </form>
           </>
@@ -91,16 +93,16 @@ export default function ResetPasswordPage() {
         {status === 'success' && (
           <>
             <p className="text-4xl mb-3">🎉</p>
-            <p className="font-semibold text-gray-900 text-lg mb-2">Password aggiornata!</p>
-            <p className="text-sm text-gray-500">Torna all'app e accedi con la nuova password.</p>
+            <p className="font-semibold text-gray-900 text-lg mb-2">{t('reset.success.title')}</p>
+            <p className="text-sm text-gray-500">{t('reset.success.body')}</p>
           </>
         )}
 
         {status === 'error' && (
           <>
             <p className="text-3xl mb-3">⚠️</p>
-            <p className="font-semibold text-gray-800 mb-1">Link non valido</p>
-            <p className="text-sm text-gray-500">Il link è scaduto o già usato. Torna all'app e richiedi un nuovo link.</p>
+            <p className="font-semibold text-gray-800 mb-1">{t('reset.error_state.title')}</p>
+            <p className="text-sm text-gray-500">{t('reset.error_state.body')}</p>
           </>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../hooks/useAuth'
 import GiftIcon from './GiftIcon'
 
@@ -12,6 +13,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
   const [registered, setRegistered] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const { signIn, signUp, resetPassword } = useAuth()
+  const { t } = useTranslation()
 
   if (!isOpen) return null
 
@@ -34,7 +36,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
     setError('')
     const { error: err } = await resetPassword(email.trim())
     if (err) {
-      setError('Errore nell\'invio. Controlla l\'email inserita.')
+      setError(t('auth.forgot.error'))
     } else {
       setResetSent(true)
     }
@@ -49,23 +51,23 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
     if (mode === 'login') {
       const { error: err } = await signIn(email.trim(), password)
       if (err) {
-        setError('Email o password non corretti.')
+        setError(t('auth.form.error.login'))
       } else {
         onSuccess?.()
         onClose()
       }
     } else {
       if (password.length < 6) {
-        setError('La password deve avere almeno 6 caratteri.')
+        setError(t('auth.form.error.short_pwd'))
         setLoading(false)
         return
       }
       const { error: err } = await signUp(email.trim(), password)
       if (err) {
         if (err.message?.includes('already registered')) {
-          setError('Email già registrata. Prova ad accedere.')
+          setError(t('auth.form.error.already_registered'))
         } else {
-          setError(err.message || 'Errore nella registrazione.')
+          setError(err.message || t('auth.form.error.register_generic'))
         }
       } else {
         setRegistered(true)
@@ -83,7 +85,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
             <div className="flex items-center gap-2">
               <GiftIcon size={22} />
               <h2 className="font-display text-lg font-bold text-gray-900">
-                {mode === 'login' ? 'Accedi' : 'Crea account'}
+                {mode === 'login' ? t('auth.tab.login') : t('auth.title.register')}
               </h2>
             </div>
             <button
@@ -101,83 +103,83 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
               onClick={() => switchMode('login')}
               className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${mode === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
             >
-              Accedi
+              {t('auth.tab.login')}
             </button>
             <button
               type="button"
               onClick={() => switchMode('register')}
               className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${mode === 'register' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
             >
-              Registrati
+              {t('auth.tab.register')}
             </button>
           </div>
 
           {registered ? (
             <div className="text-center py-4">
               <p className="text-2xl mb-3">📬</p>
-              <p className="font-semibold text-gray-900 mb-1">Controlla la tua email</p>
-              <p className="text-sm text-gray-500">
-                Abbiamo inviato un link di conferma a <strong>{email}</strong>. Clicca il link per attivare il tuo account.
-              </p>
+              <p className="font-semibold text-gray-900 mb-1">{t('auth.registered.title')}</p>
+              <p className="text-sm text-gray-500"
+                dangerouslySetInnerHTML={{ __html: t('auth.registered.body', { email }) }}
+              />
             </div>
           ) : mode === 'forgot' ? (
             resetSent ? (
               <div className="text-center py-4">
                 <p className="text-2xl mb-3">📬</p>
-                <p className="font-semibold text-gray-900 mb-1">Email inviata!</p>
-                <p className="text-sm text-gray-500">
-                  Abbiamo inviato un link a <strong>{email}</strong>. Controlla anche la cartella spam.
-                </p>
+                <p className="font-semibold text-gray-900 mb-1">{t('auth.forgot.sent.title')}</p>
+                <p className="text-sm text-gray-500"
+                  dangerouslySetInnerHTML={{ __html: t('auth.forgot.sent.body', { email }) }}
+                />
                 <button onClick={() => switchMode('login')} className="mt-4 text-sm text-salvia font-medium hover:underline">
-                  Torna al login
+                  {t('auth.forgot.sent.back')}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleForgotPassword} className="space-y-4">
-                <p className="text-sm text-gray-500">Inserisci la tua email e ti mandiamo un link per reimpostare la password.</p>
+                <p className="text-sm text-gray-500">{t('auth.forgot.hint')}</p>
                 <div>
-                  <label className="label">Email</label>
+                  <label className="label">{t('auth.forgot.email.label')}</label>
                   <input
                     type="email"
                     className="input"
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setError('') }}
-                    placeholder="la-tua@email.it"
+                    placeholder={t('auth.forgot.email.placeholder')}
                     required
                     autoFocus
                   />
                 </div>
                 {error && <p className="text-sm text-red-500">{error}</p>}
                 <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-                  {loading ? 'Invio…' : 'Invia link di recupero →'}
+                  {loading ? t('auth.forgot.loading') : t('auth.forgot.submit_btn')}
                 </button>
                 <button type="button" onClick={() => switchMode('login')} className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors">
-                  Torna al login
+                  {t('auth.forgot.back')}
                 </button>
               </form>
             )
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="label">Email</label>
+                <label className="label">{t('auth.form.email.label')}</label>
                 <input
                   type="email"
                   className="input"
                   value={email}
                   onChange={(e) => { setEmail(e.target.value); setError('') }}
-                  placeholder="la-tua@email.it"
+                  placeholder={t('auth.form.email.placeholder')}
                   required
                   autoFocus
                 />
               </div>
               <div>
-                <label className="label">Password</label>
+                <label className="label">{t('auth.form.password.label')}</label>
                 <input
                   type="password"
                   className="input"
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setError('') }}
-                  placeholder={mode === 'register' ? 'Almeno 6 caratteri' : '••••••••'}
+                  placeholder={mode === 'register' ? t('auth.form.password.placeholder.register') : t('auth.form.password.placeholder.login')}
                   required
                 />
               </div>
@@ -190,13 +192,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
                 className="btn-primary w-full py-3"
               >
                 {loading
-                  ? (mode === 'login' ? 'Accesso...' : 'Registrazione...')
-                  : (mode === 'login' ? 'Accedi →' : 'Crea account →')}
+                  ? (mode === 'login' ? t('auth.form.loading.login') : t('auth.form.loading.register'))
+                  : (mode === 'login' ? t('auth.form.submit.login') : t('auth.form.submit.register'))}
               </button>
 
               {mode === 'login' && (
                 <button type="button" onClick={() => switchMode('forgot')} className="w-full text-xs text-gray-400 hover:text-salvia transition-colors">
-                  Hai dimenticato la password?
+                  {t('auth.form.forgot_link')}
                 </button>
               )}
             </form>
