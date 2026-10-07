@@ -18,6 +18,7 @@ api.interceptors.request.use(async (config) => {
 
 export const createEvent = (data) => api.post('/events', data)
 export const getMyEvents = () => api.get('/events/mine')
+export const deleteAccount = () => api.delete('/account')
 export const getEventByParentToken = (token) => api.get(`/events/parent/${token}`)
 export const getEventByGuestToken = (token) => api.get(`/events/guest/${token}`)
 export const getEventByCollectiveToken = (token) => api.get(`/events/collective/${token}`)

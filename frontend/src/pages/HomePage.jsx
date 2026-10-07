@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, RefreshCw, Calendar, MapPin, LogIn, LogOut } from 'lucide-react'
-import { getMyEvents } from '../lib/api'
+import { getMyEvents, deleteAccount } from '../lib/api'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -100,6 +100,8 @@ export default function HomePage() {
   const [authModalMode, setAuthModalMode] = useState('login')
   const [pendingDelete, setPendingDelete] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   const openAuth = (mode = 'login') => {
     setAuthModalMode(mode)
@@ -122,6 +124,17 @@ export default function HomePage() {
   useEffect(() => {
     setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
   }, [])
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true)
+    try {
+      await deleteAccount()
+      await signOut()
+    } catch {
+      setDeletingAccount(false)
+      setShowDeleteAccount(false)
+    }
+  }
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -188,17 +201,34 @@ export default function HomePage() {
           {/* Box account */}
           <div className="max-w-md mx-auto mt-6">
             {user ? (
-              <div className="flex items-center justify-between bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-2 text-sm text-gray-600 min-w-0">
-                  <LogIn className="w-4 h-4 text-salvia flex-shrink-0" />
-                  <span className="truncate">{user.email}</span>
+              <div className="bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-gray-600 min-w-0">
+                    <LogIn className="w-4 h-4 text-salvia flex-shrink-0" />
+                    <span className="truncate">{user.email}</span>
+                  </div>
+                  <button
+                    onClick={signOut}
+                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 ml-2"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Esci
+                  </button>
                 </div>
-                <button
-                  onClick={signOut}
-                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 ml-2"
-                >
-                  <LogOut className="w-3.5 h-3.5" /> Esci
-                </button>
+                {showDeleteAccount ? (
+                  <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
+                    <p className="text-xs text-red-500">Elimina account e tutti gli eventi?</p>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button onClick={() => setShowDeleteAccount(false)} className="text-xs text-gray-400 hover:text-gray-600 px-2.5 py-1 rounded-lg bg-gray-100 transition-colors">Annulla</button>
+                      <button onClick={handleDeleteAccount} disabled={deletingAccount} className="text-xs text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-colors disabled:opacity-60">
+                        {deletingAccount ? 'Eliminando…' : 'Sì, elimina'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => setShowDeleteAccount(true)} className="mt-1.5 text-xs text-gray-300 hover:text-red-400 transition-colors">
+                    Elimina account
+                  </button>
+                )}
               </div>
             ) : (
               <div className="flex items-center gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-3 shadow-sm">

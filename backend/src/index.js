@@ -10,6 +10,7 @@ import paymentsRouter from './routes/payments.js'
 import userKeysRouter from './routes/userkeys.js'
 import adminRouter from './routes/admin.js'
 import pushRouter from './routes/push.js'
+import accountRouter from './routes/account.js'
 import { initVapid, sendClosingPushes, sendPartyFollowupPushes } from './services/push.js'
 import { sendReminders, sendClosingSummaries, sendWeeklyAdminReport } from './services/email.js'
 import { deleteExpiredEvents } from './services/retention.js'
@@ -54,6 +55,7 @@ app.use('/api/payments', paymentsRouter)
 app.use('/api/user-keys', userKeysRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/push', pushRouter)
+app.use('/api/account', accountRouter)
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }))
 
