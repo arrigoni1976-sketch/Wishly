@@ -23,13 +23,21 @@ export default function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-3">
-          <button
-            onClick={toggleLang}
-            className="w-9 h-9 flex items-center justify-center rounded-xl border border-avorio-dark text-gray-500 hover:text-salvia hover:border-salvia transition-colors text-xs font-semibold"
-            title={i18n.language === 'it' ? 'Switch to English' : 'Passa all\'italiano'}
-          >
-            {i18n.language === 'it' ? '🇬🇧' : '🇮🇹'}
-          </button>
+          <div className="flex items-center gap-0 rounded-xl border border-avorio-dark overflow-hidden text-xs font-semibold">
+            <button
+              onClick={() => { i18n.changeLanguage('it'); localStorage.setItem('piky_lang', 'it') }}
+              className={`px-3 py-1.5 transition-colors ${i18n.language === 'it' ? 'bg-salvia text-avorio' : 'text-salvia/60 hover:text-salvia'}`}
+            >
+              IT
+            </button>
+            <span className="w-px h-4 bg-avorio-dark" />
+            <button
+              onClick={() => { i18n.changeLanguage('en'); localStorage.setItem('piky_lang', 'en') }}
+              className={`px-3 py-1.5 transition-colors ${i18n.language === 'en' ? 'bg-salvia text-avorio' : 'text-salvia/60 hover:text-salvia'}`}
+            >
+              EN
+            </button>
+          </div>
           {isHome && (
             <Link
               to="/crea"
