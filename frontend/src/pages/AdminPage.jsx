@@ -4,8 +4,8 @@ import { it } from 'date-fns/locale'
 import { RefreshCw, Gift, Users, Calendar, TrendingUp, Star, Eye, CheckCircle, Repeat2, Share2, Smartphone, Monitor, Clock, BarChart2, X, ChevronRight } from 'lucide-react'
 import api from '../lib/api'
 
-const getAdminStats = (key) => api.get(`/admin/stats?key=${encodeURIComponent(key)}`)
-const getEventDetail = (key, id) => api.get(`/admin/events/${id}?key=${encodeURIComponent(key)}`)
+const getAdminStats = (key) => api.get('/admin/stats', { headers: { 'x-admin-key': key } })
+const getEventDetail = (key, id) => api.get(`/admin/events/${id}`, { headers: { 'x-admin-key': key } })
 
 // ── Event detail panel ────────────────────────────────────────────────────────
 function EventDetailPanel({ eventId, adminKey, onClose }) {
