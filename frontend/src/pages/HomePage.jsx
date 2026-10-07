@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, RefreshCw, Calendar, MapPin, LogIn, LogOut } from 'lucide-react'
-import { getMyEvents, deleteAccount, deleteEvent } from '../lib/api'
+import { getMyEvents, deleteAccount, deleteEvent, removeUserKeyLink } from '../lib/api'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -124,6 +124,8 @@ export default function HomePage() {
     const updated = myInvites.filter((ev) => ev.guestToken !== guestToken)
     setMyInvites(updated)
     localStorage.setItem('piky_invites', JSON.stringify(updated))
+    const userKey = localStorage.getItem('piky_user_key')
+    if (userKey) removeUserKeyLink(userKey, guestToken).catch(() => {})
   }
 
   const HIDE_AFTER_DAYS = 60
