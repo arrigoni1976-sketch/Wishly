@@ -509,8 +509,8 @@ export default function HomePage() {
               <button
                 onClick={async () => {
                   const shareData = {
-                    title: 'Piky — Lista desideri per compleanni',
-                    text: t('home.hero.body1'),
+                    title: 'Piky',
+                    text: t('home.final_cta.share_text'),
                     url: `${window.location.origin}/scarica`,
                   }
                   if (navigator.share) {

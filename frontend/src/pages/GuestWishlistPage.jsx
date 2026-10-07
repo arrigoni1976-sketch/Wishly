@@ -969,9 +969,9 @@ export default function GuestWishlistPage() {
           <button
             onClick={async () => {
               const shareData = {
-                title: 'Piky — Lista desideri per compleanni',
-                text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
-                url: window.location.origin,
+                title: 'Piky',
+                text: t('home.final_cta.share_text'),
+                url: `${window.location.origin}/scarica`,
               }
               if (navigator.share) {
                 await navigator.share(shareData)
