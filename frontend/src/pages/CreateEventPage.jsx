@@ -6,6 +6,7 @@ import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
 import { createEvent, checkEmailQuota, createStripeCheckout } from '../lib/api'
+import { formatEur } from '../lib/format'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
 import AuthModal from '../components/AuthModal'
@@ -540,7 +541,7 @@ function StepConfirm({ data }) {
           <div className="pt-2 border-t border-avorio-dark">
             <span className="inline-flex items-center gap-1.5 text-sm font-medium text-salvia bg-salvia/10 px-3 py-1 rounded-full">
               <Gift className="w-3.5 h-3.5" />
-              {t('create.confirm.collective', { goal: data.collectiveGoal })}
+              {t('create.confirm.collective', { goal: formatEur(data.collectiveGoal) })}
             </span>
           </div>
         )}

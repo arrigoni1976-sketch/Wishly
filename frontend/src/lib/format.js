@@ -1,5 +1,10 @@
-const fmt = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-const fmtInt = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+const addThousands = (str) => str.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 
-export const formatEur = (amount) => fmt.format(parseFloat(amount) || 0)
-export const formatEurInt = (amount) => fmtInt.format(parseFloat(amount) || 0)
+export const formatEur = (amount) => {
+  const parts = (parseFloat(amount) || 0).toFixed(2).split('.')
+  return addThousands(parts[0]) + ',' + parts[1]
+}
+
+export const formatEurInt = (amount) => {
+  return addThousands(String(Math.round(parseFloat(amount) || 0)))
+}
