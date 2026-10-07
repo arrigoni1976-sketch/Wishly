@@ -41,7 +41,7 @@ export default function Navbar() {
           {isHome && (
             <Link
               to="/crea"
-              className="btn-primary text-sm py-2 px-5"
+              className="btn-primary text-xs py-1.5 px-4"
             >
               {t('nav.cta')}
             </Link>
