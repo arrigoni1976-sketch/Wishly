@@ -85,7 +85,7 @@ export async function getAdminStats() {
 
   // By month (last 6)
   // Monetizzazione: eventi per email (primo gratis, dal secondo €1,29)
-  const PRICE_PER_EVENT = 1.29
+  const PRICE_PER_EVENT = 1.99
   const emailCounts = {}
   ;(events || []).forEach(e => {
     const email = e.parent_email?.toLowerCase()
@@ -164,7 +164,7 @@ export async function getAdminStats() {
       organizersFromInvite,
     },
     monetization: {
-      paymentActive: false,
+      paymentActive: process.env.PAYMENT_ACTIVE === 'true',
       pricePerEvent: PRICE_PER_EVENT,
       returningUsers,
       additionalEvents,

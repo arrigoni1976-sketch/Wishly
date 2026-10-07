@@ -1,13 +1,25 @@
 import axios from 'axios'
+import { supabase } from './supabase'
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL || ''}/api`,
   headers: { 'Content-Type': 'application/json' },
 })
 
+api.interceptors.request.use(async (config) => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`
+  }
+  return config
+})
+
 // ─── Events ────────────────────────────────────────────────────────────────
 
 export const createEvent = (data) => api.post('/events', data)
+export const getMyEvents = () => api.get('/events/mine')
+export const deleteEvent = (parentToken) => api.delete(`/events/parent/${parentToken}`)
+export const deleteAccount = () => api.delete('/account')
 export const getEventByParentToken = (token) => api.get(`/events/parent/${token}`)
 export const getEventByGuestToken = (token) => api.get(`/events/guest/${token}`)
 export const getEventByCollectiveToken = (token) => api.get(`/events/collective/${token}`)
@@ -31,13 +43,12 @@ export const updateRsvp = (rsvpId, data, guestToken) => api.put(`/rsvp/${rsvpId}
 
 // ─── Collective gift ───────────────────────────────────────────────────────
 
-export const getContributions = (eventId) => api.get(`/events/${eventId}/contributions`)
 export const createContribution = (eventId, data) => api.post(`/events/${eventId}/contributions`, data)
 export const updateContribution = (eventId, cid, data) => api.put(`/events/${eventId}/contributions/${cid}`, data)
 export const confirmContribution = (eventId, cid, parentToken) => api.patch(`/events/${eventId}/contributions/${cid}/confirm`, { parentToken })
 export const initSatispay = (data) => api.post('/payments/satispay/init', data)
+export const createStripeCheckout = (data) => api.post('/payments/stripe/checkout', data)
 
-export const sendThankYouEmails = (eventId, data) => api.post(`/events/${eventId}/thank-you`, data)
 
 // ─── User keys ─────────────────────────────────────────────────────────────
 

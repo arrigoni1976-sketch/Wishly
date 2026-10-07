@@ -37,3 +37,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export function isValidEmail(value) {
   return typeof value === 'string' && EMAIL_RE.test(value.trim())
 }
+
+const fmtEur = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmtEurInt = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+
+export const formatEur = (amount) => fmtEur.format(parseFloat(amount) || 0)
+export const formatEurInt = (amount) => fmtEurInt.format(parseFloat(amount) || 0)

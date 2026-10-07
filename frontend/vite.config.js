@@ -16,9 +16,9 @@ export default defineConfig({
         globIgnores: ['icons/icon-1024x1024.png'],
       },
       manifest: {
-        name: 'Piky — Lista desideri',
+        name: 'Piky',
         short_name: 'Piky',
-        description: 'La wishlist condivisa per i compleanni dei bambini',
+        description: 'Organizza il compleanno del tuo bambino',
         theme_color: '#4A7A50',
         background_color: '#FAF7F2',
         display: 'standalone',

@@ -1,21 +1,35 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
-import { createEvent, addUserKeyLink, checkEmailQuota } from '../lib/api'
+import { createEvent, checkEmailQuota, createStripeCheckout } from '../lib/api'
+import { formatEur } from '../lib/format'
+import { useAuth } from '../hooks/useAuth'
+import { useTranslation } from 'react-i18next'
+import AuthModal from '../components/AuthModal'
 
 // ─── Monetizzazione ────────────────────────────────────────────────────────
-// Imposta su true quando vuoi attivare il pagamento per il secondo evento
 const PAYMENT_ACTIVE = false
-const PRICE_PER_EVENT = 1.29
+const PRICE_PER_EVENT = 1.99
 
-const STEPS = ['Info festa', 'Chi organizza', 'Regali', 'Conferma']
+// Internal routing keys (language-independent)
+const STEP_KEYS_LOGGED_IN = ['Info festa', 'Regali', 'Anteprima', 'Crea lista']
+const STEP_KEYS_GUEST     = ['Info festa', 'Chi organizza', 'Regali', 'Anteprima', 'Crea lista']
+
+const STEP_FIELDS_MAP = {
+  'Info festa':     ['childName', 'partyDate'],
+  'Chi organizza':  ['parentEmail'],
+  'Regali':         [],
+  'Anteprima':      [],
+  'Crea lista':     [],
+}
 
 // ─── DateInput: GG / MM / AAAA ────────────────────────────────────────────
 function DateInput({ value, onChange, onBlur }) {
+  const { t } = useTranslation()
   const split = (v) => {
     if (v && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
       const [yr, mo, dy] = v.split('-')
@@ -44,18 +58,18 @@ function DateInput({ value, onChange, onBlur }) {
 
   return (
     <div className="input flex items-center">
-      <input ref={dayRef} type="text" inputMode="numeric" placeholder="GG" maxLength={2}
+      <input ref={dayRef} type="text" inputMode="numeric" placeholder={t('create.step1.date.day')} maxLength={2}
         value={day}
         onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(v,month,year); if(v.length===2) mthRef.current?.focus() }}
         className="w-7 text-center bg-transparent outline-none" />
       <span className="text-gray-300 select-none mx-0.5">/</span>
-      <input ref={mthRef} type="text" inputMode="numeric" placeholder="MM" maxLength={2}
+      <input ref={mthRef} type="text" inputMode="numeric" placeholder={t('create.step1.date.month')} maxLength={2}
         value={month}
         onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(day,v,year); if(v.length===2) yrRef.current?.focus() }}
         onKeyDown={(e) => { if(e.key==='Backspace'&&!month) dayRef.current?.focus() }}
         className="w-7 text-center bg-transparent outline-none" />
       <span className="text-gray-300 select-none mx-0.5">/</span>
-      <input ref={yrRef} type="text" inputMode="numeric" placeholder="AAAA" maxLength={4}
+      <input ref={yrRef} type="text" inputMode="numeric" placeholder={t('create.step1.date.year')} maxLength={4}
         value={year}
         onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,4); update(day,month,v) }}
         onKeyDown={(e) => { if(e.key==='Backspace'&&!year) mthRef.current?.focus() }}
@@ -67,28 +81,29 @@ function DateInput({ value, onChange, onBlur }) {
 
 // ─── Step 1: Dettagli della festa ─────────────────────────────────────────
 function StepPartyInfo({ register, control, errors, watch, setValue }) {
+  const { t } = useTranslation()
   const validYear = (v) => {
     if (!v) return true
     const y = new Date(v).getFullYear()
-    return (y >= 1900 && y <= 2099) || 'Anno non valido'
+    return (y >= 1900 && y <= 2099) || t('create.step1.date.year_error')
   }
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          Chi festeggia?
+          {t('create.step1.title')}
         </h2>
-        <p className="text-gray-500 text-sm">Inserisci i dettagli del compleanno</p>
+        <p className="text-gray-500 text-sm">{t('create.step1.subtitle')}</p>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
-          <label className="label">Nome del festeggiato *</label>
+          <label className="label">{t('create.step1.name.label')}</label>
           <div className="flex gap-2">
             <input
-              {...register('childName', { required: 'Campo obbligatorio' })}
+              {...register('childName', { required: t('create.error.required') })}
               type="text"
-              placeholder="Es. Sofia"
+              placeholder={t('create.step1.name.placeholder')}
               className="input flex-1"
             />
             <div className="flex gap-1.5 flex-shrink-0">
@@ -122,8 +137,8 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
         </div>
 
         <div>
-          <label className="label">Data della festa *</label>
-          <Controller name="partyDate" control={control} rules={{ required: 'Campo obbligatorio', validate: validYear }}
+          <label className="label">{t('create.step1.date.label')}</label>
+          <Controller name="partyDate" control={control} rules={{ required: t('create.error.required'), validate: validYear }}
             render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
           {errors.partyDate && (
             <p className="text-xs text-red-500 mt-1">{errors.partyDate.message}</p>
@@ -131,35 +146,32 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
         </div>
 
         <div>
-          <label className="label">Orario</label>
-          <div className="relative">
+          <label className="label">{t('create.step1.time.label')}</label>
+          <div className="input relative flex items-center">
             <input
               {...register('partyTime')}
               type="time"
-              className="input"
-              style={!watch('partyTime') ? { color: 'transparent' } : {}}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-            {!watch('partyTime') && (
-              <span className="absolute inset-0 flex items-center px-3 text-gray-400 text-sm pointer-events-none">
-                Es. 16:00
-              </span>
-            )}
+            <span className={`text-sm pointer-events-none ${watch('partyTime') ? 'text-gray-800' : 'text-gray-400'}`}>
+              {watch('partyTime') || t('create.step1.time.placeholder')}
+            </span>
           </div>
         </div>
 
         <div>
-          <label className="label">Luogo</label>
+          <label className="label">{t('create.step1.location.label')}</label>
           <input
             {...register('location')}
             type="text"
-            placeholder="Es. Oratorio di Vercurago, Bar Centrale"
+            placeholder={t('create.step1.location.placeholder')}
             className="input"
           />
         </div>
 
         <div className="sm:col-span-2">
           <div className="flex items-center justify-between mb-1">
-            <label className="label mb-0">Aggiungi indirizzo</label>
+            <label className="label mb-0">{t('create.step1.address.label')}</label>
             {watch('address')?.trim() && (
               <a
                 href={`https://maps.google.com/?q=${encodeURIComponent(watch('address').trim())}`}
@@ -167,24 +179,24 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
                 rel="noopener noreferrer"
                 className="text-xs text-salvia hover:underline flex items-center gap-1"
               >
-                <MapPin className="w-3 h-3" /> Verifica su mappa →
+                <MapPin className="w-3 h-3" /> {t('create.step1.address.map_link')}
               </a>
             )}
           </div>
           <input
             {...register('address')}
             type="text"
-            placeholder="Es. Via Roma 12, Vercurago BG"
+            placeholder={t('create.step1.address.placeholder')}
             className="input"
           />
         </div>
 
         <div className="sm:col-span-2">
-          <label className="label">Note per gli invitati</label>
+          <label className="label">{t('create.step1.notes.label')}</label>
           <textarea
             {...register('notes')}
             rows={3}
-            placeholder="Es. Parcheggio disponibile, tema festa, cosa portare..."
+            placeholder={t('create.step1.notes.placeholder')}
             className="input resize-none"
           />
         </div>
@@ -195,72 +207,66 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 
 // ─── Step 2: Chi organizza ────────────────────────────────────────────────
 function StepListSettings({ register, control, errors, emailQuota, onEmailBlur }) {
+  const { t } = useTranslation()
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          Chi organizza?
+          {t('create.step2.title')}
         </h2>
         <p className="text-gray-500 text-sm">
-          La tua email ci permette di ritrovare il tuo evento
+          {t('create.step2.subtitle')}
         </p>
       </div>
 
       <div>
-        <label className="label">La tua email *</label>
+        <label className="label">{t('create.step2.email.label')}</label>
         <input
           {...register('parentEmail', {
-            required: 'Campo obbligatorio',
+            required: t('create.error.required'),
             pattern: {
               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Email non valida',
+              message: t('create.step2.email.error'),
             },
             onBlur: onEmailBlur,
           })}
           type="email"
-          placeholder="nome@esempio.it"
+          placeholder={t('create.step2.email.placeholder')}
           className="input"
         />
         {errors.parentEmail && (
           <p className="text-xs text-red-500 mt-1">{errors.parentEmail.message}</p>
         )}
-        {/* Banner utente di ritorno — informativo finché PAYMENT_ACTIVE = false */}
         {emailQuota?.freeEventUsed && (
           <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm text-gray-600 mt-3">
-            <p className="font-medium text-salvia mb-1">Bentornato su Piky! 👋</p>
+            <p className="font-medium text-salvia mb-1">{t('create.step2.returning.title')}</p>
             <p className="text-gray-500">
-              Hai già creato {emailQuota.eventCount} {emailQuota.eventCount === 1 ? 'festa' : 'feste'} con questa email — stai organizzando il tuo{' '}
-              <strong>{emailQuota.eventCount + 1}° compleanno</strong>.
-              {!PAYMENT_ACTIVE && ' Piky è ancora completamente gratuita, goditi la festa!'}
+              {t('create.step2.returning.body', {
+                count: emailQuota.eventCount,
+                festa: emailQuota.eventCount === 1 ? 'festa' : 'feste',
+                next: emailQuota.eventCount + 1,
+              })}
+              {!PAYMENT_ACTIVE && ' ' + t('create.step2.returning.free')}
             </p>
           </div>
         )}
-      </div>
-
-      <div>
-        <label className="label">Chiudi le prenotazioni il</label>
-        <Controller name="closingDate" control={control}
-          render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
-        <p className="text-xs text-gray-400 mt-1.5">
-          Dopo questa data gli invitati non potranno più prenotare regali né confermare la presenza.
-        </p>
       </div>
 
     </div>
   )
 }
 
-// ─── Card regalo collettivo (dentro step 3, stile identico ai gift card) ──
+// ─── Card regalo collettivo ──────────────────────────────────────────────
 function CollectiveGiftCard({ register, watch, setValue }) {
+  const { t } = useTranslation()
   const collectiveEnabled = watch('collectiveEnabled')
   const fixedQuotaEnabled = watch('fixedQuotaEnabled')
 
   return (
     <div className="bg-white border border-avorio-dark rounded-2xl p-4 space-y-3 relative">
-      {/* Header card — identico ai gift card */}
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-          Regalo collettivo
+          {t('create.collective.title')}
         </span>
         <div
           className={`w-10 h-5 rounded-full transition-colors duration-200 relative cursor-pointer flex-shrink-0 ${
@@ -279,26 +285,26 @@ function CollectiveGiftCard({ register, watch, setValue }) {
           className="text-sm text-gray-400 cursor-pointer"
           onClick={() => setValue('collectiveEnabled', true)}
         >
-          Attiva per raccogliere una quota dagli invitati — es. per un regalo importante insieme
+          {t('create.collective.hint')}
         </p>
       ) : (
         <div className="space-y-3 animate-fade-in">
           <input
             {...register('collectiveGoal', {
-              required: collectiveEnabled ? 'Inserisci un obiettivo' : false,
-              min: { value: 10, message: 'Minimo €10' },
+              required: collectiveEnabled ? t('create.collective.goal.error') : false,
+              min: { value: 10, message: t('create.collective.goal.min_error') },
             })}
             type="number"
             min={10}
             step={5}
-            placeholder="Obiettivo (€) *"
+            placeholder={t('create.collective.goal.placeholder')}
             className="input text-sm"
           />
 
           <input
             {...register('collectiveDescription')}
             type="text"
-            placeholder="Descrizione (opzionale) — es. Per la bicicletta di Sofia"
+            placeholder={t('create.collective.description.placeholder')}
             className="input text-sm"
           />
 
@@ -306,7 +312,7 @@ function CollectiveGiftCard({ register, watch, setValue }) {
             className="flex items-center justify-between cursor-pointer"
             onClick={() => setValue('fixedQuotaEnabled', !fixedQuotaEnabled)}
           >
-            <span className="text-sm text-gray-600">Quota fissa per persona</span>
+            <span className="text-sm text-gray-600">{t('create.collective.fixed_quota.label')}</span>
             <div className={`w-10 h-5 rounded-full transition-colors relative flex-shrink-0 ${fixedQuotaEnabled ? 'bg-salvia' : 'bg-gray-200'}`}>
               <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${fixedQuotaEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
             </div>
@@ -315,22 +321,22 @@ function CollectiveGiftCard({ register, watch, setValue }) {
           {fixedQuotaEnabled && (
             <input
               {...register('collectiveFixedQuota', {
-                required: fixedQuotaEnabled ? 'Inserisci la quota' : false,
-                min: { value: 1, message: 'Minimo €1' },
+                required: fixedQuotaEnabled ? t('create.collective.fixed_quota.error') : false,
+                min: { value: 1, message: t('create.collective.fixed_quota.min_error') },
               })}
               type="number"
               min={1}
-              placeholder="Quota per persona (€) *"
+              placeholder={t('create.collective.fixed_quota.placeholder')}
               className="input text-sm"
             />
           )}
 
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-medium select-none">paypal.me/</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-medium select-none">{t('create.collective.paypal.prefix')}</span>
             <input
               {...register('paypalEmail')}
               type="text"
-              placeholder="username (opzionale)"
+              placeholder={t('create.collective.paypal.placeholder')}
               className="input text-sm pl-[5.5rem]"
             />
           </div>
@@ -340,31 +346,30 @@ function CollectiveGiftCard({ register, watch, setValue }) {
   )
 }
 
-// ─── Step 4: Aggiungi regali ───────────────────────────────────────────────
+// ─── Step 3: Aggiungi regali ───────────────────────────────────────────────
 function StepGifts({ control, register, watch, setValue }) {
+  const { t } = useTranslation()
   const { fields, append, remove } = useFieldArray({ control, name: 'gifts' })
 
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          Regali desiderati
+          {t('create.step3.title')}
         </h2>
         <p className="text-gray-500 text-sm">
-          Aggiungi i regali che vuoi. Puoi modificarli anche dopo.
+          {t('create.step3.subtitle')}
         </p>
       </div>
 
       <div className="space-y-3">
-        {/* Card regalo collettivo — stesso stile dei gift card */}
         <CollectiveGiftCard register={register} watch={watch} setValue={setValue} />
 
-        {/* Separatore visivo tra collettivo e lista regali */}
         <div className="pt-3">
           <h3 className="font-display text-xl font-bold text-gray-900">
-            Lista dei regali
+            {t('create.step3.list.title')}
           </h3>
-          <p className="text-sm text-gray-400 mt-0.5">Ogni regalo sarà prenotabile in esclusiva da un invitato.</p>
+          <p className="text-sm text-gray-400 mt-0.5">{t('create.step3.list.hint')}</p>
         </div>
 
         {fields.map((field, index) => (
@@ -374,7 +379,7 @@ function StepGifts({ control, register, watch, setValue }) {
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                Regalo {index + 1}
+                {t('create.gift.card_label', { index: index + 1 })}
               </span>
               <button
                 type="button"
@@ -388,14 +393,14 @@ function StepGifts({ control, register, watch, setValue }) {
             <input
               {...register(`gifts.${index}.name`, { required: true })}
               type="text"
-              placeholder="Nome del regalo *"
+              placeholder={t('create.gift.name.placeholder')}
               className="input text-sm"
             />
 
             <input
               {...register(`gifts.${index}.description`)}
               type="text"
-              placeholder="Descrizione (opzionale)"
+              placeholder={t('create.gift.description.placeholder')}
               className="input text-sm"
             />
 
@@ -407,7 +412,7 @@ function StepGifts({ control, register, watch, setValue }) {
                   type="number"
                   min={0}
                   step={0.01}
-                  placeholder="Prezzo"
+                  placeholder={t('create.gift.price.placeholder')}
                   className="input text-sm pl-7"
                 />
               </div>
@@ -420,7 +425,7 @@ function StepGifts({ control, register, watch, setValue }) {
                 <input
                   {...register(`gifts.${index}.amazonUrl`)}
                   type="url"
-                  placeholder="Link Amazon"
+                  placeholder={t('create.gift.amazon.placeholder')}
                   className="input text-sm pl-9"
                 />
               </div>
@@ -429,7 +434,7 @@ function StepGifts({ control, register, watch, setValue }) {
                 <input
                   {...register(`gifts.${index}.storeUrl`)}
                   type="url"
-                  placeholder="Link negozio"
+                  placeholder={t('create.gift.store.placeholder')}
                   className="input text-sm pl-9"
                 />
               </div>
@@ -444,27 +449,28 @@ function StepGifts({ control, register, watch, setValue }) {
         className="w-full py-3 border-2 border-dashed border-cipria-dark rounded-2xl text-cipria-dark font-medium text-sm flex items-center justify-center gap-2 hover:bg-cipria/10 transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Aggiungi regalo
+        {t('create.gift.add_btn')}
       </button>
 
       {fields.length === 0 && (
         <p className="text-center text-sm text-gray-400 bg-avorio-dark rounded-2xl py-4">
-          Puoi aggiungere regali anche dopo, direttamente dalla tua lista
+          {t('create.gift.empty_hint')}
         </p>
       )}
     </div>
   )
 }
 
-// ─── Step 5: Conferma e riepilogo ──────────────────────────────────────────
+// ─── Step 4: Conferma e riepilogo ──────────────────────────────────────────
 function StepConfirm({ data }) {
+  const { t, i18n } = useTranslation()
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          Quasi pronto!
+          {t('create.step4.title')}
         </h2>
-        <p className="text-gray-500 text-sm">Controlla i dati prima di creare la lista</p>
+        <p className="text-gray-500 text-sm">{t('create.step4.subtitle')}</p>
       </div>
 
       <div className="bg-white border border-avorio-dark rounded-2xl p-5 space-y-3">
@@ -476,7 +482,7 @@ function StepConfirm({ data }) {
             <p className="font-bold text-gray-900 font-display text-lg">{data.childName || '—'}</p>
             <p className="text-sm text-gray-500">
               {data.partyDate
-                ? new Date(data.partyDate).toLocaleDateString('it-IT', {
+                ? new Date(data.partyDate).toLocaleDateString(i18n.language === 'en' ? 'en-GB' : 'it-IT', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -490,31 +496,19 @@ function StepConfirm({ data }) {
 
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
-            <span className="text-gray-400">Luogo</span>
+            <span className="text-gray-400">{t('create.confirm.location.label')}</span>
             <p className="font-medium text-gray-700">{data.location || '—'}</p>
             {data.address && <p className="text-xs text-gray-500 mt-0.5">{data.address}</p>}
           </div>
           <div>
-            <span className="text-gray-400">Email</span>
-            <p className="font-medium text-gray-700 truncate">{data.parentEmail || '—'}</p>
-          </div>
-          <div>
-            <span className="text-gray-400">Chiusura lista</span>
-            <p className="font-medium text-gray-700">
-              {data.closingDate
-                ? new Date(data.closingDate).toLocaleDateString('it-IT')
-                : 'Non impostata'}
-            </p>
-          </div>
-          <div>
-            <span className="text-gray-400">Regali</span>
-            <p className="font-medium text-gray-700">{data.gifts?.length || 0} regali</p>
+            <span className="text-gray-400">{t('create.confirm.gifts.label')}</span>
+            <p className="font-medium text-gray-700">{data.gifts?.length || 0} {t('create.confirm.gifts.unit')}</p>
           </div>
         </div>
 
         {data.notes && (
           <div className="pt-2 border-t border-avorio-dark">
-            <span className="text-gray-400 text-xs">Note per gli invitati</span>
+            <span className="text-gray-400 text-xs">{t('create.confirm.notes.label')}</span>
             <p className="text-sm text-gray-700 mt-0.5">{data.notes}</p>
           </div>
         )}
@@ -523,7 +517,7 @@ function StepConfirm({ data }) {
           <div className="pt-2 border-t border-avorio-dark">
             <span className="inline-flex items-center gap-1.5 text-sm font-medium text-salvia bg-salvia/10 px-3 py-1 rounded-full">
               <Gift className="w-3.5 h-3.5" />
-              Regalo collettivo: obiettivo €{data.collectiveGoal}
+              {t('create.confirm.collective', { goal: formatEur(data.collectiveGoal) })}
             </span>
           </div>
         )}
@@ -533,13 +527,90 @@ function StepConfirm({ data }) {
   )
 }
 
+// ─── Step: Payment gate ───────────────────────────────────────────────────
+function StepPaymentGate() {
+  const { t } = useTranslation()
+  return (
+    <div className="space-y-5 animate-fade-in text-center">
+      <div>
+        <div className="flex justify-center mb-4">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Cono */}
+            <path d="M12 44 L28 8 L44 44 Z" fill="#E8C4B8" stroke="#d4a090" strokeWidth="1.5" strokeLinejoin="round"/>
+            {/* Striscia verticale cono */}
+            <line x1="28" y1="8" x2="28" y2="44" stroke="#d4a090" strokeWidth="1" opacity="0.5"/>
+            {/* Bordo apertura */}
+            <ellipse cx="28" cy="44" rx="16" ry="4" fill="#d4a090" opacity="0.6"/>
+            {/* Coriandoli */}
+            <rect x="8" y="14" width="5" height="3" rx="1.5" fill="#4A7A50" transform="rotate(-30 8 14)"/>
+            <rect x="40" y="10" width="4" height="2.5" rx="1.2" fill="#4A7A50" transform="rotate(20 40 10)"/>
+            <circle cx="6" cy="26" r="2.5" fill="#E8C4B8" stroke="#d4a090" strokeWidth="1"/>
+            <circle cx="48" cy="22" r="2" fill="#4A7A50"/>
+            <rect x="36" y="18" width="4" height="2.5" rx="1.2" fill="#d4a090" transform="rotate(-15 36 18)"/>
+            <rect x="10" y="32" width="4" height="2.5" rx="1.2" fill="#4A7A50" transform="rotate(25 10 32)"/>
+            <circle cx="44" cy="34" r="1.8" fill="#E8C4B8" stroke="#d4a090" strokeWidth="1"/>
+            <rect x="20" y="4" width="3.5" height="2" rx="1" fill="#4A7A50" transform="rotate(10 20 4)"/>
+          </svg>
+        </div>
+        <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">
+          {t('create.step5.title')}
+        </h2>
+        <p className="text-gray-500 text-sm">
+          {t('create.step5.subtitle')}
+        </p>
+      </div>
+      {!PAYMENT_ACTIVE && (
+        <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 flex items-center gap-3">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+            {/* Scatola regalo */}
+            <rect x="4" y="16" width="24" height="13" rx="2" fill="#E8C4B8"/>
+            <rect x="4" y="16" width="24" height="13" rx="2" stroke="#d4a090" strokeWidth="1"/>
+            {/* Coperchio */}
+            <rect x="3" y="12" width="26" height="6" rx="2" fill="#d4a090"/>
+            {/* Nastro verticale */}
+            <rect x="14" y="12" width="4" height="17" fill="#4A7A50"/>
+            {/* Nastro orizzontale coperchio */}
+            <rect x="3" y="14" width="26" height="2" fill="#4A7A50"/>
+            {/* Fiocco sinistro */}
+            <path d="M16 12 C13 8 8 8 9 12" stroke="#4A7A50" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+            {/* Fiocco destro */}
+            <path d="M16 12 C19 8 24 8 23 12" stroke="#4A7A50" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+          </svg>
+          <div className="text-left">
+            <p className="font-medium text-salvia text-sm">{t('create.step5.free.title')}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('create.step5.free.body')}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────
 export default function CreateEventPage() {
   const navigate = useNavigate()
+  const { user, loading: authLoading } = useAuth()
+  const { t } = useTranslation()
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [emailQuota, setEmailQuota] = useState(null)
+
+  const stepKeys = user ? STEP_KEYS_LOGGED_IN : STEP_KEYS_GUEST
+
+  const STEP_LABEL_MAP = {
+    'Info festa':    t('create.step.party_info'),
+    'Chi organizza': t('create.step.organizer'),
+    'Regali':        t('create.step.gifts'),
+    'Anteprima':     t('create.step.preview'),
+    'Crea lista':    t('create.step.create'),
+  }
+  const stepLabels = stepKeys.map((k) => STEP_LABEL_MAP[k] || k)
+
+  useEffect(() => {
+    if (!authLoading && !user) setShowAuthModal(true)
+  }, [user, authLoading])
 
   const handleEmailBlur = async (e) => {
     const email = e.target.value.trim()
@@ -581,7 +652,10 @@ export default function CreateEventPage() {
 
   const watchedData = watch()
 
-  // Restore draft from sessionStorage on mount
+  useEffect(() => {
+    if (user?.email) setValue('parentEmail', user.email)
+  }, [user])
+
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem('piky_create_draft')
@@ -594,7 +668,6 @@ export default function CreateEventPage() {
     } catch {}
   }, [])
 
-  // Save draft to sessionStorage on every change
   useEffect(() => {
     const subscription = watch((vals) => {
       try { sessionStorage.setItem('piky_create_draft', JSON.stringify(vals)) } catch {}
@@ -602,25 +675,16 @@ export default function CreateEventPage() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  const STEP_FIELDS = {
-    1: ['childName', 'partyDate'],
-    2: ['parentEmail'],
-    3: [],
-    4: [],
-  }
-
   const handleNext = async () => {
-    let fields = STEP_FIELDS[currentStep]
-    if (currentStep === 3 && watchedData.collectiveEnabled) {
+    const stepKey = stepKeys[currentStep - 1]
+    let fields = STEP_FIELDS_MAP[stepKey] || []
+    if (stepKey === 'Regali' && watchedData.collectiveEnabled) {
       fields = ['collectiveGoal']
       if (watchedData.fixedQuotaEnabled) fields.push('collectiveFixedQuota')
     }
     const valid = await trigger(fields)
     if (!valid) return
-
-    // Quando PAYMENT_ACTIVE = true, aggiungere qui il blocco se freeEventUsed
-
-    setCurrentStep((s) => Math.min(s + 1, 4))
+    setCurrentStep((s) => Math.min(s + 1, stepKeys.length))
   }
 
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
@@ -633,33 +697,19 @@ export default function CreateEventPage() {
       const utmMedium = sessionStorage.getItem('utm_medium') || undefined
       const utmCampaign = sessionStorage.getItem('utm_campaign') || undefined
       const referralSource = sessionStorage.getItem('referral_source') || undefined
-      const res = await createEvent({ ...data, utmSource, utmMedium, utmCampaign, referralSource })
+      const payload = { ...data, utmSource, utmMedium, utmCampaign, referralSource }
 
-      // Salva in localStorage
-      const saved = JSON.parse(localStorage.getItem('piky_events') || '[]')
-      saved.unshift({
-        childName: data.childName,
-        partyDate: data.partyDate,
-        parentToken: res.data.parentToken,
-        createdAt: new Date().toISOString(),
-      })
-      localStorage.setItem('piky_events', JSON.stringify(saved.slice(0, 10)))
-
-      // Associa alla chiave personale (non bloccante)
-      const userKey = localStorage.getItem('piky_user_key')
-      if (userKey) {
-        addUserKeyLink(userKey, {
-          linkType: 'event',
-          token: res.data.parentToken,
-          childName: data.childName,
-          partyDate: data.partyDate,
-        }).catch(() => {})
+      if (PAYMENT_ACTIVE) {
+        const res = await createStripeCheckout(payload)
+        sessionStorage.removeItem('piky_create_draft')
+        window.location.href = res.data.checkoutUrl
+      } else {
+        const res = await createEvent(payload)
+        sessionStorage.removeItem('piky_create_draft')
+        navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
       }
-
-      sessionStorage.removeItem('piky_create_draft')
-      navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
     } catch (e) {
-      setError(e?.response?.data?.message || 'Errore nella creazione. Riprova.')
+      setError(e?.response?.data?.message || t('create.error.generic'))
     } finally {
       setLoading(false)
     }
@@ -667,24 +717,30 @@ export default function CreateEventPage() {
 
   return (
     <Layout>
+      <AuthModal
+        isOpen={showAuthModal}
+        initialMode="register"
+        onClose={() => { if (!user) navigate('/') }}
+        onSuccess={() => setShowAuthModal(false)}
+      />
       <div className="max-w-xl mx-auto px-4 py-12">
-        {/* Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-salvia mb-6 transition-colors">
             <ChevronLeft className="w-4 h-4" />
-            Torna alla home
+            {t('create.header.back')}
           </Link>
-          <h1 className="font-display text-3xl font-bold text-gray-900">Organizza la festa</h1>
+          <h1 className="font-display text-3xl font-bold text-gray-900">{t('create.header.title')}</h1>
         </div>
 
-        <StepIndicator steps={STEPS} currentStep={currentStep} />
+        <StepIndicator steps={stepLabels} currentStep={currentStep} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
-            {currentStep === 1 && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
-            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} onEmailBlur={handleEmailBlur} />}
-            {currentStep === 3 && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
-            {currentStep === 4 && <StepConfirm data={watchedData} />}
+            {stepKeys[currentStep - 1] === 'Info festa'    && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
+            {stepKeys[currentStep - 1] === 'Chi organizza' && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} onEmailBlur={handleEmailBlur} />}
+            {stepKeys[currentStep - 1] === 'Regali'        && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
+            {stepKeys[currentStep - 1] === 'Anteprima'     && <StepConfirm data={watchedData} />}
+            {stepKeys[currentStep - 1] === 'Crea lista'    && <StepPaymentGate />}
           </div>
 
           {error && (
@@ -699,21 +755,23 @@ export default function CreateEventPage() {
                 className="flex items-center gap-1.5 btn-outline flex-1 justify-center"
               >
                 <ChevronLeft className="w-4 h-4" />
-                Indietro
+                {t('create.nav.back')}
               </button>
             )}
 
-            {currentStep < 4 ? (
+            {currentStep < stepKeys.length ? (
               <button
+                key="next"
                 type="button"
                 onClick={handleNext}
                 className="btn-primary flex-1 flex items-center justify-center gap-1.5"
               >
-                Avanti
+                {t('create.nav.next')}
                 <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
               <button
+                key="submit"
                 type="submit"
                 disabled={loading}
                 className="btn-primary flex-1 flex items-center justify-center gap-2 text-base"
@@ -721,12 +779,12 @@ export default function CreateEventPage() {
                 {loading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    Creo la lista...
+                    {t('create.nav.submit.loading')}
                   </>
                 ) : (
                   <>
                     <Check className="w-5 h-5" />
-                    Organizza la festa
+                    {t('create.nav.submit.btn')}
                   </>
                 )}
               </button>
@@ -737,4 +795,3 @@ export default function CreateEventPage() {
     </Layout>
   )
 }
-

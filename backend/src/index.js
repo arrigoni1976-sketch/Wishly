@@ -10,6 +10,7 @@ import paymentsRouter from './routes/payments.js'
 import userKeysRouter from './routes/userkeys.js'
 import adminRouter from './routes/admin.js'
 import pushRouter from './routes/push.js'
+import accountRouter from './routes/account.js'
 import { initVapid, sendClosingPushes, sendPartyFollowupPushes } from './services/push.js'
 import { sendReminders, sendClosingSummaries, sendWeeklyAdminReport } from './services/email.js'
 import { deleteExpiredEvents } from './services/retention.js'
@@ -44,6 +45,9 @@ app.use(cors({
     callback(new Error('Host not in allowlist'))
   },
 }))
+
+// Il webhook Stripe richiede il body RAW — deve stare prima di express.json()
+app.use('/api/payments/stripe/webhook', express.raw({ type: 'application/json' }))
 app.use(express.json())
 
 // ─── Routes ─────────────────────────────────────────────────────────────────
@@ -54,8 +58,28 @@ app.use('/api/payments', paymentsRouter)
 app.use('/api/user-keys', userKeysRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/push', pushRouter)
+app.use('/api/account', accountRouter)
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }))
+
+// ─── Universal Links (iOS) ───────────────────────────────────────────────────
+app.get('/.well-known/apple-app-site-association', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.json({
+    applinks: {
+      details: [
+        {
+          appIDs: ['3LN3K4RFRG.it.pikyapp.piky'],
+          components: [
+            { '/': '/lista/*' },
+            { '/': '/dashboard/*' },
+            { '/': '/collettivo/*' },
+          ],
+        },
+      ],
+    },
+  })
+})
 
 // ─── 404 ────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ message: 'Not found' }))
@@ -67,8 +91,8 @@ app.use((err, _req, res, _next) => {
 })
 
 // ─── Scheduled jobs ─────────────────────────────────────────────────────────
-// Run every day at 08:00 Italy time — follow-up reminder the morning after the party
-cron.schedule('0 8 * * *', async () => {
+// Run every hour — notify organiser 1h after party ends (start + 4h); untimed parties get it next morning at 08:00
+cron.schedule('0 * * * *', async () => {
   console.log('[cron] Running party follow-up job...')
   await sendPartyFollowupPushes()
 }, { timezone: 'Europe/Rome' })

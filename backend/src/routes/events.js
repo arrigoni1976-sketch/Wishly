@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import { v4 as uuid } from 'uuid'
 import { supabase } from '../lib/supabase.js'
-import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
+import { sendEventCreatedEmail } from '../services/email.js'
 import { sendPushToParent } from '../services/push.js'
-import { isListClosed, parsePrice, isValidUuid } from '../lib/utils.js'
+import { isListClosed, parsePrice, isValidUuid, formatEur, formatEurInt } from '../lib/utils.js'
 import { createResourceLimiter, emailSendLimiter } from '../lib/rateLimit.js'
+import { requireAuth, optionalAuth } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -28,8 +29,23 @@ function parseUserAgent(ua) {
   return { device_type, os, browser }
 }
 
+// ─── GET /api/events/mine — List events for authenticated user ───────────────
+router.get('/mine', requireAuth, async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('id, child_name, party_date, parent_token, closing_date, collective_enabled')
+      .eq('owner_id', req.user.id)
+      .order('party_date', { ascending: false })
+    if (error) throw error
+    res.json(data || [])
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ─── POST /api/events — Create event ────────────────────────────────────────
-router.post('/', createResourceLimiter, async (req, res, next) => {
+router.post('/', createResourceLimiter, optionalAuth, async (req, res, next) => {
   try {
     const {
       childName, partyDate, partyTime, location, address, notes,
@@ -73,6 +89,7 @@ router.post('/', createResourceLimiter, async (req, res, next) => {
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
+        owner_id: req.user?.id || null,
       })
       .select()
       .single()
@@ -178,6 +195,7 @@ router.get('/guest/:token', async (req, res, next) => {
       .single()
 
     if (error || !event) return res.status(404).json({ message: 'Lista non trovata' })
+    if (event.payment_status === 'pending') return res.status(402).json({ message: 'Pagamento in attesa' })
 
     if (event.gifts) event.gifts.sort((a, b) => a.sort_order - b.sort_order)
 
@@ -290,6 +308,29 @@ const EVENT_UPDATABLE_FIELDS = [
   'closing_date', 'collective_enabled', 'collective_goal', 'collective_description',
   'paypal_email', 'collective_fixed_quota',
 ]
+
+// ─── DELETE /api/events/parent/:token — Delete event by parent token ─────────
+router.delete('/parent/:token', async (req, res, next) => {
+  try {
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('parent_token', req.params.token)
+      .single()
+
+    if (!event) return res.status(404).json({ message: 'Evento non trovato' })
+
+    const { error } = await supabase
+      .from('events')
+      .delete()
+      .eq('parent_token', req.params.token)
+
+    if (error) throw error
+    res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
 
 router.put('/:id', async (req, res, next) => {
   try {
@@ -593,7 +634,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
 
     const remaining = event.collective_goal - event.collective_amount
     if (amount > remaining) {
-      return res.status(400).json({ message: `Importo massimo €${remaining.toFixed(2)}` })
+      return res.status(400).json({ message: `Importo massimo €${formatEur(remaining)}` })
     }
 
     const isImmediate = paymentMethod !== 'paypal'
@@ -650,7 +691,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
       const giftName = event.collective_description || 'regalo collettivo'
       sendPushToParent(event.parent_token, {
         title: `Piky — ${contributorName} ha contribuito 💛`,
-        body: `€${amount.toFixed(2)} per "${giftName}" al compleanno di ${event.child_name}`,
+        body: `€${formatEur(amount)} per "${giftName}" al compleanno di ${event.child_name}`,
         url: `/dashboard/${event.parent_token}`,
       })
     } else {
@@ -658,7 +699,7 @@ router.post('/:id/contributions', createResourceLimiter, async (req, res, next) 
       const giftName = event.collective_description || 'regalo collettivo'
       sendPushToParent(event.parent_token, {
         title: `Piky — ${contributorName} vuole contribuire con PayPal 💛`,
-        body: `€${amount.toFixed(2)} per "${giftName}" — verifica nel tuo dashboard`,
+        body: `€${formatEur(amount)} per "${giftName}" — verifica nel tuo dashboard`,
         url: `/dashboard/${event.parent_token}`,
       })
     }
@@ -718,7 +759,7 @@ router.put('/:id/contributions/:cid', async (req, res, next) => {
     const remaining = event.collective_goal - event.collective_amount + oldAmount
 
     if (newAmount > remaining) {
-      return res.status(400).json({ message: `Importo massimo €${remaining.toFixed(2)}` })
+      return res.status(400).json({ message: `Importo massimo €${formatEur(remaining)}` })
     }
 
     // Riserva il delta in modo atomico PRIMA di scrivere la riga (delta negativo
@@ -806,44 +847,5 @@ router.patch('/:id/contributions/:cid/confirm', async (req, res, next) => {
   }
 })
 
-// ─── POST /api/events/:id/thank-you — Send thank-you emails to guests ────────
-router.post('/:id/thank-you', emailSendLimiter, async (req, res, next) => {
-  try {
-    const { parentToken, message } = req.body
-
-    if (!parentToken || !message?.trim()) {
-      return res.status(400).json({ message: 'parentToken e message sono obbligatori' })
-    }
-
-    const { data: event, error } = await supabase
-      .from('events')
-      .select('*, rsvp(*)')
-      .eq('id', req.params.id)
-      .eq('parent_token', parentToken)
-      .single()
-
-    if (error || !event) return res.status(403).json({ message: 'Non autorizzato' })
-
-    const guests = (event.rsvp || []).filter((r) => r.status === 'yes' && r.guest_email)
-
-    const results = await Promise.allSettled(
-      guests.map((g) =>
-        sendThankYouEmail({
-          to: g.guest_email,
-          guestName: g.guest_name,
-          childName: event.child_name,
-          message: message.trim(),
-        })
-      )
-    )
-
-    const sent = results.filter((r) => r.status === 'fulfilled').length
-    const failed = results.filter((r) => r.status === 'rejected').length
-
-    res.json({ sent, failed, total: guests.length })
-  } catch (err) {
-    next(err)
-  }
-})
 
 export default router

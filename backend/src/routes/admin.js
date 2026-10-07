@@ -1,18 +1,31 @@
 import { Router } from 'express'
+import rateLimit from 'express-rate-limit'
 import { supabase } from '../lib/supabase.js'
 import { getAdminStats } from '../services/adminStats.js'
 
 const router = Router()
 
+// Max 10 tentativi per IP ogni 15 minuti
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: 'Troppi tentativi. Riprova tra 15 minuti.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+router.use(adminLimiter)
+
 const authAdmin = (req, res) => {
-  if (!process.env.ADMIN_KEY || req.query.key !== process.env.ADMIN_KEY) {
+  const key = req.headers['x-admin-key'] || req.query.key
+  if (!process.env.ADMIN_KEY || key !== process.env.ADMIN_KEY) {
     res.status(401).json({ message: 'Non autorizzato' })
     return false
   }
   return true
 }
 
-// GET /api/admin/stats?key=XXX
+// GET /api/admin/stats
 router.get('/stats', async (req, res, next) => {
   try {
     if (!authAdmin(req, res)) return
@@ -23,7 +36,7 @@ router.get('/stats', async (req, res, next) => {
   }
 })
 
-// GET /api/admin/events/:id?key=XXX — dettaglio singolo evento
+// GET /api/admin/events/:id — dettaglio singolo evento
 router.get('/events/:id', async (req, res, next) => {
   try {
     if (!authAdmin(req, res)) return

@@ -8,6 +8,7 @@ import PaymentModal from '../components/PaymentModal'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByCollectiveToken, createContribution, updateContribution, addUserKeyLink } from '../lib/api'
+import { formatEur, formatEurInt } from '../lib/format'
 import { syncFromServer } from '../lib/sync'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
@@ -111,8 +112,8 @@ export default function CollectiveGiftPage() {
     saveNameToKey(name)
     await fetchEvent()
     const msg = method === 'paypal'
-      ? `Grazie ${name}! 🎉 Il tuo contributo di €${amount.toFixed(2)} è stato registrato. Il totale si aggiornerà non appena Piky avrà ricevuto la conferma del pagamento PayPal.`
-      : `Grazie ${name}! Hai prenotato €${amount.toFixed(2)}. Ricordati di portare i contanti il giorno della festa!`
+      ? `Grazie ${name}! 🎉 Il tuo contributo di €${formatEur(amount)} è stato registrato. Il totale si aggiornerà non appena Piky avrà ricevuto la conferma del pagamento PayPal.`
+      : `Grazie ${name}! Hai prenotato €${formatEur(amount)}. Ricordati di portare i contanti il giorno della festa!`
     setSuccessMsg(msg)
     setTimeout(() => setSuccessMsg(''), 10000)
   }
@@ -140,7 +141,7 @@ export default function CollectiveGiftPage() {
       localStorage.setItem('piky_guest_name', editName.trim())
       await fetchEvent()
       setEditingId(null)
-      setSuccessMsg(`Contributo aggiornato a €${amount.toFixed(2)}. Grazie!`)
+      setSuccessMsg(`Contributo aggiornato a €${formatEur(amount)}. Grazie!`)
       setTimeout(() => setSuccessMsg(''), 6000)
     } catch (e) {
       setEditError(e?.response?.data?.message || 'Errore. Riprova.')
@@ -267,13 +268,13 @@ export default function CollectiveGiftPage() {
               {myContributions.length > 0 && editingId === null && (
                 <div className="bg-cipria/20 border border-cipria rounded-2xl px-4 py-3 text-sm text-gray-700 space-y-2">
                   <p className="font-semibold">
-                    Hai contribuito con <span className="text-salvia">€{myTotal.toFixed(2)}</span> in totale
+                    Hai contribuito con <span className="text-salvia">€{formatEur(myTotal)}</span> in totale
                     {myContributions.length > 1 && ` (${myContributions.length} versamenti)`}
                   </p>
                   {myContributions.map((c) => (
                     <div key={c.id} className="flex items-center justify-between text-xs text-gray-500">
                       <span>
-                        €{parseFloat(c.amount).toFixed(2)}
+                        €{formatEur(c.amount)}
                         {' · '}
                         {format(new Date(c.created_at), "d MMM", { locale: it })}
                         {c.status === 'pending' && ' · in attesa'}
@@ -371,13 +372,13 @@ export default function CollectiveGiftPage() {
                   >
                     <Heart className="w-5 h-5" />
                     {event.collective_fixed_quota
-                      ? `Paga la quota di €${parseFloat(event.collective_fixed_quota).toFixed(2)}`
+                      ? `Paga la quota di €${formatEur(event.collective_fixed_quota)}`
                       : 'Contribuisci al regalo'}
                   </button>
                   <p className="text-xs text-center text-gray-400">
                     {event.collective_fixed_quota
-                      ? `Quota fissa per persona · Massimo disponibile €${remaining.toFixed(0)}`
-                      : `Importo minimo €10 · Massimo €${remaining.toFixed(0)}`}
+                      ? `Quota fissa per persona · Massimo disponibile €${formatEurInt(remaining)}`
+                      : `Importo minimo €10 · Massimo €${formatEurInt(remaining)}`}
                   </p>
                   {myContributions.length === 0 && (
                     <button
