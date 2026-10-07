@@ -79,6 +79,49 @@ function DateInput({ value, onChange, onBlur }) {
   )
 }
 
+// ─── TimeInput: HH : MM ───────────────────────────────────────────────────
+function TimeInput({ value, onChange, onBlur, placeholder }) {
+  const split = (v) => {
+    if (v && /^\d{2}:\d{2}$/.test(v)) return v.split(':')
+    return ['', '']
+  }
+  const [fields, setFields] = useState(() => split(value))
+  const prevVal = useRef(value)
+  useEffect(() => {
+    if (value !== prevVal.current) { setFields(split(value)); prevVal.current = value }
+  }, [value])
+
+  const hhRef = useRef(); const mmRef = useRef()
+  const [hh, mm] = fields
+
+  const update = (h, m) => {
+    setFields([h, m])
+    if (h.length === 2 && m.length === 2) {
+      const hi = parseInt(h, 10); const mi = parseInt(m, 10)
+      if (hi >= 0 && hi <= 23 && mi >= 0 && mi <= 59) onChange(`${h}:${m}`)
+      else onChange('')
+    } else {
+      onChange('')
+    }
+  }
+
+  return (
+    <div className="input flex items-center">
+      <input ref={hhRef} type="text" inputMode="numeric" placeholder="HH" maxLength={2}
+        value={hh}
+        onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(v,mm); if(v.length===2) mmRef.current?.focus() }}
+        className="w-7 text-center bg-transparent outline-none" />
+      <span className="text-gray-300 select-none mx-0.5">:</span>
+      <input ref={mmRef} type="text" inputMode="numeric" placeholder="MM" maxLength={2}
+        value={mm}
+        onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(hh,v) }}
+        onKeyDown={(e) => { if(e.key==='Backspace'&&!mm) hhRef.current?.focus() }}
+        onBlur={onBlur}
+        className="w-7 text-center bg-transparent outline-none" />
+    </div>
+  )
+}
+
 // ─── Step 1: Dettagli della festa ─────────────────────────────────────────
 function StepPartyInfo({ register, control, errors, watch, setValue }) {
   const { t } = useTranslation()
@@ -147,16 +190,8 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 
         <div>
           <label className="label">{t('create.step1.time.label')}</label>
-          <div className="input relative flex items-center">
-            <input
-              {...register('partyTime')}
-              type="time"
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer md:static md:opacity-100 md:text-sm md:text-gray-800 md:bg-transparent md:border-0 md:outline-none md:w-full md:h-auto md:cursor-auto"
-            />
-            <span className={`text-sm pointer-events-none md:hidden ${watch('partyTime') ? 'text-gray-800' : 'text-gray-400'}`}>
-              {watch('partyTime') || t('create.step1.time.placeholder')}
-            </span>
-          </div>
+          <Controller name="partyTime" control={control}
+            render={({ field }) => <TimeInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
         </div>
 
         <div>
