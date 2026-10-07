@@ -16,14 +16,13 @@ const PAYMENT_ACTIVE = false
 const PRICE_PER_EVENT = 1.99
 
 // Internal routing keys (language-independent)
-const STEP_KEYS_LOGGED_IN = ['Info festa', 'Regali', 'Anteprima', 'Crea lista']
-const STEP_KEYS_GUEST     = ['Info festa', 'Chi organizza', 'Regali', 'Anteprima', 'Crea lista']
+const STEP_KEYS_LOGGED_IN = ['Info festa', 'Regali', 'Crea lista']
+const STEP_KEYS_GUEST     = ['Info festa', 'Chi organizza', 'Regali', 'Crea lista']
 
 const STEP_FIELDS_MAP = {
   'Info festa':     ['childName', 'partyDate'],
   'Chi organizza':  ['parentEmail'],
   'Regali':         [],
-  'Anteprima':      [],
   'Crea lista':     [],
 }
 
@@ -662,7 +661,6 @@ export default function CreateEventPage() {
     'Info festa':    t('create.step.party_info'),
     'Chi organizza': t('create.step.organizer'),
     'Regali':        t('create.step.gifts'),
-    'Anteprima':     t('create.step.preview'),
     'Crea lista':    t('create.step.create'),
   }
   const stepLabels = stepKeys.map((k) => STEP_LABEL_MAP[k] || k)
@@ -798,7 +796,6 @@ export default function CreateEventPage() {
             {stepKeys[currentStep - 1] === 'Info festa'    && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
             {stepKeys[currentStep - 1] === 'Chi organizza' && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} onEmailBlur={handleEmailBlur} />}
             {stepKeys[currentStep - 1] === 'Regali'        && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
-            {stepKeys[currentStep - 1] === 'Anteprima'     && <StepConfirm data={watchedData} />}
             {stepKeys[currentStep - 1] === 'Crea lista'    && <StepPaymentGate />}
           </div>
 
