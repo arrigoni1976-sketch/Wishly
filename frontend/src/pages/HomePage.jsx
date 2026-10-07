@@ -565,8 +565,8 @@ export default function HomePage() {
                 onClick={async () => {
                   const shareData = {
                     title: 'Piky — Lista desideri per compleanni',
-                    text: 'Crea la wishlist per il compleanno, condividila con gli invitati e zero doppioni!',
-                    url: window.location.origin,
+                    text: 'Organizza il compleanno, condividi la lista e zero regali doppi!',
+                    url: `${window.location.origin}/scarica`,
                   }
                   if (navigator.share) {
                     await navigator.share(shareData)
