@@ -147,11 +147,16 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 
         <div>
           <label className="label">{t('create.step1.time.label')}</label>
-          <input
-            {...register('partyTime')}
-            type="time"
-            className="input text-left"
-          />
+          <div className="input relative flex items-center">
+            <input
+              {...register('partyTime')}
+              type="time"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            <span className={`text-sm pointer-events-none ${watch('partyTime') ? 'text-gray-800' : 'text-gray-400'}`}>
+              {watch('partyTime') || t('create.step1.time.placeholder')}
+            </span>
+          </div>
         </div>
 
         <div>
