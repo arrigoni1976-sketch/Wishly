@@ -150,7 +150,7 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
           <input
             {...register('partyTime')}
             type="time"
-            className="input"
+            className="input text-left"
           />
         </div>
 
