@@ -536,7 +536,25 @@ function StepPaymentGate() {
   return (
     <div className="space-y-5 animate-fade-in text-center">
       <div>
-        <p className="text-5xl mb-4">🎉</p>
+        <div className="flex justify-center mb-4">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Cono */}
+            <path d="M12 44 L28 8 L44 44 Z" fill="#E8C4B8" stroke="#d4a090" strokeWidth="1.5" strokeLinejoin="round"/>
+            {/* Striscia verticale cono */}
+            <line x1="28" y1="8" x2="28" y2="44" stroke="#d4a090" strokeWidth="1" opacity="0.5"/>
+            {/* Bordo apertura */}
+            <ellipse cx="28" cy="44" rx="16" ry="4" fill="#d4a090" opacity="0.6"/>
+            {/* Coriandoli */}
+            <rect x="8" y="14" width="5" height="3" rx="1.5" fill="#4A7A50" transform="rotate(-30 8 14)"/>
+            <rect x="40" y="10" width="4" height="2.5" rx="1.2" fill="#4A7A50" transform="rotate(20 40 10)"/>
+            <circle cx="6" cy="26" r="2.5" fill="#E8C4B8" stroke="#d4a090" strokeWidth="1"/>
+            <circle cx="48" cy="22" r="2" fill="#4A7A50"/>
+            <rect x="36" y="18" width="4" height="2.5" rx="1.2" fill="#d4a090" transform="rotate(-15 36 18)"/>
+            <rect x="10" y="32" width="4" height="2.5" rx="1.2" fill="#4A7A50" transform="rotate(25 10 32)"/>
+            <circle cx="44" cy="34" r="1.8" fill="#E8C4B8" stroke="#d4a090" strokeWidth="1"/>
+            <rect x="20" y="4" width="3.5" height="2" rx="1" fill="#4A7A50" transform="rotate(10 20 4)"/>
+          </svg>
+        </div>
         <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">
           {t('create.step5.title')}
         </h2>
@@ -545,9 +563,26 @@ function StepPaymentGate() {
         </p>
       </div>
       {!PAYMENT_ACTIVE && (
-        <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4">
-          <p className="font-medium text-salvia text-sm">{t('create.step5.free.title')}</p>
-          <p className="text-xs text-gray-500 mt-1">{t('create.step5.free.body')}</p>
+        <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 flex items-center gap-3">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+            {/* Scatola regalo */}
+            <rect x="4" y="16" width="24" height="13" rx="2" fill="#E8C4B8"/>
+            <rect x="4" y="16" width="24" height="13" rx="2" stroke="#d4a090" strokeWidth="1"/>
+            {/* Coperchio */}
+            <rect x="3" y="12" width="26" height="6" rx="2" fill="#d4a090"/>
+            {/* Nastro verticale */}
+            <rect x="14" y="12" width="4" height="17" fill="#4A7A50"/>
+            {/* Nastro orizzontale coperchio */}
+            <rect x="3" y="14" width="26" height="2" fill="#4A7A50"/>
+            {/* Fiocco sinistro */}
+            <path d="M16 12 C13 8 8 8 9 12" stroke="#4A7A50" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+            {/* Fiocco destro */}
+            <path d="M16 12 C19 8 24 8 23 12" stroke="#4A7A50" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+          </svg>
+          <div className="text-left">
+            <p className="font-medium text-salvia text-sm">{t('create.step5.free.title')}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('create.step5.free.body')}</p>
+          </div>
         </div>
       )}
     </div>

@@ -163,7 +163,7 @@
     "step5": {
       "title": "All set!",
       "subtitle": "Click the button below to generate the link to share with your guests.",
-      "free": { "title": "Piky is still completely free 🎁", "body": "Enjoy the party worry-free." }
+      "free": { "title": "Piky is still completely free", "body": "Enjoy the party worry-free." }
     },
     "confirm": {
       "location": { "label": "Venue" },

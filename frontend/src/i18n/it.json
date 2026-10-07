@@ -163,7 +163,7 @@
     "step5": {
       "title": "Tutto pronto!",
       "subtitle": "Clicca il bottone qui sotto per generare il link da condividere con gli invitati.",
-      "free": { "title": "Piky è ancora completamente gratuita 🎁", "body": "Goditi la festa senza pensieri." }
+      "free": { "title": "Piky è ancora completamente gratuita", "body": "Goditi la festa senza pensieri." }
     },
     "confirm": {
       "location": { "label": "Luogo" },
