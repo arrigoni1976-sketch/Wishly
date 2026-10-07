@@ -76,7 +76,9 @@
       "open": "Apri →",
       "create_more": "+ Crea una nuova festa",
       "empty": "Nessuna lista ancora",
-      "empty_link": "Crea la prima →"
+      "empty_link": "Crea la prima →",
+      "delete_title": "Elimina festa",
+      "delete_error": "Errore nell'eliminazione. Riprova."
     },
     "invites": {
       "title": "Inviti ricevuti",

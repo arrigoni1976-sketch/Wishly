@@ -309,6 +309,29 @@ const EVENT_UPDATABLE_FIELDS = [
   'paypal_email', 'collective_fixed_quota',
 ]
 
+// ─── DELETE /api/events/parent/:token — Delete event by parent token ─────────
+router.delete('/parent/:token', async (req, res, next) => {
+  try {
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('parent_token', req.params.token)
+      .single()
+
+    if (!event) return res.status(404).json({ message: 'Evento non trovato' })
+
+    const { error } = await supabase
+      .from('events')
+      .delete()
+      .eq('parent_token', req.params.token)
+
+    if (error) throw error
+    res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.put('/:id', async (req, res, next) => {
   try {
     const { parentToken } = req.body

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
 import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, RefreshCw, Calendar, MapPin, LogIn, LogOut } from 'lucide-react'
-import { getMyEvents, deleteAccount } from '../lib/api'
+import { getMyEvents, deleteAccount, deleteEvent } from '../lib/api'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -23,6 +23,7 @@ export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authModalMode, setAuthModalMode] = useState('login')
   const [pendingDelete, setPendingDelete] = useState(null)
+  const [pendingDeleteEvent, setPendingDeleteEvent] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
   const [deletingAccount, setDeletingAccount] = useState(false)
@@ -107,6 +108,16 @@ export default function HomePage() {
       if (res) setMyEvents(res.data || [])
     }
     setTimeout(() => setRefreshing(false), 600)
+  }
+
+  const handleDeleteEvent = async (parentToken) => {
+    try {
+      await deleteEvent(parentToken)
+      setMyEvents((prev) => prev.filter((ev) => ev.parent_token !== parentToken))
+    } catch {
+      alert(t('home.myevents.delete_error'))
+    }
+    setPendingDeleteEvent(null)
   }
 
   const removeInvite = (guestToken) => {
@@ -238,19 +249,28 @@ export default function HomePage() {
               ) : myEvents.length > 0 ? (
                 <div className="space-y-2">
                   {myEvents.map((ev) => (
-                    <Link
-                      key={ev.parent_token}
-                      to={`/dashboard/${ev.parent_token}`}
-                      className="flex items-center justify-between bg-avorio rounded-2xl px-4 py-3 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-800 text-sm">{ev.child_name}</p>
-                        <p className="text-xs text-gray-400">
-                          {ev.party_date ? format(new Date(ev.party_date), 'd MMMM yyyy', { locale: dateLocale }) : ''}
-                        </p>
-                      </div>
-                      <span className="text-salvia font-medium text-sm">{t('home.myevents.open')}</span>
-                    </Link>
+                    <div key={ev.parent_token} className="flex items-center gap-2">
+                      <Link
+                        to={`/dashboard/${ev.parent_token}`}
+                        className="flex-1 flex items-center justify-between bg-avorio rounded-2xl px-4 py-3 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
+                      >
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm">{ev.child_name}</p>
+                          <p className="text-xs text-gray-400">
+                            {ev.party_date ? format(new Date(ev.party_date), 'd MMMM yyyy', { locale: dateLocale }) : ''}
+                          </p>
+                        </div>
+                        <span className="text-salvia font-medium text-sm">{t('home.myevents.open')}</span>
+                      </Link>
+                      {pendingDeleteEvent === ev.parent_token ? (
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button onClick={() => setPendingDeleteEvent(null)} className="text-xs font-medium text-gray-500 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl transition-colors">{t('home.invites.remove.no')}</button>
+                          <button onClick={() => handleDeleteEvent(ev.parent_token)} className="text-xs font-semibold text-white bg-red-400 hover:bg-red-500 px-3 py-1.5 rounded-xl transition-colors">{t('home.invites.remove.yes')}</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setPendingDeleteEvent(ev.parent_token)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title={t('home.myevents.delete_title')}>✕</button>
+                      )}
+                    </div>
                   ))}
                   <Link to="/crea" className="inline-flex items-center gap-1 text-xs text-salvia font-medium hover:underline mt-1">
                     {t('home.myevents.create_more')}

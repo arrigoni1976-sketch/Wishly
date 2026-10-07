@@ -76,7 +76,9 @@
       "open": "Open →",
       "create_more": "+ Create a new party",
       "empty": "No lists yet",
-      "empty_link": "Create the first →"
+      "empty_link": "Create the first →",
+      "delete_title": "Delete this party?",
+      "delete_error": "Error deleting the party"
     },
     "invites": {
       "title": "Received invites",
