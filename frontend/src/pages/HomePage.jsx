@@ -528,15 +528,12 @@ export default function HomePage() {
               <DownloadButton className="inline-flex items-center gap-2 border border-white/40 text-white/80 hover:text-white hover:border-white text-sm font-medium px-4 py-2 rounded-xl transition-colors duration-200" />
               <button
                 onClick={async () => {
-                  const shareData = {
-                    title: 'Piky',
-                    text: t('home.final_cta.share_text'),
-                    url: `${window.location.origin}/scarica`,
-                  }
+                  const shareUrl = `${window.location.origin}/scarica`
+                  const shareText = `${t('home.final_cta.share_text')} ${shareUrl}`
                   if (navigator.share) {
-                    await navigator.share(shareData)
+                    await navigator.share({ title: 'Piky', text: shareText })
                   } else {
-                    await navigator.clipboard.writeText(window.location.origin)
+                    await navigator.clipboard.writeText(shareText)
                     alert(t('home.final_cta.share_copied_alert'))
                   }
                 }}
