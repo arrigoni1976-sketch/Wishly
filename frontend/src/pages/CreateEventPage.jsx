@@ -27,46 +27,6 @@ const STEP_FIELDS_MAP = {
   'Crea lista':     [],
 }
 
-// ─── TimeInput: HH : MM ───────────────────────────────────────────────────
-function TimeInput({ value, onChange }) {
-  const split = (v) => {
-    if (v && /^\d{2}:\d{2}$/.test(v)) return v.split(':')
-    return ['', '']
-  }
-  const [fields, setFields] = useState(() => split(value))
-  const prevVal = useRef(value)
-  useEffect(() => {
-    if (value !== prevVal.current) { setFields(split(value)); prevVal.current = value }
-  }, [value])
-
-  const hhRef = useRef(); const mmRef = useRef()
-  const [hh, mm] = fields
-
-  const update = (h, m) => {
-    setFields([h, m])
-    if (h.length === 2 && m.length === 2) {
-      onChange(`${h}:${m}`)
-    } else {
-      onChange('')
-    }
-  }
-
-  return (
-    <div className="input flex items-center">
-      <input ref={hhRef} type="text" inputMode="numeric" placeholder="HH" maxLength={2}
-        value={hh}
-        onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(v,mm); if(v.length===2) mmRef.current?.focus() }}
-        className="w-7 text-center bg-transparent outline-none" />
-      <span className="text-gray-300 select-none mx-0.5">:</span>
-      <input ref={mmRef} type="text" inputMode="numeric" placeholder="MM" maxLength={2}
-        value={mm}
-        onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(hh,v) }}
-        onKeyDown={(e) => { if(e.key==='Backspace'&&!mm) hhRef.current?.focus() }}
-        className="w-7 text-center bg-transparent outline-none" />
-    </div>
-  )
-}
-
 // ─── DateInput: GG / MM / AAAA ────────────────────────────────────────────
 function DateInput({ value, onChange, onBlur }) {
   const { t } = useTranslation()
@@ -187,8 +147,11 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
 
         <div>
           <label className="label">{t('create.step1.time.label')}</label>
-          <Controller name="partyTime" control={control}
-            render={({ field }) => <TimeInput value={field.value||''} onChange={field.onChange} />} />
+          <input
+            {...register('partyTime')}
+            type="time"
+            className="input"
+          />
         </div>
 
         <div>
