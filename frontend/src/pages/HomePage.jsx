@@ -146,23 +146,10 @@ export default function HomePage() {
             <span dangerouslySetInnerHTML={{ __html: t('home.hero.body2') }} />
           </p>
 
-          <div className="flex flex-row gap-3 justify-center">
-            <Link to="/crea" className="btn-primary text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]">
-              <span>{t('home.hero.cta.primary')}</span>
-              <span>→</span>
-            </Link>
-            <a
-              href="#come-funziona"
-              className="btn-outline text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]"
-            >
-              <span>{t('home.hero.cta.secondary')}</span>
-            </a>
-          </div>
-
           {/* Box account */}
-          <div className="max-w-md mx-auto mt-6">
+          <div className="max-w-md mx-auto mt-8">
             {user ? (
-              <div className="bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+              <div className="bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm mb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-gray-600 min-w-0">
                     <LogIn className="w-4 h-4 text-salvia flex-shrink-0" />
@@ -192,7 +179,7 @@ export default function HomePage() {
                 )}
               </div>
             ) : (
-              <div className="flex flex-col gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-4 shadow-sm">
+              <div className="flex flex-col gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-4 shadow-sm mb-4">
                 <div>
                   <p className="font-semibold text-gray-800 text-sm">{t('home.auth.box.title')}</p>
                   <p className="text-xs text-gray-500 mt-0.5">{t('home.auth.box.subtitle')}</p>
@@ -213,6 +200,19 @@ export default function HomePage() {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="flex flex-row gap-3 justify-center">
+            <Link to="/crea" className="btn-primary text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]">
+              <span>{t('home.hero.cta.primary')}</span>
+              <span>→</span>
+            </Link>
+            <a
+              href="#come-funziona"
+              className="btn-outline text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]"
+            >
+              <span>{t('home.hero.cta.secondary')}</span>
+            </a>
           </div>
 
         </div>
