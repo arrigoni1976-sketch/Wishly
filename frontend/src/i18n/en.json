@@ -330,7 +330,7 @@
         "label": "Your name",
         "placeholder": "First Last",
         "not_found": "No confirmation found for this event.",
-        "error": "\"{{name}}\" doesn't match any response. Try the exact name you used when you confirmed.",
+        "error": "\"{{name}}\" doesn't match any response. Try your name or the child's name.",
         "cancel": "Cancel",
         "submit": "Search"
       },

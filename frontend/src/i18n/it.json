@@ -330,7 +330,7 @@
         "label": "Il tuo nome",
         "placeholder": "Nome Cognome",
         "not_found": "Nessuna conferma trovata per questo evento.",
-        "error": "\"{{name}}\" non corrisponde a nessuna risposta. Prova con il nome esatto usato quando hai confermato.",
+        "error": "\"{{name}}\" non corrisponde a nessuna risposta. Prova con il tuo nome o quello del bambino.",
         "cancel": "Annulla",
         "submit": "Cerca"
       },
