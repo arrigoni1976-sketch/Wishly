@@ -5,7 +5,7 @@ import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lig
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
-import { createEvent, checkEmailQuota } from '../lib/api'
+import { createEvent, checkEmailQuota, createStripeCheckout } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import AuthModal from '../components/AuthModal'
 
@@ -672,10 +672,17 @@ export default function CreateEventPage() {
       const utmMedium = sessionStorage.getItem('utm_medium') || undefined
       const utmCampaign = sessionStorage.getItem('utm_campaign') || undefined
       const referralSource = sessionStorage.getItem('referral_source') || undefined
-      const res = await createEvent({ ...data, utmSource, utmMedium, utmCampaign, referralSource })
+      const payload = { ...data, utmSource, utmMedium, utmCampaign, referralSource }
 
-      sessionStorage.removeItem('piky_create_draft')
-      navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
+      if (PAYMENT_ACTIVE) {
+        const res = await createStripeCheckout(payload)
+        sessionStorage.removeItem('piky_create_draft')
+        window.location.href = res.data.checkoutUrl
+      } else {
+        const res = await createEvent(payload)
+        sessionStorage.removeItem('piky_create_draft')
+        navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
+      }
     } catch (e) {
       setError(e?.response?.data?.message || 'Errore nella creazione. Riprova.')
     } finally {

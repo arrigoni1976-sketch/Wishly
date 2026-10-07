@@ -45,6 +45,9 @@ app.use(cors({
     callback(new Error('Host not in allowlist'))
   },
 }))
+
+// Il webhook Stripe richiede il body RAW — deve stare prima di express.json()
+app.use('/api/payments/stripe/webhook', express.raw({ type: 'application/json' }))
 app.use(express.json())
 
 // ─── Routes ─────────────────────────────────────────────────────────────────

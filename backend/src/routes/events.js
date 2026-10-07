@@ -195,6 +195,7 @@ router.get('/guest/:token', async (req, res, next) => {
       .single()
 
     if (error || !event) return res.status(404).json({ message: 'Lista non trovata' })
+    if (event.payment_status === 'pending') return res.status(402).json({ message: 'Pagamento in attesa' })
 
     if (event.gifts) event.gifts.sort((a, b) => a.sort_order - b.sort_order)
 

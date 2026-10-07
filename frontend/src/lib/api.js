@@ -47,6 +47,7 @@ export const createContribution = (eventId, data) => api.post(`/events/${eventId
 export const updateContribution = (eventId, cid, data) => api.put(`/events/${eventId}/contributions/${cid}`, data)
 export const confirmContribution = (eventId, cid, parentToken) => api.patch(`/events/${eventId}/contributions/${cid}/confirm`, { parentToken })
 export const initSatispay = (data) => api.post('/payments/satispay/init', data)
+export const createStripeCheckout = (data) => api.post('/payments/stripe/checkout', data)
 
 
 // ─── User keys ─────────────────────────────────────────────────────────────
