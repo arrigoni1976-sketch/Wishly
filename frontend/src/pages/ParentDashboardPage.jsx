@@ -291,19 +291,19 @@ export default function ParentDashboardPage() {
 
   const shareGuestLink = async () => {
     const url = `${baseUrl}/lista/${event?.guest_token}`
+    const text = `${t('dashboard.share.share_text', { name: event.child_name })}\n${url}`
     if (navigator.share) {
       try {
         await navigator.share({
           title: t('dashboard.header.title', { name: event.child_name }),
-          text: t('dashboard.share.share_text', { name: event.child_name }),
-          url,
+          text,
         })
         return
       } catch (e) {
         if (e.name === 'AbortError') return
       }
     }
-    await navigator.clipboard.writeText(url)
+    await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
   }
