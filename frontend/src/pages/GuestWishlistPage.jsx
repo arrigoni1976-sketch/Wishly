@@ -178,9 +178,11 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
     const name = recoverName.trim().toLowerCase()
     if (!name) return
     const found = serverRsvps.find((r) => {
-      const rsvpName = r.guest_name?.toLowerCase().trim() || ''
-      // exact, or one name is contained in the other (handles "Francesca" vs "Francesca Bonacina")
-      return rsvpName === name || rsvpName.startsWith(name) || name.startsWith(rsvpName)
+      const matches = (field) => {
+        const n = field?.toLowerCase().trim() || ''
+        return n === name || n.startsWith(name) || name.startsWith(n)
+      }
+      return matches(r.guest_name) || matches(r.parent_name)
     })
     if (found) {
       onRsvpSaved(found)
