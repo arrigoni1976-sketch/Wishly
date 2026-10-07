@@ -398,6 +398,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           placeholder={t('guest.rsvp.form.parent_name.placeholder')}
           className="input"
         />
+        <p className="text-xs text-gray-400">{t('guest.rsvp.form.parent_name.hint')}</p>
         {extraAdults.map((name, i) => (
           <div key={i} className="flex items-center gap-2">
             <input

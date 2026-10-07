@@ -360,7 +360,7 @@
         "child_name": { "label": "Child's name *", "placeholder": "e.g. Julia" },
         "extra_child": { "placeholder": "Child's name" },
         "add_child": "+ Add child",
-        "parent_name": { "label": "Your name (parent) *", "placeholder": "e.g. John Smith" },
+        "parent_name": { "label": "Your name (parent) *", "placeholder": "e.g. John Smith", "hint": "Use your name to access this invite from another device" },
         "extra_adult": { "placeholder": "Adult's name" },
         "add_adult": "+ Add adult",
         "status": { "label": "Will you attend?" },

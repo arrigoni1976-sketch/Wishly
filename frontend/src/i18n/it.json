@@ -360,7 +360,7 @@
         "child_name": { "label": "Nome del bambino *", "placeholder": "es. Giulia" },
         "extra_child": { "placeholder": "Nome bambino" },
         "add_child": "+ Aggiungi bambino",
-        "parent_name": { "label": "Il tuo nome (genitore) *", "placeholder": "es. Marco Rossi" },
+        "parent_name": { "label": "Il tuo nome (genitore) *", "placeholder": "es. Marco Rossi", "hint": "Usa il tuo nome per accedere all'invito da un altro dispositivo" },
         "extra_adult": { "placeholder": "Nome adulto" },
         "add_adult": "+ Aggiungi adulto",
         "status": { "label": "Parteciperai?" },
