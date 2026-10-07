@@ -62,6 +62,22 @@ app.use('/api/account', accountRouter)
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }))
 
+// ─── App Links (Android) ────────────────────────────────────────────────────
+// SHA-256 da Google Play Console → Setup → App signing → App signing certificate
+app.get('/.well-known/assetlinks.json', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.json([{
+    relation: ['delegate_permission/common.handle_all_urls'],
+    target: {
+      namespace: 'android_app',
+      package_name: 'it.pikyapp.piky',
+      sha256_cert_fingerprints: [
+        process.env.ANDROID_SHA256_CERT || 'PLACEHOLDER_SHA256',
+      ],
+    },
+  }])
+})
+
 // ─── Universal Links (iOS) ───────────────────────────────────────────────────
 app.get('/.well-known/apple-app-site-association', (_req, res) => {
   res.setHeader('Content-Type', 'application/json')
