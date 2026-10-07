@@ -10,11 +10,20 @@ import { useAuth } from '../hooks/useAuth'
 import AuthModal from '../components/AuthModal'
 
 // ─── Monetizzazione ────────────────────────────────────────────────────────
-// Imposta su true quando vuoi attivare il pagamento per il secondo evento
+// Imposta su true quando vuoi attivare il pagamento
 const PAYMENT_ACTIVE = false
-const PRICE_PER_EVENT = 1.29
+const PRICE_PER_EVENT = 1.99
 
-const STEPS = ['Info festa', 'Chi organizza', 'Regali', 'Conferma']
+const STEPS_LOGGED_IN = ['Info festa', 'Regali', 'Anteprima', 'Crea lista']
+const STEPS_GUEST     = ['Info festa', 'Chi organizza', 'Regali', 'Anteprima', 'Crea lista']
+
+const STEP_FIELDS_MAP = {
+  'Info festa':     ['childName', 'partyDate'],
+  'Chi organizza':  ['parentEmail'],
+  'Regali':         [],
+  'Anteprima':      [],
+  'Crea lista':     [],
+}
 
 // ─── DateInput: GG / MM / AAAA ────────────────────────────────────────────
 function DateInput({ value, onChange, onBlur }) {
@@ -535,6 +544,29 @@ function StepConfirm({ data }) {
   )
 }
 
+// ─── Step: Payment gate ───────────────────────────────────────────────────
+function StepPaymentGate() {
+  return (
+    <div className="space-y-5 animate-fade-in text-center">
+      <div>
+        <p className="text-5xl mb-4">🎉</p>
+        <h2 className="font-display text-2xl font-bold text-gray-900 mb-2">
+          Tutto pronto!
+        </h2>
+        <p className="text-gray-500 text-sm">
+          Clicca il bottone qui sotto per generare il link da condividere con gli invitati.
+        </p>
+      </div>
+      {!PAYMENT_ACTIVE && (
+        <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4">
+          <p className="font-medium text-salvia text-sm">Piky è ancora completamente gratuita 🎁</p>
+          <p className="text-xs text-gray-500 mt-1">Goditi la festa senza pensieri.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────
 export default function CreateEventPage() {
   const navigate = useNavigate()
@@ -544,6 +576,8 @@ export default function CreateEventPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [emailQuota, setEmailQuota] = useState(null)
+
+  const steps = user ? STEPS_LOGGED_IN : STEPS_GUEST
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -590,6 +624,11 @@ export default function CreateEventPage() {
 
   const watchedData = watch()
 
+  // Auto-fill email from account when logged in
+  useEffect(() => {
+    if (user?.email) setValue('parentEmail', user.email)
+  }, [user])
+
   // Restore draft from sessionStorage on mount
   useEffect(() => {
     try {
@@ -611,25 +650,16 @@ export default function CreateEventPage() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  const STEP_FIELDS = {
-    1: ['childName', 'partyDate'],
-    2: ['parentEmail'],
-    3: [],
-    4: [],
-  }
-
   const handleNext = async () => {
-    let fields = STEP_FIELDS[currentStep]
-    if (currentStep === 3 && watchedData.collectiveEnabled) {
+    const stepLabel = steps[currentStep - 1]
+    let fields = STEP_FIELDS_MAP[stepLabel] || []
+    if (stepLabel === 'Regali' && watchedData.collectiveEnabled) {
       fields = ['collectiveGoal']
       if (watchedData.fixedQuotaEnabled) fields.push('collectiveFixedQuota')
     }
     const valid = await trigger(fields)
     if (!valid) return
-
-    // Quando PAYMENT_ACTIVE = true, aggiungere qui il blocco se freeEventUsed
-
-    setCurrentStep((s) => Math.min(s + 1, 4))
+    setCurrentStep((s) => Math.min(s + 1, steps.length))
   }
 
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
@@ -671,14 +701,15 @@ export default function CreateEventPage() {
           <h1 className="font-display text-3xl font-bold text-gray-900">Organizza la festa</h1>
         </div>
 
-        <StepIndicator steps={STEPS} currentStep={currentStep} />
+        <StepIndicator steps={steps} currentStep={currentStep} />
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
-            {currentStep === 1 && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
-            {currentStep === 2 && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} onEmailBlur={handleEmailBlur} />}
-            {currentStep === 3 && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
-            {currentStep === 4 && <StepConfirm data={watchedData} />}
+            {steps[currentStep - 1] === 'Info festa'    && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
+            {steps[currentStep - 1] === 'Chi organizza' && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} onEmailBlur={handleEmailBlur} />}
+            {steps[currentStep - 1] === 'Regali'        && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
+            {steps[currentStep - 1] === 'Anteprima'     && <StepConfirm data={watchedData} />}
+            {steps[currentStep - 1] === 'Crea lista'    && <StepPaymentGate />}
           </div>
 
           {error && (
@@ -697,7 +728,7 @@ export default function CreateEventPage() {
               </button>
             )}
 
-            {currentStep < 4 ? (
+            {currentStep < steps.length ? (
               <button
                 type="button"
                 onClick={handleNext}
@@ -720,7 +751,7 @@ export default function CreateEventPage() {
                 ) : (
                   <>
                     <Check className="w-5 h-5" />
-                    Organizza la festa
+                    Crea la lista e ottieni il link →
                   </>
                 )}
               </button>
