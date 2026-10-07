@@ -328,7 +328,7 @@
       "recover": {
         "title": "Ritrova la tua risposta",
         "label": "Il tuo nome",
-        "placeholder": "Nome Cognome",
+        "placeholder": "Il tuo nome",
         "not_found": "Nessuna conferma trovata per questo evento.",
         "error": "\"{{name}}\" non corrisponde a nessuna risposta. Prova con il tuo nome o quello del bambino.",
         "cancel": "Annulla",
