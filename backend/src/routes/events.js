@@ -5,6 +5,7 @@ import { sendEventCreatedEmail, sendThankYouEmail } from '../services/email.js'
 import { sendPushToParent } from '../services/push.js'
 import { isListClosed, parsePrice, isValidUuid, formatEur, formatEurInt } from '../lib/utils.js'
 import { createResourceLimiter, emailSendLimiter } from '../lib/rateLimit.js'
+import { requireAuth, optionalAuth } from '../middleware/auth.js'
 
 const router = Router()
 
@@ -28,8 +29,23 @@ function parseUserAgent(ua) {
   return { device_type, os, browser }
 }
 
+// ─── GET /api/events/mine — List events for authenticated user ───────────────
+router.get('/mine', requireAuth, async (req, res, next) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('id, child_name, party_date, parent_token, closing_date, collective_enabled')
+      .eq('owner_id', req.user.id)
+      .order('party_date', { ascending: false })
+    if (error) throw error
+    res.json(data || [])
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ─── POST /api/events — Create event ────────────────────────────────────────
-router.post('/', createResourceLimiter, async (req, res, next) => {
+router.post('/', createResourceLimiter, optionalAuth, async (req, res, next) => {
   try {
     const {
       childName, partyDate, partyTime, location, address, notes,
@@ -73,6 +89,7 @@ router.post('/', createResourceLimiter, async (req, res, next) => {
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
+        owner_id: req.user?.id || null,
       })
       .select()
       .single()

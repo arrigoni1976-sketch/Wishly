@@ -1,17 +1,16 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, Key, RefreshCw, Calendar, MapPin, Copy, Check } from 'lucide-react'
-import { syncFromServer } from '../lib/sync'
-import { removeUserKeyLink } from '../lib/api'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, RefreshCw, Calendar, MapPin, LogIn, LogOut } from 'lucide-react'
+import { getMyEvents } from '../lib/api'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import KeyModal from '../components/KeyModal'
+import AuthModal from '../components/AuthModal'
 import DownloadButton from '../components/DownloadButton'
-import { useUserKey } from '../hooks/useUserKey'
+import { useAuth } from '../hooks/useAuth'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 
@@ -94,70 +93,49 @@ const STEPS = [
 ]
 
 export default function HomePage() {
+  const { user, loading: authLoading, signOut } = useAuth()
   const [myEvents, setMyEvents] = useState([])
   const [myInvites, setMyInvites] = useState([])
-  const [showKeyModal, setShowKeyModal] = useState(false)
-  const [keyCopied, setKeyCopied] = useState(false)
-  const [keyModalMode, setKeyModalMode] = useState('create')
-  const [pendingDelete, setPendingDelete] = useState(null) // token dell'elemento da rimuovere
-  const { userKey, saveKey } = useUserKey()
-
-  const openKeyModal = (mode = 'create') => {
-    setKeyModalMode(mode)
-    setShowKeyModal(true)
-  }
-
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authModalMode, setAuthModalMode] = useState('login')
+  const [pendingDelete, setPendingDelete] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
 
-  const refreshLists = () => {
-    setMyEvents(JSON.parse(localStorage.getItem('piky_events') || '[]'))
-    setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
+  const openAuth = (mode = 'login') => {
+    setAuthModalMode(mode)
+    setShowAuthModal(true)
   }
 
-  // Auto-sync from server on every load when key is present
+  // Fetch events from server when logged in
   useEffect(() => {
-    refreshLists()
-    if (!userKey) return
-    syncFromServer(userKey)
-      .then(() => refreshLists())
-      .catch(() => {})
-  }, [userKey])
+    if (authLoading) return
+    if (user) {
+      getMyEvents()
+        .then((res) => setMyEvents(res.data || []))
+        .catch(() => {})
+    } else {
+      setMyEvents([])
+    }
+  }, [user, authLoading])
+
+  // Invites still from localStorage (guests don't need an account)
+  useEffect(() => {
+    setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
+  }, [])
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    if (userKey) {
-      await syncFromServer(userKey).catch(() => {})
+    if (user) {
+      const res = await getMyEvents().catch(() => null)
+      if (res) setMyEvents(res.data || [])
     }
-    refreshLists()
     setTimeout(() => setRefreshing(false), 600)
-  }
-
-  const handleKeySet = (key) => {
-    saveKey(key)
-    refreshLists()
-  }
-
-  const addToHidden = (token) => {
-    const hidden = JSON.parse(localStorage.getItem('piky_hidden') || '[]')
-    if (!hidden.includes(token)) {
-      localStorage.setItem('piky_hidden', JSON.stringify([...hidden, token]))
-    }
-  }
-
-  const removeEvent = (parentToken) => {
-    const updated = myEvents.filter((ev) => ev.parentToken !== parentToken)
-    setMyEvents(updated)
-    localStorage.setItem('piky_events', JSON.stringify(updated))
-    addToHidden(parentToken)
-    if (userKey) removeUserKeyLink(userKey, parentToken).catch(() => {})
   }
 
   const removeInvite = (guestToken) => {
     const updated = myInvites.filter((ev) => ev.guestToken !== guestToken)
     setMyInvites(updated)
     localStorage.setItem('piky_invites', JSON.stringify(updated))
-    addToHidden(guestToken)
-    if (userKey) removeUserKeyLink(userKey, guestToken).catch(() => {})
   }
 
   const hasContent = myEvents.length > 0 || myInvites.length > 0
@@ -168,9 +146,7 @@ export default function HomePage() {
     return Date.now() - new Date(partyDate).getTime() > HIDE_AFTER_DAYS * 24 * 60 * 60 * 1000
   }
 
-  const visibleEvents = myEvents.filter((ev) => !isExpired(ev.partyDate))
   const visibleInvites = myInvites.filter((inv) => !isExpired(inv.partyDate))
-  const hiddenCount = (myEvents.length - visibleEvents.length) + (myInvites.length - visibleInvites.length)
 
   return (
     <Layout>
@@ -209,68 +185,45 @@ export default function HomePage() {
             </a>
           </div>
 
-          {/* Box codice — visibile subito sotto i bottoni principali */}
+          {/* Box account */}
           <div className="max-w-md mx-auto mt-6">
-            {userKey ? (
-              <div className="flex flex-col gap-2 bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                  <Key className="w-4 h-4 text-salvia flex-shrink-0" />
-                  <span className="whitespace-nowrap">
-                    Codice:{' '}
-                    <span className="font-mono font-semibold text-gray-800 tracking-wider">
-                      {userKey.toUpperCase()}
-                    </span>
-                  </span>
+            {user ? (
+              <div className="flex items-center justify-between bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-2 text-sm text-gray-600 min-w-0">
+                  <LogIn className="w-4 h-4 text-salvia flex-shrink-0" />
+                  <span className="truncate">{user.email}</span>
                 </div>
-                <div className="flex items-center justify-center gap-2">
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(userKey.toUpperCase()).catch(() => {})
-                      setKeyCopied(true)
-                      setTimeout(() => setKeyCopied(false), 2000)
-                    }}
-                    className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-salvia hover:text-salvia transition-colors"
-                  >
-                    {keyCopied ? '✓ Copiato' : 'Copia'}
-                  </button>
-                  <button
-                    onClick={() => openKeyModal('create')}
-                    className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:border-salvia hover:text-salvia transition-colors"
-                  >
-                    Cambia
-                  </button>
-                </div>
+                <button
+                  onClick={signOut}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 ml-2"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Esci
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-3 shadow-sm">
-                <Key className="w-5 h-5 text-salvia flex-shrink-0" />
+                <LogIn className="w-5 h-5 text-salvia flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-800 text-sm">Salva le tue liste</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Crea un codice per ritrovarle su qualsiasi dispositivo
-                  </p>
+                  <p className="font-semibold text-gray-800 text-sm">Salva le tue feste</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Accedi per ritrovarle su qualsiasi dispositivo</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    onClick={() => openKeyModal('recover')}
+                    onClick={() => openAuth('login')}
                     className="text-xs font-medium text-gray-500 border border-gray-200 px-2.5 py-1.5 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
                   >
-                    Ho un codice
+                    Accedi
                   </button>
                   <button
-                    onClick={() => openKeyModal('create')}
+                    onClick={() => openAuth('register')}
                     className="text-sm font-medium text-salvia bg-salvia/10 px-3 py-1.5 rounded-xl hover:bg-salvia/20 transition-colors"
                   >
-                    Crea →
+                    Registrati →
                   </button>
                 </div>
               </div>
             )}
           </div>
-
-          <p className="text-sm text-gray-400 mt-4 max-w-sm mx-auto leading-relaxed">
-            Il codice è il tuo accesso personale. Salvalo per ritrovare le tue liste e i tuoi inviti su qualsiasi dispositivo — senza registrazione, senza password.
-          </p>
 
         </div>
 
@@ -286,37 +239,28 @@ export default function HomePage() {
                   <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
                 </button>
               </div>
-              <p className="text-xs text-gray-300 mb-3">
-                {hiddenCount > 0
-                  ? `${hiddenCount} ${hiddenCount === 1 ? 'lista nascosta' : 'liste nascoste'} automaticamente · `
-                  : ''}
-                Spariscono 60 giorni dopo la festa
-              </p>
-              {visibleEvents.length > 0 ? (
+              <p className="text-xs text-gray-300 mb-3">Spariscono 60 giorni dopo la festa</p>
+              {!user ? (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-400">Accedi per vedere le tue feste</p>
+                  <button onClick={() => openAuth('login')} className="text-sm text-salvia font-medium hover:underline">Accedi →</button>
+                </div>
+              ) : myEvents.length > 0 ? (
                 <div className="space-y-2">
-                  {visibleEvents.map((ev) => (
-                    <div key={ev.parentToken} className="flex items-center gap-2">
-                      <Link
-                        to={`/dashboard/${ev.parentToken}`}
-                        className="flex-1 flex items-center justify-between bg-avorio rounded-2xl px-4 py-3 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
-                      >
-                        <div>
-                          <p className="font-semibold text-gray-800 text-sm">{ev.childName}</p>
-                          <p className="text-xs text-gray-400">
-                            {ev.partyDate ? format(new Date(ev.partyDate), 'd MMMM yyyy', { locale: it }) : ''}
-                          </p>
-                        </div>
-                        <span className="text-salvia font-medium text-sm">Apri →</span>
-                      </Link>
-                      {pendingDelete === ev.parentToken ? (
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <button onClick={() => setPendingDelete(null)} className="text-xs font-medium text-gray-500 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl transition-colors">No</button>
-                          <button onClick={() => { removeEvent(ev.parentToken); setPendingDelete(null) }} className="text-xs font-semibold text-white bg-red-400 hover:bg-red-500 px-3 py-1.5 rounded-xl transition-colors">Sì</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setPendingDelete(ev.parentToken)} className="p-1.5 text-gray-300 hover:text-red-400 transition-colors" title="Rimuovi">✕</button>
-                      )}
-                    </div>
+                  {myEvents.map((ev) => (
+                    <Link
+                      key={ev.parent_token}
+                      to={`/dashboard/${ev.parent_token}`}
+                      className="flex items-center justify-between bg-avorio rounded-2xl px-4 py-3 border border-avorio-dark hover:border-salvia hover:shadow-sm transition-all"
+                    >
+                      <div>
+                        <p className="font-semibold text-gray-800 text-sm">{ev.child_name}</p>
+                        <p className="text-xs text-gray-400">
+                          {ev.party_date ? format(new Date(ev.party_date), 'd MMMM yyyy', { locale: it }) : ''}
+                        </p>
+                      </div>
+                      <span className="text-salvia font-medium text-sm">Apri →</span>
+                    </Link>
                   ))}
                   <Link to="/crea" className="inline-flex items-center gap-1 text-xs text-salvia font-medium hover:underline mt-1">
                     + Crea una nuova festa
@@ -609,11 +553,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      <KeyModal
-        isOpen={showKeyModal}
-        initialMode={keyModalMode}
-        onClose={() => setShowKeyModal(false)}
-        onKeySet={handleKeySet}
+      <AuthModal
+        isOpen={showAuthModal}
+        initialMode={authModalMode}
+        onClose={() => setShowAuthModal(false)}
       />
     </Layout>
   )

@@ -1,13 +1,23 @@
 import axios from 'axios'
+import { supabase } from './supabase'
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL || ''}/api`,
   headers: { 'Content-Type': 'application/json' },
 })
 
+api.interceptors.request.use(async (config) => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`
+  }
+  return config
+})
+
 // ─── Events ────────────────────────────────────────────────────────────────
 
 export const createEvent = (data) => api.post('/events', data)
+export const getMyEvents = () => api.get('/events/mine')
 export const getEventByParentToken = (token) => api.get(`/events/parent/${token}`)
 export const getEventByGuestToken = (token) => api.get(`/events/guest/${token}`)
 export const getEventByCollectiveToken = (token) => api.get(`/events/collective/${token}`)

@@ -1,11 +1,13 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import CakeIcon from '../components/CakeIcon'
-import { createEvent, addUserKeyLink, checkEmailQuota } from '../lib/api'
+import { createEvent, checkEmailQuota } from '../lib/api'
+import { useAuth } from '../hooks/useAuth'
+import AuthModal from '../components/AuthModal'
 
 // ─── Monetizzazione ────────────────────────────────────────────────────────
 // Imposta su true quando vuoi attivare il pagamento per il secondo evento
@@ -536,10 +538,17 @@ function StepConfirm({ data }) {
 // ─── Main Component ────────────────────────────────────────────────────────
 export default function CreateEventPage() {
   const navigate = useNavigate()
+  const { user, loading: authLoading } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [emailQuota, setEmailQuota] = useState(null)
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) setShowAuthModal(true)
+  }, [user, authLoading])
 
   const handleEmailBlur = async (e) => {
     const email = e.target.value.trim()
@@ -635,27 +644,6 @@ export default function CreateEventPage() {
       const referralSource = sessionStorage.getItem('referral_source') || undefined
       const res = await createEvent({ ...data, utmSource, utmMedium, utmCampaign, referralSource })
 
-      // Salva in localStorage
-      const saved = JSON.parse(localStorage.getItem('piky_events') || '[]')
-      saved.unshift({
-        childName: data.childName,
-        partyDate: data.partyDate,
-        parentToken: res.data.parentToken,
-        createdAt: new Date().toISOString(),
-      })
-      localStorage.setItem('piky_events', JSON.stringify(saved.slice(0, 10)))
-
-      // Associa alla chiave personale (non bloccante)
-      const userKey = localStorage.getItem('piky_user_key')
-      if (userKey) {
-        addUserKeyLink(userKey, {
-          linkType: 'event',
-          token: res.data.parentToken,
-          childName: data.childName,
-          partyDate: data.partyDate,
-        }).catch(() => {})
-      }
-
       sessionStorage.removeItem('piky_create_draft')
       navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
     } catch (e) {
@@ -667,6 +655,12 @@ export default function CreateEventPage() {
 
   return (
     <Layout>
+      <AuthModal
+        isOpen={showAuthModal}
+        initialMode="register"
+        onClose={() => { if (!user) navigate('/') }}
+        onSuccess={() => setShowAuthModal(false)}
+      />
       <div className="max-w-xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-8">
