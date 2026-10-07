@@ -193,12 +193,9 @@ export default function HomePage() {
               </div>
             ) : (
               <div className="flex flex-col gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-4 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <LogIn className="w-5 h-5 text-salvia flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-gray-800 text-sm">{t('home.auth.box.title')}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{t('home.auth.box.subtitle')}</p>
-                  </div>
+                <div>
+                  <p className="font-semibold text-gray-800 text-sm">{t('home.auth.box.title')}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{t('home.auth.box.subtitle')}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -211,7 +208,7 @@ export default function HomePage() {
                     onClick={() => openAuth('register')}
                     className="flex-1 text-sm font-medium text-salvia bg-salvia/10 px-3 py-2 rounded-xl hover:bg-salvia/20 transition-colors"
                   >
-                    {t('home.auth.box.register')} →
+                    {t('home.auth.box.register')}
                   </button>
                 </div>
               </div>
