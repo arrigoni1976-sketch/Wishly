@@ -255,15 +255,6 @@ function StepListSettings({ register, control, errors, emailQuota, onEmailBlur }
         )}
       </div>
 
-      <div>
-        <label className="label">{t('create.step2.closing.label')}</label>
-        <Controller name="closingDate" control={control}
-          render={({ field }) => <DateInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
-        <p className="text-xs text-gray-400 mt-1.5">
-          {t('create.step2.closing.hint')}
-        </p>
-      </div>
-
     </div>
   )
 }
@@ -513,20 +504,12 @@ function StepConfirm({ data }) {
             {data.address && <p className="text-xs text-gray-500 mt-0.5">{data.address}</p>}
           </div>
           <div>
-            <span className="text-gray-400">{t('create.confirm.email.label')}</span>
-            <p className="font-medium text-gray-700 truncate">{data.parentEmail || '—'}</p>
-          </div>
-          <div>
-            <span className="text-gray-400">{t('create.confirm.closing.label')}</span>
-            <p className="font-medium text-gray-700">
-              {data.closingDate
-                ? new Date(data.closingDate).toLocaleDateString(i18n.language === 'en' ? 'en-GB' : 'it-IT')
-                : t('create.confirm.closing.not_set')}
-            </p>
-          </div>
-          <div>
             <span className="text-gray-400">{t('create.confirm.gifts.label')}</span>
             <p className="font-medium text-gray-700">{data.gifts?.length || 0} {t('create.confirm.gifts.unit')}</p>
+          </div>
+          <div className="col-span-2">
+            <span className="text-gray-400">{t('create.confirm.email.label')}</span>
+            <p className="font-medium text-gray-700">{data.parentEmail || '—'}</p>
           </div>
         </div>
 
