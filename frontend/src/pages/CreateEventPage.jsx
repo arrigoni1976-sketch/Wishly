@@ -123,8 +123,22 @@ function TimeInput({ value, onChange, onBlur, placeholder }) {
 }
 
 // ─── Step 1: Dettagli della festa ─────────────────────────────────────────
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)')
+    const handler = (e) => setIsDesktop(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return isDesktop
+}
+
 function StepPartyInfo({ register, control, errors, watch, setValue }) {
   const { t } = useTranslation()
+  const isDesktop = useIsDesktop()
   const validYear = (v) => {
     if (!v) return true
     const y = new Date(v).getFullYear()
@@ -191,7 +205,17 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
         <div>
           <label className="label">{t('create.step1.time.label')}</label>
           <Controller name="partyTime" control={control}
-            render={({ field }) => <TimeInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />} />
+            render={({ field }) =>
+              isDesktop
+                ? <TimeInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />
+                : <div className="input relative flex items-center">
+                    <input type="time" value={field.value||''} onChange={field.onChange} onBlur={field.onBlur}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <span className={`text-sm pointer-events-none ${field.value ? 'text-gray-800' : 'text-gray-400'}`}>
+                      {field.value || t('create.step1.time.placeholder')}
+                    </span>
+                  </div>
+            } />
         </div>
 
         <div>
