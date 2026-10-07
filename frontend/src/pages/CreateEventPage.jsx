@@ -507,10 +507,6 @@ function StepConfirm({ data }) {
             <span className="text-gray-400">{t('create.confirm.gifts.label')}</span>
             <p className="font-medium text-gray-700">{data.gifts?.length || 0} {t('create.confirm.gifts.unit')}</p>
           </div>
-          <div className="col-span-2">
-            <span className="text-gray-400">{t('create.confirm.email.label')}</span>
-            <p className="font-medium text-gray-700">{data.parentEmail || '—'}</p>
-          </div>
         </div>
 
         {data.notes && (
