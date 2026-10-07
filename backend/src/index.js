@@ -62,6 +62,25 @@ app.use('/api/account', accountRouter)
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', ts: new Date().toISOString() }))
 
+// ─── Universal Links (iOS) ───────────────────────────────────────────────────
+app.get('/.well-known/apple-app-site-association', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.json({
+    applinks: {
+      details: [
+        {
+          appIDs: ['3LN3K4RFRG.it.pikyapp.piky'],
+          components: [
+            { '/': '/lista/*' },
+            { '/': '/dashboard/*' },
+            { '/': '/collettivo/*' },
+          ],
+        },
+      ],
+    },
+  })
+})
+
 // ─── 404 ────────────────────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ message: 'Not found' }))
 
