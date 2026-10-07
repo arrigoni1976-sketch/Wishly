@@ -749,6 +749,7 @@ export default function CreateEventPage() {
 
             {currentStep < stepKeys.length ? (
               <button
+                key="next"
                 type="button"
                 onClick={handleNext}
                 className="btn-primary flex-1 flex items-center justify-center gap-1.5"
@@ -758,6 +759,7 @@ export default function CreateEventPage() {
               </button>
             ) : (
               <button
+                key="submit"
                 type="submit"
                 disabled={loading}
                 className="btn-primary flex-1 flex items-center justify-center gap-2 text-base"
