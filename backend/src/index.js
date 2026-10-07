@@ -72,8 +72,8 @@ app.use((err, _req, res, _next) => {
 })
 
 // ─── Scheduled jobs ─────────────────────────────────────────────────────────
-// Run every day at 08:00 Italy time — follow-up reminder the morning after the party
-cron.schedule('0 8 * * *', async () => {
+// Run every hour — notify organiser 1h after party ends (start + 4h); untimed parties get it next morning at 08:00
+cron.schedule('0 * * * *', async () => {
   console.log('[cron] Running party follow-up job...')
   await sendPartyFollowupPushes()
 }, { timezone: 'Europe/Rome' })

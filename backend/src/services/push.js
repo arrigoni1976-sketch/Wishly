@@ -62,30 +62,56 @@ export async function saveSubscription(parentToken, subscription) {
 }
 
 export async function sendPartyFollowupPushes() {
-  // Fires the morning after the party
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
-  const yesterdayStr = yesterday.toISOString().split('T')[0]
+  // Current time in Europe/Rome
+  const nowRome = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Rome' }))
+  const todayStr = nowRome.toISOString().split('T')[0]
+  const currentHour = nowRome.getHours()
 
-  const { data: events } = await supabase
-    .from('events')
-    .select('id, child_name, parent_token')
-    .eq('party_date', yesterdayStr)
+  // Parties with a known time: notify 1h after end (start + 3h party + 1h = start + 4h ago)
+  const targetHour = currentHour - 4
+  if (targetHour >= 0) {
+    const hourPrefix = String(targetHour).padStart(2, '0') + ':'
+    const { data: timedEvents } = await supabase
+      .from('events')
+      .select('id, child_name, parent_token')
+      .eq('party_date', todayStr)
+      .like('party_time', `${hourPrefix}%`)
 
-  if (!events?.length) {
-    console.log('[push] Nessuna festa ieri')
-    return
+    for (const event of (timedEvents ?? [])) {
+      await sendPushToParent(event.parent_token, {
+        title: `Piky — Com'è andata la festa di ${event.child_name}? 🎂`,
+        body: 'Ricorda di mandare un messaggio di ringraziamento agli invitati!',
+        url: `/dashboard/${event.parent_token}`,
+      })
+    }
+    if (timedEvents?.length) {
+      console.log(`[push] Follow-up push (timed) inviate per ${timedEvents.length} feste`)
+    }
   }
 
-  for (const event of events) {
-    await sendPushToParent(event.parent_token, {
-      title: `Piky — Com'è andata la festa di ${event.child_name}? 🎂`,
-      body: 'Ricorda di mandare un messaggio di ringraziamento agli invitati!',
-      url: `/dashboard/${event.parent_token}`,
-    })
-  }
+  // Fallback: parties without a time → notify the morning after at 08:00
+  if (currentHour === 8) {
+    const yesterday = new Date(nowRome)
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = yesterday.toISOString().split('T')[0]
 
-  console.log(`[push] Follow-up push inviate per ${events.length} feste`)
+    const { data: untimedEvents } = await supabase
+      .from('events')
+      .select('id, child_name, parent_token')
+      .eq('party_date', yesterdayStr)
+      .is('party_time', null)
+
+    for (const event of (untimedEvents ?? [])) {
+      await sendPushToParent(event.parent_token, {
+        title: `Piky — Com'è andata la festa di ${event.child_name}? 🎂`,
+        body: 'Ricorda di mandare un messaggio di ringraziamento agli invitati!',
+        url: `/dashboard/${event.parent_token}`,
+      })
+    }
+    if (untimedEvents?.length) {
+      console.log(`[push] Follow-up push (untimed) inviate per ${untimedEvents.length} feste`)
+    }
+  }
 }
 
 export async function sendClosingPushes() {
