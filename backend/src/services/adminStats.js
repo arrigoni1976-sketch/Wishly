@@ -164,7 +164,7 @@ export async function getAdminStats() {
       organizersFromInvite,
     },
     monetization: {
-      paymentActive: false,
+      paymentActive: process.env.PAYMENT_ACTIVE === 'true',
       pricePerEvent: PRICE_PER_EVENT,
       returningUsers,
       additionalEvents,
