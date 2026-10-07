@@ -28,10 +28,15 @@ export function useAuth() {
 
   const signOut = () => supabase.auth.signOut()
 
+  const resetPassword = (email) =>
+    supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://www.pikyapp.it/reset-password',
+    })
+
   const getToken = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     return session?.access_token || null
   }
 
-  return { user, loading, signIn, signUp, signOut, getToken }
+  return { user, loading, signIn, signUp, signOut, getToken, resetPassword }
 }

@@ -10,7 +10,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [registered, setRegistered] = useState(false)
-  const { signIn, signUp } = useAuth()
+  const [resetSent, setResetSent] = useState(false)
+  const { signIn, signUp, resetPassword } = useAuth()
 
   if (!isOpen) return null
 
@@ -19,11 +20,25 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
     setPassword('')
     setError('')
     setRegistered(false)
+    setResetSent(false)
   }
 
   const switchMode = (m) => {
     setMode(m)
     reset()
+  }
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const { error: err } = await resetPassword(email.trim())
+    if (err) {
+      setError('Errore nell\'invio. Controlla l\'email inserita.')
+    } else {
+      setResetSent(true)
+    }
+    setLoading(false)
   }
 
   const handleSubmit = async (e) => {
@@ -105,6 +120,42 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
                 Abbiamo inviato un link di conferma a <strong>{email}</strong>. Clicca il link per attivare il tuo account.
               </p>
             </div>
+          ) : mode === 'forgot' ? (
+            resetSent ? (
+              <div className="text-center py-4">
+                <p className="text-2xl mb-3">📬</p>
+                <p className="font-semibold text-gray-900 mb-1">Email inviata!</p>
+                <p className="text-sm text-gray-500">
+                  Abbiamo inviato un link a <strong>{email}</strong>. Controlla anche la cartella spam.
+                </p>
+                <button onClick={() => switchMode('login')} className="mt-4 text-sm text-salvia font-medium hover:underline">
+                  Torna al login
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <p className="text-sm text-gray-500">Inserisci la tua email e ti mandiamo un link per reimpostare la password.</p>
+                <div>
+                  <label className="label">Email</label>
+                  <input
+                    type="email"
+                    className="input"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError('') }}
+                    placeholder="la-tua@email.it"
+                    required
+                    autoFocus
+                  />
+                </div>
+                {error && <p className="text-sm text-red-500">{error}</p>}
+                <button type="submit" disabled={loading} className="btn-primary w-full py-3">
+                  {loading ? 'Invio…' : 'Invia link di recupero →'}
+                </button>
+                <button type="button" onClick={() => switchMode('login')} className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors">
+                  Torna al login
+                </button>
+              </form>
+            )
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -142,6 +193,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
                   ? (mode === 'login' ? 'Accesso...' : 'Registrazione...')
                   : (mode === 'login' ? 'Accedi →' : 'Crea account →')}
               </button>
+
+              {mode === 'login' && (
+                <button type="button" onClick={() => switchMode('forgot')} className="w-full text-xs text-gray-400 hover:text-salvia transition-colors">
+                  Hai dimenticato la password?
+                </button>
+              )}
             </form>
           )}
         </div>
