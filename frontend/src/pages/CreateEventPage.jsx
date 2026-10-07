@@ -151,9 +151,9 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
             <input
               {...register('partyTime')}
               type="time"
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer md:static md:opacity-100 md:text-sm md:text-gray-800 md:bg-transparent md:border-0 md:outline-none md:w-full md:h-auto md:cursor-auto"
             />
-            <span className={`text-sm pointer-events-none ${watch('partyTime') ? 'text-gray-800' : 'text-gray-400'}`}>
+            <span className={`text-sm pointer-events-none md:hidden ${watch('partyTime') ? 'text-gray-800' : 'text-gray-400'}`}>
               {watch('partyTime') || t('create.step1.time.placeholder')}
             </span>
           </div>
