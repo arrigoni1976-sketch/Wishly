@@ -349,46 +349,6 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
     <div className="bg-white rounded-3xl border border-avorio-dark p-5 space-y-4 animate-fade-in">
       <h3 className="font-display font-bold text-gray-900">{t('guest.rsvp.form.title')}</h3>
 
-      {/* Nome bambino + extra bambini */}
-      <div className="space-y-2">
-        <label className="label">{t('guest.rsvp.form.child_name.label')}</label>
-        <input
-          value={guestName}
-          onChange={(e) => setGuestName(e.target.value)}
-          placeholder={t('guest.rsvp.form.child_name.placeholder')}
-          className="input"
-        />
-        {extraChildren.map((name, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => {
-                const next = [...extraChildren]
-                next[i] = e.target.value
-                setExtraChildren(next)
-              }}
-              placeholder={t('guest.rsvp.form.extra_child.placeholder')}
-              className="input text-sm py-2 flex-1"
-            />
-            <button
-              type="button"
-              onClick={() => setExtraChildren(extraChildren.filter((_, j) => j !== i))}
-              className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
-            >
-              ×
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => setExtraChildren([...extraChildren, ''])}
-          className="text-sm text-salvia hover:text-salvia/80 font-medium"
-        >
-          {t('guest.rsvp.form.add_child')}
-        </button>
-      </div>
-
       {/* Nome genitore + extra adulti */}
       <div className="space-y-2">
         <label className="label">{t('guest.rsvp.form.parent_name.label')}</label>
@@ -427,6 +387,46 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           className="text-sm text-salvia hover:text-salvia/80 font-medium"
         >
           {t('guest.rsvp.form.add_adult')}
+        </button>
+      </div>
+
+      {/* Nome bambino + extra bambini */}
+      <div className="space-y-2">
+        <label className="label">{t('guest.rsvp.form.child_name.label')}</label>
+        <input
+          value={guestName}
+          onChange={(e) => setGuestName(e.target.value)}
+          placeholder={t('guest.rsvp.form.child_name.placeholder')}
+          className="input"
+        />
+        {extraChildren.map((name, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                const next = [...extraChildren]
+                next[i] = e.target.value
+                setExtraChildren(next)
+              }}
+              placeholder={t('guest.rsvp.form.extra_child.placeholder')}
+              className="input text-sm py-2 flex-1"
+            />
+            <button
+              type="button"
+              onClick={() => setExtraChildren(extraChildren.filter((_, j) => j !== i))}
+              className="w-8 h-8 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center text-lg"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => setExtraChildren([...extraChildren, ''])}
+          className="text-sm text-salvia hover:text-salvia/80 font-medium"
+        >
+          {t('guest.rsvp.form.add_child')}
         </button>
       </div>
 
@@ -1019,7 +1019,12 @@ export default function GuestWishlistPage() {
                       <div className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-sm font-bold">
                         {r.guest_name?.charAt(0).toUpperCase() || '?'}
                       </div>
-                      <span className="font-medium text-gray-800 text-sm">{r.guest_name}</span>
+                      <div>
+                        <span className="font-medium text-gray-800 text-sm">{r.guest_name}</span>
+                        {r.parent_name && (
+                          <span className="ml-1.5 text-xs text-gray-400">· {r.parent_name}</span>
+                        )}
+                      </div>
                     </div>
                     <span className="text-xs text-gray-400">
                       {[
