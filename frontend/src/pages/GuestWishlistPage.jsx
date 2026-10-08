@@ -652,12 +652,10 @@ export default function GuestWishlistPage() {
     ;(async () => {
       try {
         const sw = await navigator.serviceWorker.ready
-        const { data: { key } } = await getPushVapidKey()
-        const appKey = urlBase64ToUint8Array(key)
         const existing = await sw.pushManager.getSubscription()
-        if (existing) await existing.unsubscribe()
-        const sub = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
-        await subscribeGuestPush({ guestToken, subscription: sub.toJSON() })
+        // Registra la subscription esistente come guest, senza toccarla
+        // (non creare una nuova subscription: romperebbe le notifiche dell'organizzatore)
+        if (existing) await subscribeGuestPush({ guestToken, subscription: existing.toJSON() })
       } catch (err) { console.error('[push] guest rinnovo subscription fallito:', err) }
     })()
   }, [])
