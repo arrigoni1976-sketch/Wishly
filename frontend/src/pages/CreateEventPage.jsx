@@ -106,12 +106,12 @@ function TimeInput({ value, onChange, onBlur, placeholder }) {
 
   return (
     <div className="input flex items-center">
-      <input ref={hhRef} type="text" inputMode="numeric" placeholder="HH" maxLength={2}
+      <input ref={hhRef} type="text" inputMode="numeric" placeholder="16" maxLength={2}
         value={hh}
         onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(v,mm); if(v.length===2) mmRef.current?.focus() }}
         className="w-7 text-center bg-transparent outline-none" />
       <span className="text-gray-300 select-none mx-0.5">:</span>
-      <input ref={mmRef} type="text" inputMode="numeric" placeholder="MM" maxLength={2}
+      <input ref={mmRef} type="text" inputMode="numeric" placeholder="30" maxLength={2}
         value={mm}
         onChange={(e) => { const v = e.target.value.replace(/\D/g,'').slice(0,2); update(hh,v) }}
         onKeyDown={(e) => { if(e.key==='Backspace'&&!mm) hhRef.current?.focus() }}
