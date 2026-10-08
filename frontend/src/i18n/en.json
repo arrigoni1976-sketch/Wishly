@@ -221,8 +221,8 @@
       "btn": "Share invite",
       "preview": "Preview →",
       "preview_title": "See how the link appears to guests",
-      "update_hint": "Updated something? Let your guests know.",
-      "update_btn": "Share update",
+      "update_hint": "Updated something? Share the link again.",
+      "update_btn": "Reshare link",
       "return_hint": "Come back here to see who responded and who booked a gift",
       "share_text": "You're invited to {{name}}'s birthday! Come and confirm your attendance.",
       "update_text": "Updates for {{name}}'s party! Take a look 👀"
@@ -233,14 +233,14 @@
       "blocked": "Notifications blocked — enable them in your browser settings"
     },
     "broadcast": {
-      "title": "Send update to guests",
-      "subtitle": "Write a short message: it will arrive as a notification to those who enabled it.",
+      "title": "Want to send a message to your guests?",
+      "subtitle": "Write a short text — it will arrive as a notification to those who enabled it.",
       "placeholder": "E.g. We've updated the party time to 4:30 PM!",
       "btn": "Send notification",
       "sending": "Sending...",
       "success": "Notification sent to {{count}} guests!",
       "success_zero": "Sent — no guest has enabled notifications yet.",
-      "hint": "Only guests who enabled notifications on their device will receive it."
+      "hint": "Only guests who enabled notifications will receive it."
     },
     "collective": {
       "add": { "title": "Add group gift", "subtitle": "Collect contributions from guests for a special gift" },

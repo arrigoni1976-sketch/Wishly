@@ -345,11 +345,12 @@ export default function ParentDashboardPage() {
       const permission = await Notification.requestPermission()
       if (permission !== 'granted') { setNotifStatus('denied'); return }
       const sw = await navigator.serviceWorker.ready
-      const { data: { key } } = await getPushVapidKey()
-      const appKey = urlBase64ToUint8Array(key)
-      const existing = await sw.pushManager.getSubscription()
-      if (existing) await existing.unsubscribe()
-      const subscription = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
+      let subscription = await sw.pushManager.getSubscription()
+      if (!subscription) {
+        const { data: { key } } = await getPushVapidKey()
+        const appKey = urlBase64ToUint8Array(key)
+        subscription = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
+      }
       await subscribePush({ parentToken, subscription: subscription.toJSON() })
       setNotifStatus('granted')
     } catch (err) {

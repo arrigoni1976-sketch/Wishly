@@ -221,8 +221,8 @@
       "btn": "Condividi invito",
       "preview": "Anteprima →",
       "preview_title": "Vedi come appare il link agli invitati",
-      "update_hint": "Hai aggiornato qualcosa? Fallo sapere ai tuoi invitati.",
-      "update_btn": "Condividi aggiornamento",
+      "update_hint": "Hai aggiornato qualcosa? Condividi di nuovo il link.",
+      "update_btn": "Ricondividi il link",
       "return_hint": "Torna qui per vedere chi ha risposto e chi ha prenotato un regalo",
       "share_text": "Sei invitato al compleanno di {{name}}! Qui puoi confermare la tua presenza.",
       "update_text": "Ci sono novità sulla festa di {{name}}! Entra a dare un'occhiata 👀"
@@ -233,14 +233,14 @@
       "blocked": "Notifiche bloccate — abilitale dalle impostazioni del browser"
     },
     "broadcast": {
-      "title": "Invia aggiornamento agli invitati",
-      "subtitle": "Scrivi un breve messaggio: arriverà come notifica a chi l'ha attivata.",
+      "title": "Vuoi mandare un messaggio agli invitati?",
+      "subtitle": "Scrivi un testo breve — arriverà come notifica a chi l'ha attivata.",
       "placeholder": "Es: Abbiamo aggiornato l'orario della festa alle 16:30!",
       "btn": "Invia notifica",
       "sending": "Invio in corso...",
       "success": "Notifica inviata a {{count}} invitati!",
       "success_zero": "Inviato — nessun invitato ha ancora attivato le notifiche.",
-      "hint": "Ricevono solo gli invitati che hanno attivato le notifiche sul loro dispositivo."
+      "hint": "Lo ricevono solo gli invitati che hanno attivato le notifiche."
     },
     "collective": {
       "add": { "title": "Aggiungi regalo collettivo", "subtitle": "Raccogli contributi dagli invitati per un regalo speciale" },
