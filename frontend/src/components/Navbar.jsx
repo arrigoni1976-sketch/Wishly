@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
@@ -7,8 +7,6 @@ import { deleteAccount } from '../lib/api'
 import AuthModal from './AuthModal'
 
 export default function Navbar() {
-  const location = useLocation()
-  const isHome = location.pathname === '/'
   const { t, i18n } = useTranslation()
   const { user, signOut } = useAuth()
   const [showLogin, setShowLogin] = useState(false)
@@ -127,14 +125,6 @@ export default function Navbar() {
             </button>
           )}
 
-          {isHome && (
-            <Link
-              to="/crea"
-              className="btn-primary text-xs py-1.5 px-4"
-            >
-              {t('nav.cta')}
-            </Link>
-          )}
         </nav>
       </div>
     </header>
