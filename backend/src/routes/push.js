@@ -59,7 +59,7 @@ router.post('/guest-subscribe', createResourceLimiter, async (req, res, next) =>
 })
 
 // POST /api/push/broadcast/:parentToken — invia aggiornamento a tutti i guest iscritti
-router.post('/broadcast/:parentToken', emailSendLimiter, async (req, res, next) => {
+router.post('/broadcast/:parentToken', createResourceLimiter, async (req, res, next) => {
   try {
     const { parentToken } = req.params
     const { message } = req.body

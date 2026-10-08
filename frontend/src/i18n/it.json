@@ -239,6 +239,7 @@
       "btn": "Invia notifica",
       "sending": "Invio in corso...",
       "success": "Notifica inviata a {{count}} invitati!",
+      "success_zero": "Inviato — nessun invitato ha ancora attivato le notifiche.",
       "hint": "Ricevono solo gli invitati che hanno attivato le notifiche sul loro dispositivo."
     },
     "collective": {

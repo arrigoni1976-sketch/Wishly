@@ -634,12 +634,15 @@ export default function GuestWishlistPage() {
       const permission = await Notification.requestPermission()
       if (permission !== 'granted') { setNotifStatus('denied'); return }
       const sw = await navigator.serviceWorker.ready
-      const { data: { key } } = await getPushVapidKey()
-      const appKey = urlBase64ToUint8Array(key)
-      const existing = await sw.pushManager.getSubscription()
-      if (existing) await existing.unsubscribe()
-      const subscription = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
-      await subscribeGuestPush({ guestToken, subscription: subscription.toJSON() })
+      let sub = await sw.pushManager.getSubscription()
+      if (!sub) {
+        // Nessuna subscription esistente — creane una nuova
+        const { data: { key } } = await getPushVapidKey()
+        const appKey = urlBase64ToUint8Array(key)
+        sub = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
+      }
+      // Registra come guest subscription senza toccare quella dell'organizzatore
+      await subscribeGuestPush({ guestToken, subscription: sub.toJSON() })
       setNotifStatus('granted')
     } catch (err) {
       console.error('[push] guest subscribe error:', err)

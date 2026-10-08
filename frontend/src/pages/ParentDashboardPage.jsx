@@ -666,7 +666,9 @@ export default function ParentDashboardPage() {
           </div>
           {broadcastResult && !broadcastResult.error && (
             <p className="text-sm text-salvia font-medium mb-3">
-              {t('dashboard.broadcast.success', { count: broadcastResult.sent })}
+              {broadcastResult.sent === 0
+                ? t('dashboard.broadcast.success_zero')
+                : t('dashboard.broadcast.success', { count: broadcastResult.sent })}
             </p>
           )}
           {broadcastResult?.error && (

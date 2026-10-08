@@ -239,6 +239,7 @@
       "btn": "Send notification",
       "sending": "Sending...",
       "success": "Notification sent to {{count}} guests!",
+      "success_zero": "Sent — no guest has enabled notifications yet.",
       "hint": "Only guests who enabled notifications on their device will receive it."
     },
     "collective": {
