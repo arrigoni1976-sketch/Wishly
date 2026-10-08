@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { registerSW } from 'virtual:pwa-register'
 import { Analytics } from '@vercel/analytics/react'
+import { Capacitor } from '@capacitor/core'
+import { App as CapApp } from '@capacitor/app'
 import HomePage from './pages/HomePage'
 import CreateEventPage from './pages/CreateEventPage'
 import ParentDashboardPage from './pages/ParentDashboardPage'
@@ -29,8 +31,7 @@ const updateSW = registerSW({
 // Esponi la funzione di update globalmente per il pulsante in Navbar
 window.__pikyUpdateSW = updateSW
 
-// Riporta la pagina in cima a ogni cambio di rotta — senza, il browser mantiene
-// lo scroll della pagina precedente quando si naviga con React Router
+// Riporta la pagina in cima a ogni cambio di rotta
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
@@ -39,10 +40,29 @@ function ScrollToTop() {
   return null
 }
 
+// Gestisce i deep link quando l'app nativa viene aperta tramite Universal Link / App Link
+// Es: pikyapp.it/lista/abc → naviga a /lista/abc dentro React Router
+function DeepLinkHandler() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return
+    const handler = CapApp.addListener('appUrlOpen', (event) => {
+      try {
+        const url = new URL(event.url)
+        const path = url.pathname + url.search
+        if (path && path !== '/') navigate(path, { replace: true })
+      } catch {}
+    })
+    return () => { handler.then((h) => h.remove()) }
+  }, [navigate])
+  return null
+}
+
 export default function App() {
   return (
     <Router>
       <ScrollToTop />
+      <DeepLinkHandler />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/crea" element={<CreateEventPage />} />
