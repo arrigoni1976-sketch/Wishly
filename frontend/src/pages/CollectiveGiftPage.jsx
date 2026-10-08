@@ -411,7 +411,7 @@ export default function CollectiveGiftPage() {
                 .map((c) => (
                   <div key={c.id} className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-cipria flex items-center justify-center text-sm font-bold text-white flex-shrink-0">
-                      {c.contributor_name.charAt(0).toUpperCase()}
+                      {c.contributor_name?.charAt(0).toUpperCase() ?? '?'}
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-700">{c.contributor_name}</p>

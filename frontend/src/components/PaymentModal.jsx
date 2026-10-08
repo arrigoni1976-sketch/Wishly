@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import clsx from 'clsx'
 import { getErrorMessage } from '../lib/api'
@@ -13,6 +13,8 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
   const [name, setName] = useState(defaultName)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => { if (isOpen) setName(defaultName) }, [isOpen, defaultName])
 
   if (!isOpen) return null
 

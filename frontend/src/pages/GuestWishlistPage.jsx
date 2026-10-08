@@ -581,10 +581,14 @@ export default function GuestWishlistPage() {
 
   const handleRsvpSaved = (rsvp) => {
     setMyRsvp(rsvp)
-    localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(rsvp))
+    try {
+      localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(rsvp))
+    } catch {}
     if (rsvp.guest_name) {
-      localStorage.setItem('piky_guest_name', rsvp.guest_name)
-      localStorage.setItem('piky_child_name', rsvp.guest_name)
+      try {
+        localStorage.setItem('piky_guest_name', rsvp.guest_name)
+        localStorage.setItem('piky_child_name', rsvp.guest_name)
+      } catch {}
       trackLinkView(guestToken, { guestName: rsvp.guest_name }).catch(() => {})
       // Aggiorna subito le prenotazioni riconosciute (utile dopo recupero RSVP cross-device)
       if (event?.gifts) {
