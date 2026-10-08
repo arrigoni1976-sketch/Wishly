@@ -1,10 +1,15 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../hooks/useAuth'
+import AuthModal from './AuthModal'
 
 export default function Navbar() {
   const location = useLocation()
   const isHome = location.pathname === '/'
   const { t, i18n } = useTranslation()
+  const { user } = useAuth()
+  const [showLogin, setShowLogin] = useState(false)
 
   const toggleLang = () => {
     const next = i18n.language === 'it' ? 'en' : 'it'
@@ -38,6 +43,20 @@ export default function Navbar() {
               EN
             </button>
           </div>
+
+          {user ? (
+            <div className="w-8 h-8 bg-salvia text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+              {user.email?.charAt(0).toUpperCase()}
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowLogin(true)}
+              className="btn-outline text-xs py-1.5 px-4"
+            >
+              {t('auth.tab.login')}
+            </button>
+          )}
+
           {isHome && (
             <Link
               to="/crea"
@@ -49,5 +68,12 @@ export default function Navbar() {
         </nav>
       </div>
     </header>
+
+    <AuthModal
+      isOpen={showLogin}
+      initialMode="login"
+      onClose={() => setShowLogin(false)}
+      onSuccess={() => setShowLogin(false)}
+    />
   )
 }

@@ -650,6 +650,7 @@ export default function CreateEventPage() {
   const { user, loading: authLoading } = useAuth()
   const { t } = useTranslation()
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [pendingSubmit, setPendingSubmit] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -664,10 +665,6 @@ export default function CreateEventPage() {
     'Crea lista':    t('create.step.create'),
   }
   const stepLabels = stepKeys.map((k) => STEP_LABEL_MAP[k] || k)
-
-  useEffect(() => {
-    if (!authLoading && !user) setShowAuthModal(true)
-  }, [user, authLoading])
 
   const handleEmailBlur = async (e) => {
     const email = e.target.value.trim()
@@ -747,6 +744,11 @@ export default function CreateEventPage() {
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
   const onSubmit = async (data) => {
+    if (!user) {
+      setPendingSubmit(true)
+      setShowAuthModal(true)
+      return
+    }
     setLoading(true)
     setError('')
     try {
@@ -772,12 +774,21 @@ export default function CreateEventPage() {
     }
   }
 
+  // Dopo il login (da modal di fine flusso), riprende il submit automaticamente
+  useEffect(() => {
+    if (user && pendingSubmit) {
+      setPendingSubmit(false)
+      setValue('parentEmail', user.email)
+      handleSubmit(onSubmit)()
+    }
+  }, [user, pendingSubmit])
+
   return (
     <Layout>
       <AuthModal
         isOpen={showAuthModal}
         initialMode="register"
-        onClose={() => { if (!user) navigate('/') }}
+        onClose={() => { setShowAuthModal(false); setPendingSubmit(false) }}
         onSuccess={() => setShowAuthModal(false)}
       />
       <div className="max-w-xl mx-auto px-4 py-12">
