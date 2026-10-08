@@ -823,7 +823,7 @@ export default function GuestWishlistPage() {
           >
             <Users className="w-4 h-4" />
             {rsvpYesCount > 0
-              ? `${totalAdults + totalChildren} ${t('guest.rsvp_modal.adults_other')} · ${totalAdults} ${totalAdults === 1 ? t('guest.rsvp_modal.adults_one') : t('guest.rsvp_modal.adults_other')}${totalChildren > 0 ? ` · ${totalChildren} ${totalChildren === 1 ? t('guest.rsvp_modal.children_one') : t('guest.rsvp_modal.children_other')}` : ''}`
+              ? `${totalAdults + totalChildren} ${(totalAdults + totalChildren) === 1 ? t('guest.rsvp_modal.confirmed_one') : t('guest.rsvp_modal.confirmed_other')} · ${totalAdults} ${totalAdults === 1 ? t('guest.rsvp_modal.adults_one') : t('guest.rsvp_modal.adults_other')}${totalChildren > 0 ? ` · ${totalChildren} ${totalChildren === 1 ? t('guest.rsvp_modal.children_one') : t('guest.rsvp_modal.children_other')}` : ''}`
               : t('guest.header.no_confirm')}
             {rsvpYesCount > 0 && <span className="text-green-500 text-xs ml-1">›</span>}
           </button>
@@ -1080,7 +1080,7 @@ export default function GuestWishlistPage() {
             </ul>
             {/* Footer fisso */}
             <p className="text-xs text-gray-400 text-center px-6 py-4 flex-shrink-0">
-              {totalAdults + totalChildren} {t('guest.rsvp_modal.adults_other')} · {totalAdults} {totalAdults === 1 ? t('guest.rsvp_modal.adults_one') : t('guest.rsvp_modal.adults_other')}{totalChildren > 0 ? ` · ${totalChildren} ${totalChildren === 1 ? t('guest.rsvp_modal.children_one') : t('guest.rsvp_modal.children_other')}` : ''}
+              {totalAdults + totalChildren} {(totalAdults + totalChildren) === 1 ? t('guest.rsvp_modal.confirmed_one') : t('guest.rsvp_modal.confirmed_other')} · {totalAdults} {totalAdults === 1 ? t('guest.rsvp_modal.adults_one') : t('guest.rsvp_modal.adults_other')}{totalChildren > 0 ? ` · ${totalChildren} ${totalChildren === 1 ? t('guest.rsvp_modal.children_one') : t('guest.rsvp_modal.children_other')}` : ''}
             </p>
           </div>
         </div>

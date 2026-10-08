@@ -425,6 +425,8 @@
     "share": { "btn": "Condividi", "copied_alert": "Link copiato!" },
     "rsvp_modal": {
       "title": "Chi partecipa 🎉",
+      "confirmed_one": "confermato",
+      "confirmed_other": "confermati",
       "adults_one": "adulto",
       "adults_other": "adulti",
       "children_one": "bambino",

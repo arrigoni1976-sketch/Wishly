@@ -425,6 +425,8 @@
     "share": { "btn": "Share", "copied_alert": "Link copied!" },
     "rsvp_modal": {
       "title": "Who's coming 🎉",
+      "confirmed_one": "confirmed",
+      "confirmed_other": "confirmed",
       "adults_one": "adult",
       "adults_other": "adults",
       "children_one": "child",
