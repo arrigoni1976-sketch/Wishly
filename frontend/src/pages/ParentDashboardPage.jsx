@@ -970,15 +970,17 @@ export default function ParentDashboardPage() {
                   className="input"
                 />
               </div>
-              <div>
-                <label className="label">{t('dashboard.event_modal.time.label')}</label>
-                <input
-                  type="time"
-                  value={eventForm.party_time}
-                  onChange={(e) => setEventForm((f) => ({ ...f, party_time: e.target.value }))}
-                  className="input"
-                />
-              </div>
+              {window.innerWidth >= 768 && (
+                <div>
+                  <label className="label">{t('dashboard.event_modal.time.label')}</label>
+                  <input
+                    type="time"
+                    value={eventForm.party_time}
+                    onChange={(e) => setEventForm((f) => ({ ...f, party_time: e.target.value }))}
+                    className="input"
+                  />
+                </div>
+              )}
               <div>
                 <label className="label">{t('dashboard.event_modal.location.label')}</label>
                 <input
