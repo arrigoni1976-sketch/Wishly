@@ -582,6 +582,7 @@ export default function GuestWishlistPage() {
     localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(rsvp))
     if (rsvp.guest_name) {
       localStorage.setItem('piky_guest_name', rsvp.guest_name)
+      localStorage.setItem('piky_child_name', rsvp.guest_name)
       trackLinkView(guestToken, { guestName: rsvp.guest_name }).catch(() => {})
       // Aggiorna subito le prenotazioni riconosciute (utile dopo recupero RSVP cross-device)
       if (event?.gifts) {
