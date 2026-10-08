@@ -790,49 +790,6 @@ export default function GuestWishlistPage() {
         />
         </div>
 
-        {/* ── Prompt codice personale — mostrato dopo l'RSVP ─────────── */}
-        {myRsvp && !userKey && !keyPromptDismissed && !keyLinked && (
-          <div className="bg-avorio rounded-2xl border border-avorio-dark p-4 space-y-3">
-            <div>
-              <p className="text-sm font-semibold text-gray-700">{t('guest.key.prompt.title')}</p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {t('guest.key.prompt.body')}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={keyInput}
-                onChange={(e) => setKeyInput(e.target.value.toUpperCase())}
-                placeholder={t('guest.key.prompt.placeholder')}
-                className="input flex-1 font-mono tracking-wider text-sm py-2"
-                onKeyDown={(e) => e.key === 'Enter' && handleLinkKey()}
-              />
-              <button
-                onClick={handleLinkKey}
-                disabled={!keyInput.trim() || keyLoading}
-                className="btn-primary px-4 py-2 text-sm whitespace-nowrap"
-              >
-                {keyLoading ? '...' : t('guest.key.prompt.btn')}
-              </button>
-            </div>
-            {keyError && <p className="text-xs text-red-500">{keyError}</p>}
-            <button
-              onClick={() => setKeyPromptDismissed(true)}
-              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              {t('guest.key.prompt.dismiss')}
-            </button>
-          </div>
-        )}
-
-        {keyLinked && (
-          <div className="bg-salvia/10 border border-salvia/30 rounded-2xl p-3 text-center">
-            <p className="text-sm text-salvia font-semibold">{t('guest.key.linked.title')}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{t('guest.key.linked.body')}</p>
-          </div>
-        )}
-
         {/* ── Welcome / invitation message — seconda parte ─────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark px-6 py-4 space-y-3">
           <p className="text-sm text-gray-600 leading-relaxed"
