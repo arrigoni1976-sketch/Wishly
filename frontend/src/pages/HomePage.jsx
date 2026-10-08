@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
-import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, RefreshCw, Calendar, MapPin, LogIn, LogOut } from 'lucide-react'
-import { getMyEvents, deleteAccount, deleteEvent, removeUserKeyLink } from '../lib/api'
+import { Gift, Users, Heart, Shield, Bell, Star, Lock, Sparkles, Share2, RefreshCw, Calendar, MapPin } from 'lucide-react'
+import { getMyEvents, deleteEvent, removeUserKeyLink } from '../lib/api'
 import GiftIcon from '../components/GiftIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -16,7 +16,7 @@ import { format } from 'date-fns'
 import { it, enUS } from 'date-fns/locale'
 
 export default function HomePage() {
-  const { user, loading: authLoading, signOut } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { t, i18n } = useTranslation()
   const [myEvents, setMyEvents] = useState([])
   const [myInvites, setMyInvites] = useState([])
@@ -25,8 +25,6 @@ export default function HomePage() {
   const [pendingDelete, setPendingDelete] = useState(null)
   const [pendingDeleteEvent, setPendingDeleteEvent] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
-  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
-  const [deletingAccount, setDeletingAccount] = useState(false)
 
   const dateLocale = i18n.language === 'en' ? enUS : it
 
@@ -90,17 +88,6 @@ export default function HomePage() {
     setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
   }, [])
 
-  const handleDeleteAccount = async () => {
-    setDeletingAccount(true)
-    try {
-      await deleteAccount()
-      await signOut()
-    } catch {
-      setDeletingAccount(false)
-      setShowDeleteAccount(false)
-    }
-  }
-
   const handleRefresh = async () => {
     setRefreshing(true)
     if (user) {
@@ -159,61 +146,6 @@ export default function HomePage() {
             <span dangerouslySetInnerHTML={{ __html: t('home.hero.body2') }} />
           </p>
 
-          {/* Box account */}
-          <div className="max-w-md mx-auto mt-8">
-            {user ? (
-              <div className="bg-white/80 border border-gray-200 rounded-2xl px-4 py-3 shadow-sm mb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-gray-600 min-w-0">
-                    <LogIn className="w-4 h-4 text-salvia flex-shrink-0" />
-                    <span className="truncate">{user.email}</span>
-                  </div>
-                  <button
-                    onClick={signOut}
-                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 ml-2"
-                  >
-                    <LogOut className="w-3.5 h-3.5" /> {t('home.account.logout')}
-                  </button>
-                </div>
-                {showDeleteAccount ? (
-                  <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
-                    <p className="text-xs text-red-500">{t('home.account.delete.confirm')}</p>
-                    <div className="flex gap-2 flex-shrink-0">
-                      <button onClick={() => setShowDeleteAccount(false)} className="text-xs text-gray-400 hover:text-gray-600 px-2.5 py-1 rounded-lg bg-gray-100 transition-colors">{t('home.account.delete.cancel')}</button>
-                      <button onClick={handleDeleteAccount} disabled={deletingAccount} className="text-xs text-white bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-lg transition-colors disabled:opacity-60">
-                        {deletingAccount ? t('home.account.delete.loading') : t('home.account.delete.confirm_btn')}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button onClick={() => setShowDeleteAccount(true)} className="mt-1.5 text-xs text-gray-300 hover:text-red-400 transition-colors">
-                    {t('home.account.delete.trigger')}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3 bg-white border border-avorio-dark rounded-2xl px-4 py-4 shadow-sm mb-4">
-                <div>
-                  <p className="font-semibold text-gray-800 text-sm">{t('home.auth.box.title')}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{t('home.auth.box.subtitle')}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => openAuth('login')}
-                    className="flex-1 text-sm font-medium text-gray-600 border border-gray-200 px-3 py-2 rounded-xl hover:border-salvia hover:text-salvia transition-colors"
-                  >
-                    {t('home.auth.box.login')}
-                  </button>
-                  <button
-                    onClick={() => openAuth('register')}
-                    className="flex-1 text-sm font-medium text-salvia bg-salvia/10 px-3 py-2 rounded-xl hover:bg-salvia/20 transition-colors"
-                  >
-                    {t('home.auth.box.register')}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
 
           <div className="flex flex-row gap-3 justify-center">
             <Link to="/crea" className="btn-primary text-base px-5 py-3 rounded-2xl inline-flex items-center justify-center gap-1.5 flex-1 max-w-[200px]">
