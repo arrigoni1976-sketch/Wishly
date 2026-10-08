@@ -188,7 +188,7 @@ router.get('/guest/:token', async (req, res, next) => {
         closing_date, collective_enabled, collective_token,
         collective_goal, collective_amount, collective_description,
         gifts(id, name, description, price, amazon_url, store_url, reserved_by, reserved_partner, purchased_offline, sort_order),
-        rsvp(id, guest_name, status, children_count, adults_count, with_partner),
+        rsvp(id, guest_name, parent_name, status, children_count, adults_count, with_partner),
         contributions(id, contributor_name, amount, status, created_at)
       `)
       .eq('guest_token', req.params.token)
@@ -487,6 +487,8 @@ router.post('/:id/rsvp', createResourceLimiter, async (req, res, next) => {
         .from('rsvp')
         .update({
           status,
+          guest_name: guestName || existing.guest_name,
+          parent_name: parentName || existing.parent_name,
           children_count: childrenCount || 0,
           adults_count: adultsCount ?? 1,
           updated_at: new Date().toISOString(),

@@ -4,9 +4,7 @@ import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
-import CakeIcon from '../components/CakeIcon'
 import { createEvent, checkEmailQuota, createStripeCheckout } from '../lib/api'
-import { formatEur } from '../lib/format'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
 import AuthModal from '../components/AuthModal'
@@ -511,70 +509,7 @@ function StepGifts({ control, register, watch, setValue }) {
 }
 
 // ─── Step 4: Conferma e riepilogo ──────────────────────────────────────────
-function StepConfirm({ data }) {
-  const { t, i18n } = useTranslation()
-  return (
-    <div className="space-y-5 animate-fade-in">
-      <div>
-        <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          {t('create.step4.title')}
-        </h2>
-        <p className="text-gray-500 text-sm">{t('create.step4.subtitle')}</p>
-      </div>
 
-      <div className="bg-white border border-avorio-dark rounded-2xl p-5 space-y-3">
-        <div className="flex items-center gap-3 pb-3 border-b border-avorio-dark">
-          <div className="w-10 h-10 bg-cipria rounded-xl flex items-center justify-center">
-            <CakeIcon size={24} />
-          </div>
-          <div>
-            <p className="font-bold text-gray-900 font-display text-lg">{data.childName || '—'}</p>
-            <p className="text-sm text-gray-500">
-              {data.partyDate
-                ? new Date(data.partyDate).toLocaleDateString(i18n.language === 'en' ? 'en-GB' : 'it-IT', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })
-                : '—'}
-              {data.partyTime ? ` · ${data.partyTime}` : ''}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <span className="text-gray-400">{t('create.confirm.location.label')}</span>
-            <p className="font-medium text-gray-700">{data.location || '—'}</p>
-            {data.address && <p className="text-xs text-gray-500 mt-0.5">{data.address}</p>}
-          </div>
-          <div>
-            <span className="text-gray-400">{t('create.confirm.gifts.label')}</span>
-            <p className="font-medium text-gray-700">{data.gifts?.length || 0} {t('create.confirm.gifts.unit')}</p>
-          </div>
-        </div>
-
-        {data.notes && (
-          <div className="pt-2 border-t border-avorio-dark">
-            <span className="text-gray-400 text-xs">{t('create.confirm.notes.label')}</span>
-            <p className="text-sm text-gray-700 mt-0.5">{data.notes}</p>
-          </div>
-        )}
-
-        {data.collectiveEnabled && (
-          <div className="pt-2 border-t border-avorio-dark">
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-salvia bg-salvia/10 px-3 py-1 rounded-full">
-              <Gift className="w-3.5 h-3.5" />
-              {t('create.confirm.collective', { goal: formatEur(data.collectiveGoal) })}
-            </span>
-          </div>
-        )}
-      </div>
-
-    </div>
-  )
-}
 
 // ─── Step: Payment gate ───────────────────────────────────────────────────
 function StepPaymentGate() {

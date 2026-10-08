@@ -13,7 +13,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
 import { format } from 'date-fns'
@@ -363,12 +363,12 @@ export default function ParentDashboardPage() {
     ;(async () => {
       try {
         const sw = await navigator.serviceWorker.ready
-        const { data: { key } } = await getPushVapidKey()
-        const appKey = urlBase64ToUint8Array(key)
         const existing = await sw.pushManager.getSubscription()
-        if (existing) await existing.unsubscribe()
-        const sub = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
-        await subscribePush({ parentToken, subscription: sub.toJSON() })
+        if (existing) {
+          // Riregistra la subscription esistente senza cancellarla
+          // (cancellarla prima del nuovo subscribe lascerebbe il parent senza notifiche se la rete cade)
+          await subscribePush({ parentToken, subscription: existing.toJSON() })
+        }
       } catch (err) { console.error('[push] rinnovo subscription fallito:', err) }
     })()
   }, [])
