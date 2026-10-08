@@ -726,8 +726,10 @@ export default function CreateEventPage() {
       fields = ['collectiveGoal']
       if (watchedData.fixedQuotaEnabled) fields.push('collectiveFixedQuota')
     }
-    const valid = await trigger(fields)
-    if (!valid) return
+    if (fields.length > 0) {
+      const valid = await trigger(fields)
+      if (!valid) return
+    }
     setCurrentStep((s) => Math.min(s + 1, stepKeys.length))
   }
 
