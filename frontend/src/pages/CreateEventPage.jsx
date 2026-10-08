@@ -201,15 +201,21 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
           )}
         </div>
 
-        {isDesktop && (
-          <div>
-            <label className="label">{t('create.step1.time.label')}</label>
-            <Controller name="partyTime" control={control}
-              render={({ field }) =>
-                <TimeInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />
-              } />
-          </div>
-        )}
+        <div>
+          <label className="label">{t('create.step1.time.label')}</label>
+          <Controller name="partyTime" control={control}
+            render={({ field }) =>
+              isDesktop
+                ? <TimeInput value={field.value||''} onChange={field.onChange} onBlur={field.onBlur} />
+                : <div className="input relative flex items-center">
+                    <input type="time" value={field.value||''} onChange={field.onChange} onBlur={field.onBlur}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <span className={`text-sm pointer-events-none ${field.value ? 'text-gray-800' : 'text-gray-400'}`}>
+                      {field.value || t('create.step1.time.placeholder')}
+                    </span>
+                  </div>
+            } />
+        </div>
 
         <div>
           <label className="label">{t('create.step1.location.label')}</label>
