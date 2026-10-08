@@ -13,7 +13,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, getPushVapidKey, subscribePush } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, confirmContribution, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
 import { format } from 'date-fns'
@@ -196,6 +196,9 @@ export default function ParentDashboardPage() {
   const [eventSaveError, setEventSaveError] = useState('')
   const [thankYouMsg, setThankYouMsg] = useState('')
   const [msgCopied, setMsgCopied] = useState(false)
+  const [broadcastMsg, setBroadcastMsg] = useState('')
+  const [broadcastSending, setBroadcastSending] = useState(false)
+  const [broadcastResult, setBroadcastResult] = useState(null) // { sent, failed } | null
 
   const dateLocale = i18n.language === 'en' ? enUS : it
 
@@ -371,6 +374,21 @@ export default function ParentDashboardPage() {
   }, [])
 
   useEffect(() => { fetchEvent() }, [parentToken])
+
+  const handleBroadcast = async () => {
+    if (!broadcastMsg.trim() || broadcastSending) return
+    setBroadcastSending(true)
+    setBroadcastResult(null)
+    try {
+      const { data } = await broadcastPush(parentToken, { message: broadcastMsg.trim() })
+      setBroadcastResult(data)
+      setBroadcastMsg('')
+    } catch (err) {
+      setBroadcastResult({ error: err?.response?.data?.message || 'Errore durante l\'invio' })
+    } finally {
+      setBroadcastSending(false)
+    }
+  }
 
   const handleAddGift = async (form) => {
     await addGift(event.id, form, parentToken)
@@ -628,6 +646,40 @@ export default function ParentDashboardPage() {
           <p className="text-xs text-gray-400 mt-2 text-center">
             {t('dashboard.share.return_hint')}
           </p>
+        </div>
+
+        {/* ── Invia aggiornamento ──────────────────────────────────────── */}
+        <div className="card">
+          <h2 className="font-display font-bold text-lg text-gray-900 mb-1">{t('dashboard.broadcast.title')}</h2>
+          <p className="text-sm text-gray-500 mb-4">{t('dashboard.broadcast.subtitle')}</p>
+          <div className="relative mb-3">
+            <textarea
+              value={broadcastMsg}
+              onChange={(e) => { if (e.target.value.length <= 160) { setBroadcastMsg(e.target.value); setBroadcastResult(null) } }}
+              placeholder={t('dashboard.broadcast.placeholder')}
+              rows={3}
+              className="input resize-none pr-14"
+            />
+            <span className={`absolute bottom-3 right-3 text-xs font-medium ${broadcastMsg.length >= 150 ? 'text-orange-400' : 'text-gray-300'}`}>
+              {broadcastMsg.length}/160
+            </span>
+          </div>
+          {broadcastResult && !broadcastResult.error && (
+            <p className="text-sm text-salvia font-medium mb-3">
+              {t('dashboard.broadcast.success', { count: broadcastResult.sent })}
+            </p>
+          )}
+          {broadcastResult?.error && (
+            <p className="text-sm text-red-500 mb-3">{broadcastResult.error}</p>
+          )}
+          <button
+            onClick={handleBroadcast}
+            disabled={!broadcastMsg.trim() || broadcastSending}
+            className="w-full py-3 rounded-2xl text-sm font-semibold btn-primary disabled:opacity-50"
+          >
+            {broadcastSending ? t('dashboard.broadcast.sending') : t('dashboard.broadcast.btn')}
+          </button>
+          <p className="text-xs text-gray-400 mt-2 text-center">{t('dashboard.broadcast.hint')}</p>
         </div>
 
         {/* ── Regalo collettivo ────────────────────────────────────────── */}

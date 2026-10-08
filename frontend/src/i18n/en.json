@@ -232,6 +232,15 @@
       "active": "🔔 Notifications active — we'll alert you when someone responds or books",
       "blocked": "Notifications blocked — enable them in your browser settings"
     },
+    "broadcast": {
+      "title": "Send update to guests",
+      "subtitle": "Write a short message: it will arrive as a notification to those who enabled it.",
+      "placeholder": "E.g. We've updated the party time to 4:30 PM!",
+      "btn": "Send notification",
+      "sending": "Sending...",
+      "success": "Notification sent to {{count}} guests!",
+      "hint": "Only guests who enabled notifications on their device will receive it."
+    },
     "collective": {
       "add": { "title": "Add group gift", "subtitle": "Collect contributions from guests for a special gift" },
       "section_title": "Group gift",
@@ -404,6 +413,13 @@
       "available": "{{count}} available",
       "reserved_separator": "Already booked",
       "empty": "No gifts yet — check back later"
+    },
+    "notif": {
+      "title": "Update notifications",
+      "subtitle": "Get notified if the organizer shares news about the party.",
+      "enable": "Enable",
+      "active": "🔔 Active",
+      "blocked": "Blocked"
     },
     "share": { "btn": "Share", "copied_alert": "Link copied!" },
     "rsvp_modal": {

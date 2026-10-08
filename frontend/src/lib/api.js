@@ -61,6 +61,8 @@ export const removeUserKeyLink = (key, token) => api.delete(`/user-keys/${encode
 
 export const getPushVapidKey = () => api.get('/push/vapid-public-key')
 export const subscribePush = (data) => api.post('/push/subscribe', data)
+export const subscribeGuestPush = (data) => api.post('/push/guest-subscribe', data)
+export const broadcastPush = (parentToken, data) => api.post(`/push/broadcast/${parentToken}`, data)
 export const diagnosePush = (parentToken) => api.get(`/push/diagnose/${parentToken}`)
 
 // ─── Error helper ──────────────────────────────────────────────────────────

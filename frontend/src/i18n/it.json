@@ -232,6 +232,15 @@
       "active": "🔔 Notifiche attive — ti avvisiamo quando qualcuno risponde o prenota",
       "blocked": "Notifiche bloccate — abilitale dalle impostazioni del browser"
     },
+    "broadcast": {
+      "title": "Invia aggiornamento agli invitati",
+      "subtitle": "Scrivi un breve messaggio: arriverà come notifica a chi l'ha attivata.",
+      "placeholder": "Es: Abbiamo aggiornato l'orario della festa alle 16:30!",
+      "btn": "Invia notifica",
+      "sending": "Invio in corso...",
+      "success": "Notifica inviata a {{count}} invitati!",
+      "hint": "Ricevono solo gli invitati che hanno attivato le notifiche sul loro dispositivo."
+    },
     "collective": {
       "add": { "title": "Aggiungi regalo collettivo", "subtitle": "Raccogli contributi dagli invitati per un regalo speciale" },
       "section_title": "Regalo collettivo",
@@ -404,6 +413,13 @@
       "available": "{{count}} disponibili",
       "reserved_separator": "Già prenotati",
       "empty": "Nessun regalo ancora — controlla più tardi"
+    },
+    "notif": {
+      "title": "Notifiche aggiornamenti",
+      "subtitle": "Ricevi un avviso se l'organizzatore condivide novità sulla festa.",
+      "enable": "Attiva",
+      "active": "🔔 Attive",
+      "blocked": "Bloccate"
     },
     "share": { "btn": "Condividi", "copied_alert": "Link copiato!" },
     "rsvp_modal": {

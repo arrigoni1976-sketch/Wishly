@@ -61,6 +61,58 @@ export async function saveSubscription(parentToken, subscription) {
   }
 }
 
+export async function saveGuestSubscription(parentToken, subscription) {
+  try {
+    const endpoint = subscription?.endpoint
+    if (!endpoint) return
+    await supabase
+      .from('guest_push_subscriptions')
+      .upsert({ parent_token: parentToken, endpoint, subscription }, { onConflict: 'endpoint' })
+  } catch (err) {
+    console.error('[push] saveGuestSubscription error:', err.message)
+  }
+}
+
+export async function sendPushToGuests(parentToken, { title, body, url }) {
+  if (!publicKey) {
+    console.warn('[push] VAPID non inizializzato — broadcast ignorato')
+    return { sent: 0, failed: 0 }
+  }
+  const { data: subs, error: dbErr } = await supabase
+    .from('guest_push_subscriptions')
+    .select('endpoint, subscription')
+    .eq('parent_token', parentToken)
+
+  if (dbErr) { console.error('[push] DB error:', dbErr.message); return { sent: 0, failed: 0 } }
+  if (!subs?.length) { console.log(`[push] Nessuna subscription guest per ${parentToken.slice(0, 8)}…`); return { sent: 0, failed: 0 } }
+
+  let sent = 0
+  let failed = 0
+  const expiredEndpoints = []
+
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification(sub.subscription, JSON.stringify({ title, body, url }))
+      sent++
+    } catch (err) {
+      if (err.statusCode === 410 || err.statusCode === 404) {
+        expiredEndpoints.push(sub.endpoint)
+      } else {
+        console.error(`[push] guest sendNotification error (${err.statusCode}):`, err.message)
+        failed++
+      }
+    }
+  }
+
+  if (expiredEndpoints.length > 0) {
+    await supabase.from('guest_push_subscriptions').delete().in('endpoint', expiredEndpoints)
+    console.log(`[push] ${expiredEndpoints.length} subscription guest scadute rimosse`)
+  }
+
+  console.log(`[push] Broadcast inviato a ${sent} guest (${failed} falliti)`)
+  return { sent, failed }
+}
+
 export async function sendPartyFollowupPushes() {
   // Current time in Europe/Rome
   const nowRome = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Rome' }))

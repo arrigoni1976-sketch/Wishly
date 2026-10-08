@@ -22,11 +22,23 @@ import {
   updateRsvp,
   addUserKeyLink,
   getUserKeyLinks,
+  getPushVapidKey,
+  subscribeGuestPush,
 } from '../lib/api'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import clsx from 'clsx'
 import { formatEur } from '../lib/format'
+
+// ─── Push helper ───────────────────────────────────────────────────────────
+function urlBase64ToUint8Array(b64) {
+  const padding = '='.repeat((4 - b64.length % 4) % 4)
+  const base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const raw = window.atob(base64)
+  const arr = new Uint8Array(raw.length)
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i)
+  return arr
+}
 
 // ─── Closing date check ────────────────────────────────────────────────────
 function isListClosed(closingDate) {
@@ -482,6 +494,12 @@ export default function GuestWishlistPage() {
   const [keyLoading, setKeyLoading] = useState(false)
   const [keyError, setKeyError] = useState('')
   const [keyLinked, setKeyLinked] = useState(false)
+  const [notifStatus, setNotifStatus] = useState(() => {
+    if (typeof Notification === 'undefined') return 'unsupported'
+    if (Notification.permission === 'granted') return 'granted'
+    if (Notification.permission === 'denied') return 'denied'
+    return 'default'
+  })
 
   const baseUrl = window.location.origin
 
@@ -610,6 +628,39 @@ export default function GuestWishlistPage() {
       }
     }
   }
+
+  const handleEnableNotifications = async () => {
+    try {
+      const permission = await Notification.requestPermission()
+      if (permission !== 'granted') { setNotifStatus('denied'); return }
+      const sw = await navigator.serviceWorker.ready
+      const { data: { key } } = await getPushVapidKey()
+      const appKey = urlBase64ToUint8Array(key)
+      const existing = await sw.pushManager.getSubscription()
+      if (existing) await existing.unsubscribe()
+      const subscription = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
+      await subscribeGuestPush({ guestToken, subscription: subscription.toJSON() })
+      setNotifStatus('granted')
+    } catch (err) {
+      console.error('[push] guest subscribe error:', err)
+      setNotifStatus('denied')
+    }
+  }
+
+  useEffect(() => {
+    if (notifStatus !== 'granted' || !navigator.serviceWorker || !window.PushManager) return
+    ;(async () => {
+      try {
+        const sw = await navigator.serviceWorker.ready
+        const { data: { key } } = await getPushVapidKey()
+        const appKey = urlBase64ToUint8Array(key)
+        const existing = await sw.pushManager.getSubscription()
+        if (existing) await existing.unsubscribe()
+        const sub = await sw.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey })
+        await subscribeGuestPush({ guestToken, subscription: sub.toJSON() })
+      } catch (err) { console.error('[push] guest rinnovo subscription fallito:', err) }
+    })()
+  }, [])
 
   const handleReserve = async ({ giftId, guestName, partnerName, purchasedOffline }) => {
     await reserveGift(giftId, { guestName, partnerName, purchasedOffline })
@@ -799,6 +850,30 @@ export default function GuestWishlistPage() {
           listClosed={listClosed}
         />
         </div>
+
+        {/* ── Notifiche aggiornamenti ──────────────────────────────────── */}
+        {notifStatus !== 'unsupported' && (
+          <div className="bg-white rounded-3xl border border-avorio-dark px-5 py-4 flex items-center justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-800">{t('guest.notif.title')}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{t('guest.notif.subtitle')}</p>
+            </div>
+            {notifStatus === 'default' && (
+              <button
+                onClick={handleEnableNotifications}
+                className="flex-shrink-0 py-2 px-4 border border-salvia/40 rounded-2xl text-sm text-salvia font-medium hover:bg-salvia/5 transition-colors"
+              >
+                {t('guest.notif.enable')}
+              </button>
+            )}
+            {notifStatus === 'granted' && (
+              <span className="flex-shrink-0 text-xs text-salvia font-medium">{t('guest.notif.active')}</span>
+            )}
+            {notifStatus === 'denied' && (
+              <span className="flex-shrink-0 text-xs text-gray-400">{t('guest.notif.blocked')}</span>
+            )}
+          </div>
+        )}
 
         {/* ── Welcome / invitation message — seconda parte ─────────────── */}
         <div className="bg-gradient-to-br from-avorio to-white rounded-3xl border border-avorio-dark px-6 py-4 space-y-3">
