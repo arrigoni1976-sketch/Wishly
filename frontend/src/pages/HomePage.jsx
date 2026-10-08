@@ -85,7 +85,7 @@ export default function HomePage() {
   }, [user, authLoading])
 
   useEffect(() => {
-    setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]'))
+    try { setMyInvites(JSON.parse(localStorage.getItem('piky_invites') || '[]')) } catch {}
   }, [])
 
   const handleRefresh = async () => {

@@ -492,44 +492,46 @@ export default function GuestWishlistPage() {
       setEvent(data)
 
       // Salva l'invito nel localStorage per ritrovarlo dalla homepage
-      const saved = JSON.parse(localStorage.getItem('piky_invites') || '[]')
-      const alreadySaved = saved.find((e) => e.guestToken === guestToken)
-      if (!alreadySaved) {
-        saved.unshift({
-          childName: data.child_name,
-          partyDate: data.party_date,
-          guestToken,
-          visitedAt: new Date().toISOString(),
-        })
-        localStorage.setItem('piky_invites', JSON.stringify(saved.slice(0, 20)))
-      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('piky_invites') || '[]')
+        const alreadySaved = saved.find((e) => e.guestToken === guestToken)
+        if (!alreadySaved) {
+          saved.unshift({
+            childName: data.child_name,
+            partyDate: data.party_date,
+            guestToken,
+            visitedAt: new Date().toISOString(),
+          })
+          localStorage.setItem('piky_invites', JSON.stringify(saved.slice(0, 20)))
+        }
+      } catch {}
 
       // Auto-recover RSVP and gift reservations if guest name is known
-      // Usa piky_guest_name oppure il nome dall'RSVP salvato localmente (cross-browser)
-      const storedRsvp = JSON.parse(localStorage.getItem(`piky_rsvp_${guestToken}`) || 'null')
-      const storedName = localStorage.getItem('piky_guest_name') || storedRsvp?.guest_name
-      if (storedName) {
-        if (!localStorage.getItem(`piky_rsvp_${guestToken}`)) {
-          const found = data.rsvp?.find(
-            (r) => r.guest_name?.toLowerCase() === storedName.toLowerCase()
-          )
-          if (found) {
-            setMyRsvp(found)
-            localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(found))
+      try {
+        const storedRsvp = JSON.parse(localStorage.getItem(`piky_rsvp_${guestToken}`) || 'null')
+        const storedName = localStorage.getItem('piky_guest_name') || storedRsvp?.guest_name
+        if (storedName) {
+          if (!localStorage.getItem(`piky_rsvp_${guestToken}`)) {
+            const found = data.rsvp?.find(
+              (r) => r.guest_name?.toLowerCase() === storedName.toLowerCase()
+            )
+            if (found) {
+              setMyRsvp(found)
+              localStorage.setItem(`piky_rsvp_${guestToken}`, JSON.stringify(found))
+            }
           }
+          const savedGiftNames = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
+          const reservedByMe = (data.gifts || [])
+            .filter((g) => {
+              if (!g.reserved_by) return false
+              const rb = g.reserved_by.toLowerCase()
+              if (savedGiftNames[g.id] && savedGiftNames[g.id].toLowerCase() === rb) return true
+              return storedName && rb === storedName.toLowerCase()
+            })
+            .map((g) => g.id)
+          if (reservedByMe.length > 0) setMyReservations(reservedByMe)
         }
-        // Check by storedName AND by per-gift saved names (handles RSVP name overwriting piky_guest_name)
-        const savedGiftNames = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
-        const reservedByMe = (data.gifts || [])
-          .filter((g) => {
-            if (!g.reserved_by) return false
-            const rb = g.reserved_by.toLowerCase()
-            if (savedGiftNames[g.id] && savedGiftNames[g.id].toLowerCase() === rb) return true
-            return storedName && rb === storedName.toLowerCase()
-          })
-          .map((g) => g.id)
-        if (reservedByMe.length > 0) setMyReservations(reservedByMe)
-      }
+      } catch {}
     } catch {
       setError(t('guest.error.not_found'))
     } finally {
@@ -610,21 +612,25 @@ export default function GuestWishlistPage() {
     if (guestName) {
       localStorage.setItem('piky_guest_name', guestName)
       // Save per-gift name so detection works even if RSVP overwrites piky_guest_name
-      const saved = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
-      saved[giftId] = guestName
-      localStorage.setItem('piky_reserved_gifts', JSON.stringify(saved))
+      try {
+        const saved = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
+        saved[giftId] = guestName
+        localStorage.setItem('piky_reserved_gifts', JSON.stringify(saved))
+      } catch {}
     }
     setMyReservations((prev) => [...prev, giftId])
     await fetchEvent()
   }
 
   const handleCancelReservation = async ({ giftId, reservedBy }) => {
-    const savedGiftNames = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}')
+    let savedGiftNames = {}
+    try { savedGiftNames = JSON.parse(localStorage.getItem('piky_reserved_gifts') || '{}') } catch {}
     const guestName = savedGiftNames[giftId] || reservedBy || myRsvp?.guest_name || localStorage.getItem('piky_guest_name') || ''
     await cancelReservation(giftId, { guestName })
-    // Clear the per-gift saved name
-    delete savedGiftNames[giftId]
-    localStorage.setItem('piky_reserved_gifts', JSON.stringify(savedGiftNames))
+    try {
+      delete savedGiftNames[giftId]
+      localStorage.setItem('piky_reserved_gifts', JSON.stringify(savedGiftNames))
+    } catch {}
     setMyReservations((prev) => prev.filter((id) => id !== giftId))
     await fetchEvent()
   }
