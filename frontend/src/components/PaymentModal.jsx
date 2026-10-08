@@ -6,7 +6,7 @@ import { formatEur, formatEurInt } from '../lib/format'
 
 const QUICK_AMOUNTS = [10, 20, 30, 50]
 
-export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit, paypalEmail, fixedAmount, defaultName = '' }) {
+export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmit, fixedAmount, defaultName = '' }) {
   const remaining = Math.max(0, goal - collected)
   const [amount, setAmount] = useState('')
   const [customAmount, setCustomAmount] = useState(false)
@@ -16,7 +16,6 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
 
   if (!isOpen) return null
 
-  // If fixedAmount is set, use it (capped at remaining)
   const effectiveFixed = fixedAmount ? Math.min(parseFloat(fixedAmount), remaining) : null
 
   const numAmount = effectiveFixed ?? parseFloat(amount)
@@ -29,23 +28,6 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
     try {
       await onSubmit({ method: 'contanti', amount: numAmount, name: name.trim() })
       onClose()
-    } catch (e) {
-      setError(getErrorMessage(e))
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handlePayPal = async () => {
-    if (!isValid) return
-    setError('')
-    setLoading(true)
-    try {
-      await onSubmit({ method: 'paypal', amount: numAmount, name: name.trim() })
-      onClose()
-      // Naviga la pagina corrente a PayPal — premendo Back l'utente torna all'app
-      // (window.open su iOS PWA naviga la finestra corrente, causando una pagina bianca)
-      window.location.href = `https://paypal.me/${encodeURIComponent(paypalEmail)}/${numAmount}`
     } catch (e) {
       setError(getErrorMessage(e))
     } finally {
@@ -165,43 +147,21 @@ export default function PaymentModal({ isOpen, onClose, goal, collected, onSubmi
             <p className="text-sm text-red-500 mb-4 bg-red-50 px-3 py-2 rounded-lg">{error}</p>
           )}
 
-          {/* Action buttons */}
-          <div className="space-y-2">
-            {paypalEmail && (
-              <button
-                onClick={handlePayPal}
-                disabled={!isValid || loading}
-                className="w-full py-3.5 text-base font-semibold rounded-2xl flex items-center justify-center gap-2 transition-colors
-                  bg-[#0070ba] hover:bg-[#005ea6] text-white
-                  disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Salvataggio...' : isValid ? `Paga €${formatEur(numAmount)} con PayPal` : 'Paga con PayPal'}
-              </button>
-            )}
+          <button
+            onClick={handleCash}
+            disabled={!isValid || loading}
+            className="w-full py-3.5 text-base transition-colors rounded-2xl font-semibold flex items-center justify-center btn-primary"
+          >
+            {loading
+              ? 'Salvataggio...'
+              : isValid
+              ? `Prenota €${formatEur(numAmount)} — porto i contanti`
+              : 'Inserisci il tuo nome'}
+          </button>
 
-            <button
-              onClick={handleCash}
-              disabled={!isValid || loading}
-              className={clsx(
-                'w-full py-3.5 text-base transition-colors rounded-2xl font-semibold flex items-center justify-center',
-                paypalEmail
-                  ? 'border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed'
-                  : 'btn-primary'
-              )}
-            >
-              {loading
-                ? 'Salvataggio...'
-                : isValid
-                ? `Prenota €${formatEur(numAmount)} — porto i contanti`
-                : 'Inserisci il tuo nome'}
-            </button>
-          </div>
-
-          {!paypalEmail && (
-            <p className="text-xs text-center text-gray-400 mt-3">
-              Nessun pagamento online — porterai i contanti il giorno della festa.
-            </p>
-          )}
+          <p className="text-xs text-center text-gray-400 mt-3">
+            Porterai i contanti il giorno della festa.
+          </p>
         </div>
       </div>
     </div>

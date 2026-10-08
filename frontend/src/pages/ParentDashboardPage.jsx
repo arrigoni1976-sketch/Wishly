@@ -185,7 +185,7 @@ export default function ParentDashboardPage() {
   const [showContrib, setShowContrib] = useState(false)
   const [copied, setCopied] = useState(false)
   const [collectiveModal, setCollectiveModal] = useState(false)
-  const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', paypal_email: '', fixed_quota: '' })
+  const [collectiveForm, setCollectiveForm] = useState({ description: '', goal: '', fixed_quota: '' })
   const [collectiveSaving, setCollectiveSaving] = useState(false)
   const [collectiveSaveError, setCollectiveSaveError] = useState('')
   const [eventModal, setEventModal] = useState(false)
@@ -211,7 +211,6 @@ export default function ParentDashboardPage() {
     setCollectiveForm({
       description: event.collective_description || '',
       goal: event.collective_goal || '',
-      paypal_email: event.paypal_email || '',
       fixed_quota: event.collective_fixed_quota || '',
     })
     setCollectiveSaveError('')
@@ -237,7 +236,6 @@ export default function ParentDashboardPage() {
         collective_enabled: true,
         collective_description: collectiveForm.description || null,
         collective_goal: parseFloat(collectiveForm.goal) || event.collective_goal,
-        paypal_email: collectiveForm.paypal_email || null,
         collective_fixed_quota: parseFloat(collectiveForm.fixed_quota) || null,
       })
       await fetchEvent()
@@ -373,12 +371,6 @@ export default function ParentDashboardPage() {
   }, [])
 
   useEffect(() => { fetchEvent() }, [parentToken])
-
-  useEffect(() => {
-    if (event?.contributions?.some(c => c.status === 'pending' && c.payment_method === 'paypal')) {
-      setShowContrib(true)
-    }
-  }, [event?.contributions])
 
   const handleAddGift = async (form) => {
     await addGift(event.id, form, parentToken)
@@ -690,46 +682,19 @@ export default function ParentDashboardPage() {
               />
             )}
 
-            {showContrib && event.contributions?.length > 0 && (() => {
-              const confirmed = event.contributions.filter(c => c.status === 'completed')
-              const pending = event.contributions.filter(c => c.status === 'pending' && c.payment_method === 'paypal')
-              return (
-                <div className="mt-4 border-t border-avorio-dark pt-4 space-y-3">
-                  {confirmed.map((c) => (
-                    <div key={c.id} className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-gray-700">{c.contributor_name}</span>
-                      <div className="flex items-center gap-2 text-gray-500">
-                        <span className="text-xs">{format(new Date(c.created_at), 'd MMM', { locale: dateLocale })}</span>
-                        <span className="text-xs capitalize bg-gray-100 px-2 py-0.5 rounded-full">{c.payment_method}</span>
-                        <span className="font-semibold text-salvia">€{formatEur(c.amount)}</span>
-                      </div>
+            {showContrib && event.contributions?.length > 0 && (
+              <div className="mt-4 border-t border-avorio-dark pt-4 space-y-3">
+                {event.contributions.filter(c => c.status === 'completed').map((c) => (
+                  <div key={c.id} className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-700">{c.contributor_name}</span>
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <span className="text-xs">{format(new Date(c.created_at), 'd MMM', { locale: dateLocale })}</span>
+                      <span className="font-semibold text-salvia">€{formatEur(c.amount)}</span>
                     </div>
-                  ))}
-                  {pending.length > 0 && (
-                    <div className="border-t border-amber-100 pt-3 space-y-2">
-                      <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide">{t('dashboard.collective.paypal_pending')}</p>
-                      {pending.map((c) => (
-                        <div key={c.id} className="flex items-center justify-between text-sm bg-amber-50 rounded-xl px-3 py-2">
-                          <div>
-                            <span className="font-medium text-gray-700">{c.contributor_name}</span>
-                            <span className="text-xs text-gray-400 ml-2">{format(new Date(c.created_at), 'd MMM', { locale: dateLocale })} · €{formatEur(c.amount)}</span>
-                          </div>
-                          <button
-                            onClick={async () => {
-                              await confirmContribution(event.id, c.id, parentToken)
-                              fetchEvent()
-                            }}
-                            className="text-xs font-semibold text-white bg-salvia hover:bg-salvia/90 px-3 py-1.5 rounded-lg transition-colors"
-                          >
-                            {t('dashboard.collective.confirm_btn')}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {showContrib && (!event.contributions || event.contributions.length === 0) && (
               <p className="mt-4 text-sm text-gray-400 text-center">{t('dashboard.collective.empty')}</p>
@@ -940,16 +905,6 @@ export default function ParentDashboardPage() {
                   className="input"
                 />
                 <p className="text-xs text-gray-400 mt-1">{t('dashboard.collective_modal.fixed.hint')}</p>
-              </div>
-              <div>
-                <label className="label">{t('dashboard.collective_modal.paypal.label')}</label>
-                <input
-                  type="text"
-                  value={collectiveForm.paypal_email}
-                  onChange={(e) => setCollectiveForm((f) => ({ ...f, paypal_email: e.target.value }))}
-                  placeholder={t('dashboard.collective_modal.paypal.placeholder')}
-                  className="input"
-                />
               </div>
             </div>
 

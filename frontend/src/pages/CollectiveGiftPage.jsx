@@ -111,9 +111,7 @@ export default function CollectiveGiftPage() {
     localStorage.setItem('piky_guest_name', name)
     saveNameToKey(name)
     await fetchEvent()
-    const msg = method === 'paypal'
-      ? `Grazie ${name}! 🎉 Il tuo contributo di €${formatEur(amount)} è stato registrato. Il totale si aggiornerà non appena Piky avrà ricevuto la conferma del pagamento PayPal.`
-      : `Grazie ${name}! Hai prenotato €${formatEur(amount)}. Ricordati di portare i contanti il giorno della festa!`
+    const msg = `Grazie ${name}! Hai prenotato €${formatEur(amount)}. Ricordati di portare i contanti il giorno della festa!`
     setSuccessMsg(msg)
     setTimeout(() => setSuccessMsg(''), 10000)
   }
@@ -429,11 +427,11 @@ export default function CollectiveGiftPage() {
           </div>
         )}
 
-        {/* ── Info raccolta contanti + PayPal ─────────────────────────── */}
+        {/* ── Info raccolta contanti ───────────────────────────────────── */}
         {!isComplete && (
           <div className="rounded-2xl border border-avorio-dark bg-avorio p-4 text-sm text-gray-500 text-center">
             <p className="font-medium text-gray-700 mb-1 flex items-center justify-center gap-1.5"><Banknote className="w-4 h-4 text-salvia" /> Raccolta in contanti</p>
-            <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza, o paga direttamente con PayPal.</p>
+            <p className="text-xs mt-1">Prenota la tua quota ora e porta i contanti il giorno della festa al genitore che organizza.</p>
           </div>
         )}
 
@@ -454,7 +452,6 @@ export default function CollectiveGiftPage() {
         goal={goal}
         collected={collected}
         onSubmit={handleContribute}
-        paypalEmail={event?.paypal_email}
         fixedAmount={event?.collective_fixed_quota}
         defaultName={myContributions[0]?.contributor_name || localStorage.getItem('piky_child_name') || localStorage.getItem('piky_guest_name') || ''}
       />

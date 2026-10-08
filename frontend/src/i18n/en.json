@@ -116,7 +116,7 @@
   "features": {
     "rsvp": { "title": "Attendance confirmation", "description": "Guests confirm their attendance (I'll be there / maybe / can't make it) directly in the list." },
     "nodup": { "title": "Gift list without duplicates", "description": "When someone books a gift it becomes invisible to other guests. Zero overlaps, zero awkwardness." },
-    "collective": { "title": "Group gift", "description": "Guests book their share and bring cash on the day, or pay directly via PayPal. Real-time progress bar." },
+    "collective": { "title": "Group gift", "description": "Guests book their share and bring cash on the day. Real-time progress bar." },
     "private": { "title": "Private link", "description": "A private link to share with your guests — only those who receive it can see the list." },
     "reminders": { "title": "Automatic reminders", "description": "Automatic notification when the list closes with a summary of attendees and booked gifts. Reminder the day after the party to thank your guests." },
     "thanks": { "title": "Thank-you messages", "description": "Send personalised post-party messages to all attendees in one click." }

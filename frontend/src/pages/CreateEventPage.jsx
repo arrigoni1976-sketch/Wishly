@@ -389,15 +389,6 @@ function CollectiveGiftCard({ register, watch, setValue }) {
             />
           )}
 
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-medium select-none">{t('create.collective.paypal.prefix')}</span>
-            <input
-              {...register('paypalEmail')}
-              type="text"
-              placeholder={t('create.collective.paypal.placeholder')}
-              className="input text-sm pl-[5.5rem]"
-            />
-          </div>
         </div>
       )}
     </div>
@@ -697,7 +688,6 @@ export default function CreateEventPage() {
       collectiveEnabled: false,
       collectiveGoal: '',
       collectiveDescription: '',
-      paypalEmail: '',
       fixedQuotaEnabled: false,
       collectiveFixedQuota: '',
       gifts: [],

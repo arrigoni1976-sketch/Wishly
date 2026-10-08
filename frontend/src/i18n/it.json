@@ -116,7 +116,7 @@
   "features": {
     "rsvp": { "title": "Conferma presenza", "description": "Gli invitati confermano la loro presenza (ci sarò / forse / non vengo) direttamente nella lista." },
     "nodup": { "title": "Lista regali senza doppioni", "description": "Chi prenota un regalo lo rende invisibile agli altri invitati. Zero sovrapposizioni, zero imbarazzo." },
-    "collective": { "title": "Regalo collettivo", "description": "Gli invitati prenotano la loro quota e portano i contanti il giorno della festa, oppure pagano direttamente tramite PayPal. Barra di progresso in tempo reale." },
+    "collective": { "title": "Regalo collettivo", "description": "Gli invitati prenotano la loro quota e portano i contanti il giorno della festa. Barra di progresso in tempo reale." },
     "private": { "title": "Link privato", "description": "Link privato da condividere con gli invitati — solo chi ha il link può vedere la lista." },
     "reminders": { "title": "Promemoria automatici", "description": "Notifica automatica alla chiusura della lista con il riepilogo di presenze e regali prenotati. Promemoria il giorno dopo la festa per ricordare di ringraziare gli invitati." },
     "thanks": { "title": "Messaggi di ringraziamento", "description": "Invia messaggi personalizzati post-festa a tutti i partecipanti in un click." }

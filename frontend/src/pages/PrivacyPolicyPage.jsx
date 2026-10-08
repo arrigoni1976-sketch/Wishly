@@ -30,17 +30,12 @@ export default function PrivacyPolicyPage() {
             <li>Nome del bambino e data della festa (inseriti da chi organizza)</li>
             <li>Lista dei regali desiderati (titoli, descrizioni, link, prezzi)</li>
             <li>Nome (e, opzionalmente, email) degli ospiti che confermano la presenza o prenotano un regalo</li>
-            <li>Nome di chi contribuisce al regalo collettivo, importo dichiarato e metodo scelto (PayPal o contanti)</li>
-            <li>Indirizzo email PayPal dell'organizzatore (opzionale, solo per generare il link di pagamento)</li>
+            <li>Nome di chi contribuisce al regalo collettivo e importo dichiarato</li>
             <li>Codice personale anonimo (scelto dall'utente, es. "MARCO-7X2Q") per il recupero delle liste su altri dispositivi</li>
             <li>Dati tecnici anonimi sulle visualizzazioni dei link (tipo di dispositivo, sistema operativo, browser, data/ora) — non viene registrato l'indirizzo IP</li>
           </ul>
           <p className="text-sm leading-relaxed">
-            <strong>Pagamenti</strong>: i contributi al regalo collettivo via PayPal avvengono tramite
-            un link di pagamento personale dell'organizzatore (paypal.me) — il denaro passa
-            direttamente tra chi contribuisce e l'organizzatore, mai attraverso i server di Piky.
-            Piky registra solo l'importo dichiarato dall'ospite per tenere il conto del totale
-            raccolto, non riceve né gestisce dati di carte di credito o conti correnti.
+            <strong>Pagamenti</strong>: i contributi al regalo collettivo avvengono in contanti il giorno della festa — Piky registra solo l'importo dichiarato dall'ospite per tenere il conto del totale raccolto, non riceve né gestisce dati di pagamento.
           </p>
           <p className="text-sm leading-relaxed">
             Non utilizziamo cookie di profilazione né strumenti di tracciamento pubblicitario.
@@ -76,8 +71,7 @@ export default function PrivacyPolicyPage() {
             <li><strong>Vercel</strong> (hosting frontend) — CDN globale con edge in Europa</li>
           </ul>
           <p className="text-sm leading-relaxed">
-            Le email vengono inviate tramite un comune servizio SMTP. I pagamenti via PayPal
-            avvengono direttamente sul sito di PayPal, secondo la sua privacy policy.
+            Le email vengono inviate tramite un comune servizio SMTP.
           </p>
           <p className="text-sm leading-relaxed">
             Alcuni dati (lista degli eventi visitati, codice personale) sono conservati anche
