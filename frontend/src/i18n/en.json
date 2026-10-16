@@ -347,9 +347,10 @@
       "back": "Back",
       "next": "Next",
       "submit": {
-        "loading": "Creating list...",
-        "btn": "Create list and get the link →"
-      }
+        "loading": "Creating event...",
+        "btn": "Create the event →"
+      },
+      "wizard_data_hint": "The list you created won't be lost — just complete your registration to find it right away."
     },
     "error": {
       "required": "Required field",

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../hooks/useAuth'
 import GiftIcon from './GiftIcon'
 
-export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'login' }) {
+export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'login', contextMessage = '' }) {
   const [mode, setMode] = useState(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -120,6 +120,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
               {t('auth.tab.register')}
             </button>
           </div>
+
+          {contextMessage && mode === 'register' && !registered && (
+            <div className="bg-salvia/10 border border-salvia/20 rounded-xl px-3 py-2.5 text-sm text-salvia mb-1">
+              {contextMessage}
+            </div>
+          )}
 
           {registered ? (
             <div className="text-center py-4">
