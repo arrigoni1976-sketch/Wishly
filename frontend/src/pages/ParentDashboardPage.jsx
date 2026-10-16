@@ -17,6 +17,7 @@ import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
+import { isNative } from '../lib/platform'
 import { format } from 'date-fns'
 import { it, enUS } from 'date-fns/locale'
 
@@ -179,7 +180,8 @@ export default function ParentDashboardPage() {
   const [showRsvp, setShowRsvp] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [notifStatus, setNotifStatus] = useState(() => {
-    if (typeof Notification === 'undefined') return 'unsupported'
+    // Also check for serviceWorker — Web Push requires SW, not available on iOS WKWebView
+    if (typeof Notification === 'undefined' || !('serviceWorker' in navigator)) return 'unsupported'
     if (Notification.permission === 'granted') return 'granted'
     if (Notification.permission === 'denied') return 'denied'
     return 'default'
@@ -329,7 +331,7 @@ export default function ParentDashboardPage() {
         if (e.name === 'AbortError') return
       }
     }
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, isNative() ? '_system' : '_blank')
   }
 
   const fetchEvent = async () => {
