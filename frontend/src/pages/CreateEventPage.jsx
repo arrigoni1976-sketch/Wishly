@@ -8,6 +8,7 @@ import AuthModal from '../components/AuthModal'
 import { createEvent, createStripeCheckout } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
+import { isNative } from '../lib/platform'
 
 // ─── Monetizzazione ────────────────────────────────────────────────────────
 const PAYMENT_ACTIVE = false
@@ -231,6 +232,7 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
                 href={`https://maps.google.com/?q=${encodeURIComponent(watch('address').trim())}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={isNative() ? (e) => { e.preventDefault(); window.open(`https://maps.google.com/?q=${encodeURIComponent(watch('address').trim())}`, '_system') } : undefined}
                 className="text-xs text-salvia hover:underline flex items-center gap-1"
               >
                 <MapPin className="w-3 h-3" /> {t('create.step1.address.map_link')}
