@@ -3,6 +3,7 @@ import { ExternalLink, ShoppingBag, Lock, Trash2, Pencil } from 'lucide-react'
 import clsx from 'clsx'
 import { getErrorMessage } from '../lib/api'
 import { formatEur } from '../lib/format'
+import { isNative } from '../lib/platform'
 
 export default function GiftCard({
   gift,
@@ -122,6 +123,7 @@ export default function GiftCard({
             href={gift.amazon_url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={isNative() ? (e) => { e.preventDefault(); window.open(gift.amazon_url, '_system') } : undefined}
             className="flex items-center gap-1.5 text-xs font-medium text-orange-600 bg-orange-50 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -133,6 +135,7 @@ export default function GiftCard({
             href={gift.store_url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={isNative() ? (e) => { e.preventDefault(); window.open(gift.store_url, '_system') } : undefined}
             className="flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
