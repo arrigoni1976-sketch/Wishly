@@ -58,6 +58,7 @@ function isListClosed(closingDate) {
 function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl, t }) {
   const pad = (n) => String(n).padStart(2, '0')
   const isAndroid = /android/i.test(navigator.userAgent)
+  const isNativeApp = isNative()
 
   let dtStart, dtEnd
   if (partyTime) {
@@ -78,7 +79,8 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl, t
   const descBase = t('guest.ics.description')
   const linkLabel = t('guest.ics.link_label')
 
-  if (isAndroid) {
+  if (isAndroid || isNativeApp) {
+    // Android e iOS nativo: usa Google Calendar (il download .ics non funziona in WKWebView)
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: summary,
@@ -86,11 +88,11 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl, t
       details: inviteUrl ? `${descBase}\n${linkLabel} ${inviteUrl}` : descBase,
     })
     if (location) params.set('location', location)
-    window.open(`https://calendar.google.com/calendar/render?${params}`, isNative() ? '_system' : '_blank')
+    window.open(`https://calendar.google.com/calendar/render?${params}`, isNativeApp ? '_system' : '_blank')
     return
   }
 
-  // iOS / desktop: download .ics
+  // Browser desktop / iOS Safari: download .ics
   const isAllDay = !partyTime
   const description = inviteUrl
     ? `${descBase}\\n${linkLabel} ${inviteUrl}`
@@ -496,7 +498,9 @@ export default function GuestWishlistPage() {
   const [keyError, setKeyError] = useState('')
   const [keyLinked, setKeyLinked] = useState(false)
   const [notifStatus, setNotifStatus] = useState(() => {
-    if (typeof Notification === 'undefined') return 'unsupported'
+    // Notification esiste su iOS 16.4+, ma i Service Worker (necessari per Web Push)
+    // non sono supportati in WKWebView — controlliamo entrambi
+    if (typeof Notification === 'undefined' || !('serviceWorker' in navigator)) return 'unsupported'
     if (Notification.permission === 'granted') return 'granted'
     if (Notification.permission === 'denied') return 'denied'
     return 'default'
@@ -797,6 +801,7 @@ export default function GuestWishlistPage() {
                       href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={isNative() ? (e) => { e.preventDefault(); window.open(`https://maps.google.com/?q=${encodeURIComponent(event.address)}`, '_system') } : undefined}
                       className="underline underline-offset-2 hover:text-gray-700 transition-colors"
                     >
                       {event.address} →

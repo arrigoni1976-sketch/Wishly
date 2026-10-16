@@ -4,6 +4,7 @@ import { registerSW } from 'virtual:pwa-register'
 import { Analytics } from '@vercel/analytics/react'
 import { Capacitor } from '@capacitor/core'
 import { App as CapApp } from '@capacitor/app'
+import { supabase } from './lib/supabase'
 import HomePage from './pages/HomePage'
 import CreateEventPage from './pages/CreateEventPage'
 import ParentDashboardPage from './pages/ParentDashboardPage'
@@ -46,12 +47,35 @@ function DeepLinkHandler() {
   const navigate = useNavigate()
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
-    const handler = CapApp.addListener('appUrlOpen', (event) => {
+    const handler = CapApp.addListener('appUrlOpen', async (event) => {
       try {
         const url = new URL(event.url)
-        // Include hash so Supabase can read #access_token= for email confirm / reset
-        const path = url.pathname + url.search + url.hash
-        if (path && path !== '/') navigate(path, { replace: true })
+        const hash = url.hash // es. #access_token=...&refresh_token=...&type=signup
+
+        // Supabase processa il hash #access_token= SOLO all'avvio dell'app.
+        // Se l'app è già in esecuzione (caso normale dei deep link), dobbiamo
+        // chiamare setSession() esplicitamente per completare conferma email e reset password.
+        if (hash.includes('access_token=')) {
+          const params = new URLSearchParams(hash.slice(1))
+          const accessToken = params.get('access_token')
+          const refreshToken = params.get('refresh_token')
+          const type = params.get('type') // 'signup' | 'recovery'
+
+          if (accessToken && refreshToken) {
+            try {
+              await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+            } catch {}
+          }
+
+          // Per recovery: passa ?recovery=1 così ResetPasswordPage sa di mostrare il form
+          const suffix = type === 'recovery' ? '?recovery=1' : ''
+          const path = url.pathname + suffix
+          if (path && path !== '/') navigate(path, { replace: true })
+        } else {
+          // Nessun token auth — naviga normalmente (lista, dashboard, collettivo, ecc.)
+          const path = url.pathname + url.search + url.hash
+          if (path && path !== '/') navigate(path, { replace: true })
+        }
       } catch {}
     })
     return () => { handler.then((h) => h.remove()) }
