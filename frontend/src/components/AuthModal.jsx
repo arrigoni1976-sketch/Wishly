@@ -10,6 +10,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [loginHint, setLoginHint] = useState('')
   const [registered, setRegistered] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const { signIn, signUp, resetPassword } = useAuth()
@@ -21,6 +22,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
     setEmail('')
     setPassword('')
     setError('')
+    setLoginHint('')
     setRegistered(false)
     setResetSent(false)
   }
@@ -62,13 +64,18 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
         setLoading(false)
         return
       }
-      const { error: err } = await signUp(email.trim(), password)
+      const { data, error: err } = await signUp(email.trim(), password)
       if (err) {
         if (err.message?.includes('already registered')) {
-          setError(t('auth.form.error.already_registered'))
+          setMode('login')
+          setLoginHint(t('auth.form.error.existing_account_hint'))
         } else {
           setError(err.message || t('auth.form.error.register_generic'))
         }
+      } else if (data?.user?.identities?.length === 0) {
+        // Email already registered — Supabase returns success but empty identities
+        setMode('login')
+        setLoginHint(t('auth.form.error.existing_account_hint'))
       } else {
         setRegistered(true)
       }
@@ -183,6 +190,12 @@ export default function AuthModal({ isOpen, onClose, onSuccess, initialMode = 'l
                   required
                 />
               </div>
+
+              {loginHint && (
+                <div className="bg-cipria/30 border border-cipria rounded-xl px-3 py-2.5 text-sm text-gray-700">
+                  {loginHint}
+                </div>
+              )}
 
               {error && <p className="text-sm text-red-500">{error}</p>}
 

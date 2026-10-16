@@ -47,6 +47,7 @@
         "login": "Email o password non corretti.",
         "short_pwd": "La password deve avere almeno 6 caratteri.",
         "already_registered": "Email già registrata. Prova ad accedere.",
+        "existing_account_hint": "Hai già un account con questa email — accedi direttamente.",
         "register_generic": "Errore nella registrazione."
       },
       "loading": {
