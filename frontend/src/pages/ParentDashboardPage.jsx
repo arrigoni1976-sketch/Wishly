@@ -17,7 +17,7 @@ import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
-import { isNative } from '../lib/platform'
+import { isNative, getAppBaseUrl } from '../lib/platform'
 import { format } from 'date-fns'
 import { it, enUS } from 'date-fns/locale'
 
@@ -212,7 +212,7 @@ export default function ParentDashboardPage() {
     no: t('guest.rsvp.done.no'),
   }
 
-  const baseUrl = window.location.origin
+  const baseUrl = getAppBaseUrl()
 
   const openCollectiveEdit = () => {
     setCollectiveForm({

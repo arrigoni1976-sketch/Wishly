@@ -11,7 +11,7 @@ import CelebrationIcon from '../components/CelebrationIcon'
 import WaveIcon from '../components/WaveIcon'
 import RSVPSelector from '../components/RSVPSelector'
 import CopyLink from '../components/CopyLink'
-import { isNative } from '../lib/platform'
+import { isNative, getAppBaseUrl } from '../lib/platform'
 import ClosingCountdown from '../components/ClosingCountdown'
 import DownloadButton from '../components/DownloadButton'
 import {
@@ -506,7 +506,7 @@ export default function GuestWishlistPage() {
     return 'default'
   })
 
-  const baseUrl = window.location.origin
+  const baseUrl = getAppBaseUrl()
 
   const fetchEvent = async () => {
     try {
@@ -1024,12 +1024,12 @@ export default function GuestWishlistPage() {
               const shareData = {
                 title: 'Piky',
                 text: t('home.final_cta.share_text'),
-                url: `${window.location.origin}/scarica`,
+                url: `${getAppBaseUrl()}/scarica`,
               }
               if (navigator.share) {
                 await navigator.share(shareData)
               } else {
-                await navigator.clipboard.writeText(`${window.location.origin}/scarica`)
+                await navigator.clipboard.writeText(`${getAppBaseUrl()}/scarica`)
                 alert(t('guest.share.copied_alert'))
               }
             }}
