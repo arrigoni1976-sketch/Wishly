@@ -45,7 +45,7 @@ router.get('/mine', requireAuth, async (req, res, next) => {
 })
 
 // ─── POST /api/events — Create event ────────────────────────────────────────
-router.post('/', createResourceLimiter, optionalAuth, async (req, res, next) => {
+router.post('/', createResourceLimiter, requireAuth, async (req, res, next) => {
   try {
     const {
       childName, partyDate, partyTime, location, address, notes,
@@ -89,7 +89,7 @@ router.post('/', createResourceLimiter, optionalAuth, async (req, res, next) => 
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
-        owner_id: req.user?.id || null,
+        owner_id: req.user.id,
       })
       .select()
       .single()
