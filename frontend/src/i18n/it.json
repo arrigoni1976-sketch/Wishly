@@ -347,9 +347,10 @@
       "back": "Indietro",
       "next": "Avanti",
       "submit": {
-        "loading": "Creo la lista...",
-        "btn": "Crea la lista e ottieni il link →"
-      }
+        "loading": "Creo la festa...",
+        "btn": "Crea la festa →"
+      },
+      "wizard_data_hint": "La lista che hai creato non andrà persa — ti basterà completare la registrazione per ritrovarla subito."
     },
     "error": {
       "required": "Campo obbligatorio",
