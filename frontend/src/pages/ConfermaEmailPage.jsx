@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import GiftIcon from '../components/GiftIcon'
 
 export default function ConfermaEmailPage() {
   const [status, setStatus] = useState('loading') // loading | success | error
+  const [hasDraft, setHasDraft] = useState(false)
 
   useEffect(() => {
     // Supabase processa automaticamente il token dall'URL hash
@@ -12,6 +14,10 @@ export default function ConfermaEmailPage() {
         setStatus('success')
       }
     })
+
+    try {
+      if (localStorage.getItem('piky_create_draft')) setHasDraft(true)
+    } catch {}
 
     // Timeout fallback: se non arriva evento entro 3s, controlliamo la sessione
     const timer = setTimeout(async () => {
@@ -44,10 +50,25 @@ export default function ConfermaEmailPage() {
           <>
             <p className="text-4xl mb-3">🎉</p>
             <p className="font-semibold text-gray-900 text-lg mb-2">Email confermata!</p>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              Il tuo account è attivo.<br />
-              Torna all'app e accedi con la tua email e password.
-            </p>
+            {hasDraft ? (
+              <>
+                <p className="text-sm text-gray-500 leading-relaxed mb-4">
+                  Il tuo account è attivo.<br />
+                  La tua lista è ancora lì ad aspettarti — un solo tocco e la crei!
+                </p>
+                <Link
+                  to="/crea"
+                  className="inline-block bg-salvia text-white font-medium px-6 py-3 rounded-2xl hover:bg-salvia-dark transition-colors"
+                >
+                  Torna a creare la lista →
+                </Link>
+              </>
+            ) : (
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Il tuo account è attivo.<br />
+                Torna all'app e accedi con la tua email e password.
+              </p>
+            )}
           </>
         )}
 
