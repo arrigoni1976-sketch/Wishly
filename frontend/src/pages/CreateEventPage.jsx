@@ -582,7 +582,7 @@ export default function CreateEventPage() {
 
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem('piky_create_draft')
+      const saved = sessionStorage.getItem('piky_create_draft') || localStorage.getItem('piky_create_draft')
       if (saved) {
         const vals = JSON.parse(saved)
         Object.entries(vals).forEach(([k, v]) => {
@@ -617,6 +617,7 @@ export default function CreateEventPage() {
 
   const onSubmit = async (data) => {
     if (!user) {
+      try { localStorage.setItem('piky_create_draft', JSON.stringify(data)) } catch {}
       setPendingSubmit(true)
       setShowAuthModal(true)
       return
@@ -633,10 +634,12 @@ export default function CreateEventPage() {
       if (PAYMENT_ACTIVE) {
         const res = await createStripeCheckout(payload)
         sessionStorage.removeItem('piky_create_draft')
+        localStorage.removeItem('piky_create_draft')
         window.location.href = res.data.checkoutUrl
       } else {
         const res = await createEvent(payload)
         sessionStorage.removeItem('piky_create_draft')
+        localStorage.removeItem('piky_create_draft')
         navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
       }
     } catch (e) {
