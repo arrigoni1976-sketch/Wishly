@@ -1,4 +1,9 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm"
+  },
   "nav": {
     "logo": "Piky",
     "cta": "Plan the party"
@@ -432,6 +437,7 @@
         "body": "Add the gifts you'd like"
       },
       "delete_confirm": "Delete this gift?",
+      "delete_message": "This action cannot be undone.",
       "delete_error": "Deletion failed. Please try again."
     },
     "rsvp": {
