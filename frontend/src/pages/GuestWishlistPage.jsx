@@ -1023,7 +1023,7 @@ export default function GuestWishlistPage() {
               if (navigator.share) {
                 await navigator.share(shareData)
               } else {
-                await navigator.clipboard.writeText(window.location.origin)
+                await navigator.clipboard.writeText(`${window.location.origin}/scarica`)
                 alert(t('guest.share.copied_alert'))
               }
             }}
