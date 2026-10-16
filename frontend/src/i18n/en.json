@@ -47,6 +47,7 @@
         "login": "Incorrect email or password.",
         "short_pwd": "Password must be at least 6 characters.",
         "already_registered": "Email already registered. Try signing in.",
+        "existing_account_hint": "You already have an account with this email — sign in directly.",
         "register_generic": "Registration error."
       },
       "loading": {

@@ -22,9 +22,9 @@
     color: #1a1a1a;
   }
 
-  /* Prevent iOS Safari auto-zoom on input focus */
+  /* Prevent iOS Safari auto-zoom on input focus (needs !important to override Tailwind text-sm utilities) */
   input, textarea, select {
-    font-size: 16px;
+    font-size: 16px !important;
   }
 }
 
