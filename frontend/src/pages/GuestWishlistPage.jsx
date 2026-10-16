@@ -282,7 +282,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
               partyDate: eventData.party_date,
               partyTime: eventData.party_time,
               location: eventData.address || eventData.location,
-              inviteUrl: window.location.href,
+              inviteUrl: `${getAppBaseUrl()}/lista/${guestToken}`,
               t,
             })}
             className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-salvia bg-salvia/10 border border-salvia/40 rounded-2xl hover:bg-salvia/20 transition-colors"
