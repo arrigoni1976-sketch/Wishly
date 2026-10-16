@@ -528,6 +528,7 @@ export default function CreateEventPage() {
   const [error, setError] = useState('')
   const [showPreview, setShowPreview] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [pendingSubmit, setPendingSubmit] = useState(false)
 
   const stepKeys = STEP_KEYS
 
@@ -538,10 +539,14 @@ export default function CreateEventPage() {
   }
   const stepLabels = stepKeys.map((k) => STEP_LABEL_MAP[k] || k)
 
+  // Dopo il login dal modal, riprende il submit automaticamente
   useEffect(() => {
-    if (!authLoading && !user) setShowAuthModal(true)
-    if (user) setShowAuthModal(false)
-  }, [user, authLoading])
+    if (user && pendingSubmit) {
+      setPendingSubmit(false)
+      setValue('parentEmail', user.email)
+      handleSubmit(onSubmit)()
+    }
+  }, [user, pendingSubmit])
 
   const {
     register,
@@ -613,6 +618,11 @@ export default function CreateEventPage() {
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
   const onSubmit = async (data) => {
+    if (!user) {
+      setPendingSubmit(true)
+      setShowAuthModal(true)
+      return
+    }
     setLoading(true)
     setError('')
     try {
@@ -643,7 +653,7 @@ export default function CreateEventPage() {
       <AuthModal
         isOpen={showAuthModal}
         initialMode="register"
-        onClose={() => { setShowAuthModal(false); navigate('/') }}
+        onClose={() => { setShowAuthModal(false); setPendingSubmit(false) }}
         onSuccess={() => setShowAuthModal(false)}
       />
       {showPreview && (
