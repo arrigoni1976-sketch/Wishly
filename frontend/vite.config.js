@@ -2,8 +2,33 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
+function checkEnvPlugin() {
+  return {
+    name: 'check-env',
+    buildStart() {
+      const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'VITE_API_URL']
+      const placeholders = ['placeholder', 'your-project', 'your-publishable-key']
+      const missing = []
+      for (const key of required) {
+        const val = process.env[key]
+        if (!val || placeholders.some(p => val.includes(p))) {
+          missing.push(key)
+        }
+      }
+      if (missing.length > 0) {
+        throw new Error(
+          `\n\n❌ BUILD BLOCCATO: variabili d'ambiente mancanti o non configurate:\n` +
+          missing.map(k => `   - ${k}`).join('\n') +
+          `\n\nCrea il file frontend/.env copiando frontend/.env.example e compila i valori reali.\n`
+        )
+      }
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
+    checkEnvPlugin(),
     react(),
     VitePWA({
       strategies: 'injectManifest',

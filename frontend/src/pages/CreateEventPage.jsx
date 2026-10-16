@@ -1,27 +1,25 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin, Eye } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
-import { createEvent, checkEmailQuota, createStripeCheckout } from '../lib/api'
+import WishlistPreviewModal from '../components/WishlistPreviewModal'
+import { createEvent, createStripeCheckout } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
-import AuthModal from '../components/AuthModal'
 
 // ─── Monetizzazione ────────────────────────────────────────────────────────
 const PAYMENT_ACTIVE = false
 const PRICE_PER_EVENT = 1.99
 
 // Internal routing keys (language-independent)
-const STEP_KEYS_LOGGED_IN = ['Info festa', 'Regali', 'Crea lista']
-const STEP_KEYS_GUEST     = ['Info festa', 'Chi organizza', 'Regali', 'Crea lista']
+const STEP_KEYS = ['Info festa', 'Regali', 'Crea lista']
 
 const STEP_FIELDS_MAP = {
-  'Info festa':     ['childName', 'partyDate'],
-  'Chi organizza':  ['parentEmail'],
-  'Regali':         [],
-  'Crea lista':     [],
+  'Info festa': ['childName', 'partyDate'],
+  'Regali':     [],
+  'Crea lista': [],
 }
 
 // ─── DateInput: GG / MM / AAAA ────────────────────────────────────────────
@@ -257,57 +255,6 @@ function StepPartyInfo({ register, control, errors, watch, setValue }) {
           />
         </div>
       </div>
-    </div>
-  )
-}
-
-// ─── Step 2: Chi organizza ────────────────────────────────────────────────
-function StepListSettings({ register, control, errors, emailQuota, onEmailBlur }) {
-  const { t } = useTranslation()
-  return (
-    <div className="space-y-5 animate-fade-in">
-      <div>
-        <h2 className="font-display text-2xl font-bold text-gray-900 mb-1">
-          {t('create.step2.title')}
-        </h2>
-        <p className="text-gray-500 text-sm">
-          {t('create.step2.subtitle')}
-        </p>
-      </div>
-
-      <div>
-        <label className="label">{t('create.step2.email.label')}</label>
-        <input
-          {...register('parentEmail', {
-            required: t('create.error.required'),
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: t('create.step2.email.error'),
-            },
-            onBlur: onEmailBlur,
-          })}
-          type="email"
-          placeholder={t('create.step2.email.placeholder')}
-          className="input"
-        />
-        {errors.parentEmail && (
-          <p className="text-xs text-red-500 mt-1">{errors.parentEmail.message}</p>
-        )}
-        {emailQuota?.freeEventUsed && (
-          <div className="bg-salvia/5 border border-salvia/20 rounded-2xl p-4 text-sm text-gray-600 mt-3">
-            <p className="font-medium text-salvia mb-1">{t('create.step2.returning.title')}</p>
-            <p className="text-gray-500">
-              {t('create.step2.returning.body', {
-                count: emailQuota.eventCount,
-                festa: emailQuota.eventCount === 1 ? 'festa' : 'feste',
-                next: emailQuota.eventCount + 1,
-              })}
-              {!PAYMENT_ACTIVE && ' ' + t('create.step2.returning.free')}
-            </p>
-          </div>
-        )}
-      </div>
-
     </div>
   )
 }
@@ -575,31 +522,23 @@ export default function CreateEventPage() {
   const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
   const { t } = useTranslation()
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [pendingSubmit, setPendingSubmit] = useState(false)
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [emailQuota, setEmailQuota] = useState(null)
+  const [showPreview, setShowPreview] = useState(false)
 
-  const stepKeys = user ? STEP_KEYS_LOGGED_IN : STEP_KEYS_GUEST
+  const stepKeys = STEP_KEYS
 
   const STEP_LABEL_MAP = {
-    'Info festa':    t('create.step.party_info'),
-    'Chi organizza': t('create.step.organizer'),
-    'Regali':        t('create.step.gifts'),
-    'Crea lista':    t('create.step.create'),
+    'Info festa': t('create.step.party_info'),
+    'Regali':     t('create.step.gifts'),
+    'Crea lista': t('create.step.create'),
   }
   const stepLabels = stepKeys.map((k) => STEP_LABEL_MAP[k] || k)
 
-  const handleEmailBlur = async (e) => {
-    const email = e.target.value.trim()
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
-    try {
-      const res = await checkEmailQuota(email)
-      setEmailQuota(res.data)
-    } catch { /* non bloccare */ }
-  }
+  useEffect(() => {
+    if (!authLoading && !user) navigate('/')
+  }, [user, authLoading])
 
   const {
     register,
@@ -671,11 +610,6 @@ export default function CreateEventPage() {
   const handleBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
   const onSubmit = async (data) => {
-    if (!user) {
-      setPendingSubmit(true)
-      setShowAuthModal(true)
-      return
-    }
     setLoading(true)
     setError('')
     try {
@@ -701,23 +635,14 @@ export default function CreateEventPage() {
     }
   }
 
-  // Dopo il login (da modal di fine flusso), riprende il submit automaticamente
-  useEffect(() => {
-    if (user && pendingSubmit) {
-      setPendingSubmit(false)
-      setValue('parentEmail', user.email)
-      handleSubmit(onSubmit)()
-    }
-  }, [user, pendingSubmit])
-
   return (
     <Layout>
-      <AuthModal
-        isOpen={showAuthModal}
-        initialMode="register"
-        onClose={() => { setShowAuthModal(false); setPendingSubmit(false) }}
-        onSuccess={() => setShowAuthModal(false)}
-      />
+      {showPreview && (
+        <WishlistPreviewModal
+          formData={watchedData}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
       <div className="max-w-xl mx-auto px-4 py-12">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-salvia mb-6 transition-colors">
@@ -731,14 +656,25 @@ export default function CreateEventPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="card mb-6">
-            {stepKeys[currentStep - 1] === 'Info festa'    && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
-            {stepKeys[currentStep - 1] === 'Chi organizza' && <StepListSettings register={register} control={control} errors={errors} emailQuota={emailQuota} onEmailBlur={handleEmailBlur} />}
-            {stepKeys[currentStep - 1] === 'Regali'        && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
-            {stepKeys[currentStep - 1] === 'Crea lista'    && <StepPaymentGate />}
+            {stepKeys[currentStep - 1] === 'Info festa' && <StepPartyInfo register={register} control={control} errors={errors} watch={watch} setValue={setValue} />}
+            {stepKeys[currentStep - 1] === 'Regali'     && <StepGifts control={control} register={register} watch={watch} setValue={setValue} />}
+            {stepKeys[currentStep - 1] === 'Crea lista' && <StepPaymentGate />}
           </div>
 
           {error && (
             <p className="text-sm text-red-500 mb-4 bg-red-50 px-4 py-3 rounded-xl">{error}</p>
+          )}
+
+          {/* Pulsante anteprima — visibile solo sull'ultimo step */}
+          {currentStep === stepKeys.length && (
+            <button
+              type="button"
+              onClick={() => setShowPreview(true)}
+              className="w-full flex items-center justify-center gap-2 btn-outline mb-3 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              {t('create.preview.btn')}
+            </button>
           )}
 
           <div className="flex gap-3">
