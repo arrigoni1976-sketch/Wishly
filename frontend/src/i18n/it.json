@@ -1,4 +1,9 @@
 {
+  "common": {
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "confirm": "Conferma"
+  },
   "nav": {
     "logo": "Piky",
     "cta": "Organizza la festa"
@@ -432,6 +437,7 @@
         "body": "Aggiungi i regali che desideri"
       },
       "delete_confirm": "Eliminare questo regalo?",
+      "delete_message": "Questa azione non può essere annullata.",
       "delete_error": "Eliminazione non riuscita. Riprova."
     },
     "rsvp": {

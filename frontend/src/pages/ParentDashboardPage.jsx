@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import Layout from '../components/Layout'
 import GiftCard from '../components/GiftCard'
+import ConfirmModal from '../components/ConfirmModal'
 import ProgressBar from '../components/ProgressBar'
 import GiftIcon from '../components/GiftIcon'
 import CakeIcon from '../components/CakeIcon'
@@ -174,6 +175,7 @@ export default function ParentDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [giftModal, setGiftModal] = useState({ open: false, data: null })
+  const [confirmModal, setConfirmModal] = useState({ open: false, title: '', message: '', onConfirm: null })
   const [showRsvp, setShowRsvp] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [notifStatus, setNotifStatus] = useState(() => {
@@ -220,14 +222,21 @@ export default function ParentDashboardPage() {
     setCollectiveModal(true)
   }
 
-  const disableCollective = async () => {
-    if (!window.confirm(t('dashboard.collective.disable_confirm'))) return
-    try {
-      await updateEvent(event.id, { parentToken, collective_enabled: false })
-      await fetchEvent()
-    } catch (e) {
-      console.error(e)
-    }
+  const disableCollective = () => {
+    setConfirmModal({
+      open: true,
+      title: t('dashboard.collective.disable_confirm'),
+      message: '',
+      onConfirm: async () => {
+        setConfirmModal({ open: false })
+        try {
+          await updateEvent(event.id, { parentToken, collective_enabled: false })
+          await fetchEvent()
+        } catch (e) {
+          console.error(e)
+        }
+      },
+    })
   }
 
   const saveCollective = async () => {
@@ -401,15 +410,21 @@ export default function ParentDashboardPage() {
     await fetchEvent()
   }
 
-  const handleDeleteGift = async (giftId) => {
-    if (!confirm(t('dashboard.gifts.delete_confirm'))) return
-    try {
-      await deleteGift(giftId, parentToken)
-      await fetchEvent()
-    } catch (e) {
-      console.error(e)
-      alert(t('dashboard.gifts.delete_error'))
-    }
+  const handleDeleteGift = (giftId) => {
+    setConfirmModal({
+      open: true,
+      title: t('dashboard.gifts.delete_confirm'),
+      message: t('dashboard.gifts.delete_message'),
+      onConfirm: async () => {
+        setConfirmModal({ open: false })
+        try {
+          await deleteGift(giftId, parentToken)
+          await fetchEvent()
+        } catch (e) {
+          console.error(e)
+        }
+      },
+    })
   }
 
   if (loading) {
@@ -450,6 +465,15 @@ export default function ParentDashboardPage() {
 
   return (
     <Layout>
+      <ConfirmModal
+        isOpen={confirmModal.open}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ open: false })}
+      />
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
 
         {/* ── Banner nuovo evento ──────────────────────────────────────── */}
