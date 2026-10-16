@@ -5,6 +5,7 @@ import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lig
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
 import WishlistPreviewModal from '../components/WishlistPreviewModal'
+import AuthModal from '../components/AuthModal'
 import { createEvent, createStripeCheckout } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
@@ -526,6 +527,7 @@ export default function CreateEventPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPreview, setShowPreview] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const stepKeys = STEP_KEYS
 
@@ -537,7 +539,8 @@ export default function CreateEventPage() {
   const stepLabels = stepKeys.map((k) => STEP_LABEL_MAP[k] || k)
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/')
+    if (!authLoading && !user) setShowAuthModal(true)
+    if (user) setShowAuthModal(false)
   }, [user, authLoading])
 
   const {
@@ -637,6 +640,12 @@ export default function CreateEventPage() {
 
   return (
     <Layout>
+      <AuthModal
+        isOpen={showAuthModal}
+        initialMode="register"
+        onClose={() => { setShowAuthModal(false); navigate('/') }}
+        onSuccess={() => setShowAuthModal(false)}
+      />
       {showPreview && (
         <WishlistPreviewModal
           formData={watchedData}
