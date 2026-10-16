@@ -10,6 +10,7 @@ import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import AuthModal from '../components/AuthModal'
 import DownloadButton from '../components/DownloadButton'
+import { getAppBaseUrl } from '../lib/platform'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
 import { format } from 'date-fns'
@@ -462,7 +463,7 @@ export default function HomePage() {
               <DownloadButton className="inline-flex items-center gap-2 border border-white/40 text-white/80 hover:text-white hover:border-white text-sm font-medium px-4 py-2 rounded-xl transition-colors duration-200" />
               <button
                 onClick={async () => {
-                  const shareUrl = `${window.location.origin}/scarica`
+                  const shareUrl = `${getAppBaseUrl()}/scarica`
                   const shareText = `${t('home.final_cta.share_text')} ${shareUrl}`
                   if (navigator.share) {
                     await navigator.share({ title: 'Piky', text: shareText })

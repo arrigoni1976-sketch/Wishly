@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import GiftIcon from '../components/GiftIcon'
@@ -9,8 +10,16 @@ export default function ResetPasswordPage() {
   const [confirm, setConfirm] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const { t } = useTranslation()
+  const [searchParams] = useSearchParams()
 
   useEffect(() => {
+    // In-app nativa: DeepLinkHandler chiama setSession() e aggiunge ?recovery=1
+    // In browser: Supabase processa il hash e invia PASSWORD_RECOVERY
+    if (searchParams.get('recovery') === '1') {
+      setStatus('ready')
+      return
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setStatus('ready')

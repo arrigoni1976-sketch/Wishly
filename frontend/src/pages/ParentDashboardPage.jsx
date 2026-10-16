@@ -17,7 +17,7 @@ import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
-import { isNative } from '../lib/platform'
+import { isNative, getAppBaseUrl } from '../lib/platform'
 import { format } from 'date-fns'
 import { it, enUS } from 'date-fns/locale'
 
@@ -212,7 +212,7 @@ export default function ParentDashboardPage() {
     no: t('guest.rsvp.done.no'),
   }
 
-  const baseUrl = window.location.origin
+  const baseUrl = getAppBaseUrl()
 
   const openCollectiveEdit = () => {
     setCollectiveForm({
@@ -553,6 +553,7 @@ export default function ParentDashboardPage() {
                             href={`https://maps.google.com/?q=${encodeURIComponent(event.address)}`}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={isNative() ? (e) => { e.preventDefault(); window.open(`https://maps.google.com/?q=${encodeURIComponent(event.address)}`, '_system') } : undefined}
                             className="pl-5 underline underline-offset-2 hover:text-gray-700 transition-colors"
                           >
                             {event.address} →
@@ -903,15 +904,17 @@ export default function ParentDashboardPage() {
                   className="input resize-none text-sm"
                 />
                 <div className="flex gap-2">
-                  <a
-                    href={`https://wa.me/?text=${encodeURIComponent(thankYouMsg.trim() || defaultThankYou)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = thankYouMsg.trim() || defaultThankYou
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, isNative() ? '_system' : '_blank')
+                    }}
                     className="flex-1 btn-primary py-2.5 text-sm flex items-center justify-center gap-2"
                   >
                     <HeartRibbonIcon size={16} />
                     {t('dashboard.thanks.whatsapp_btn')}
-                  </a>
+                  </button>
                   <button
                     onClick={() => {
                       const text = thankYouMsg.trim() || defaultThankYou
