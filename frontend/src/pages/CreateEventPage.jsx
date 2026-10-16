@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, ChevronLeft, ChevronRight, Check, Gift, Lightbulb, MapPin, Eye } from 'lucide-react'
 import Layout from '../components/Layout'
 import StepIndicator from '../components/StepIndicator'
+import WishlistPreviewModal from '../components/WishlistPreviewModal'
 import { createEvent, createStripeCheckout } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
@@ -524,6 +525,7 @@ export default function CreateEventPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPreview, setShowPreview] = useState(false)
 
   const stepKeys = STEP_KEYS
 
@@ -635,6 +637,12 @@ export default function CreateEventPage() {
 
   return (
     <Layout>
+      {showPreview && (
+        <WishlistPreviewModal
+          formData={watchedData}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
       <div className="max-w-xl mx-auto px-4 py-12">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-salvia mb-6 transition-colors">
@@ -655,6 +663,18 @@ export default function CreateEventPage() {
 
           {error && (
             <p className="text-sm text-red-500 mb-4 bg-red-50 px-4 py-3 rounded-xl">{error}</p>
+          )}
+
+          {/* Pulsante anteprima — visibile solo sull'ultimo step */}
+          {currentStep === stepKeys.length && (
+            <button
+              type="button"
+              onClick={() => setShowPreview(true)}
+              className="w-full flex items-center justify-center gap-2 btn-outline mb-3 text-sm"
+            >
+              <Eye className="w-4 h-4" />
+              {t('create.preview.btn')}
+            </button>
           )}
 
           <div className="flex gap-3">
