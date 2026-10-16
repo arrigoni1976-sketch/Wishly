@@ -11,6 +11,7 @@ import CelebrationIcon from '../components/CelebrationIcon'
 import WaveIcon from '../components/WaveIcon'
 import RSVPSelector from '../components/RSVPSelector'
 import CopyLink from '../components/CopyLink'
+import { isNative } from '../lib/platform'
 import ClosingCountdown from '../components/ClosingCountdown'
 import DownloadButton from '../components/DownloadButton'
 import {
@@ -85,7 +86,7 @@ function addToCalendar({ childName, partyDate, partyTime, location, inviteUrl, t
       details: inviteUrl ? `${descBase}\n${linkLabel} ${inviteUrl}` : descBase,
     })
     if (location) params.set('location', location)
-    window.open(`https://calendar.google.com/calendar/render?${params}`, '_blank')
+    window.open(`https://calendar.google.com/calendar/render?${params}`, isNative() ? '_system' : '_blank')
     return
   }
 

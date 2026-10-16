@@ -49,7 +49,8 @@ function DeepLinkHandler() {
     const handler = CapApp.addListener('appUrlOpen', (event) => {
       try {
         const url = new URL(event.url)
-        const path = url.pathname + url.search
+        // Include hash so Supabase can read #access_token= for email confirm / reset
+        const path = url.pathname + url.search + url.hash
         if (path && path !== '/') navigate(path, { replace: true })
       } catch {}
     })
