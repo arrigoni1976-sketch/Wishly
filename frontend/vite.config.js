@@ -1,16 +1,29 @@
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig } from 'vite'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-function checkEnvPlugin(env) {
+let _envChecked = false
+function checkEnvPlugin() {
   return {
     name: 'check-env',
     buildStart() {
+      if (_envChecked) return
+      _envChecked = true
+      const envVars = { ...process.env }
+      try {
+        const lines = readFileSync(join(process.cwd(), '.env'), 'utf8').split('\n')
+        for (const line of lines) {
+          const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.+)$/)
+          if (m) envVars[m[1]] = m[2].trim()
+        }
+      } catch {}
       const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'VITE_API_URL']
       const placeholders = ['placeholder', 'your-project', 'your-publishable-key']
       const missing = []
       for (const key of required) {
-        const val = env[key]
+        const val = envVars[key]
         if (!val || placeholders.some(p => val.includes(p))) {
           missing.push(key)
         }
@@ -26,11 +39,9 @@ function checkEnvPlugin(env) {
   }
 }
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  return {
-    plugins: [
-    checkEnvPlugin(env),
+export default defineConfig({
+  plugins: [
+    checkEnvPlugin(),
     react(),
     VitePWA({
       strategies: 'injectManifest',
@@ -125,5 +136,4 @@ export default defineConfig(({ mode }) => {
       },
     },
   },
-  }
 })
