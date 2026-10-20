@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-function checkEnvPlugin() {
+function checkEnvPlugin(env) {
   return {
     name: 'check-env',
     buildStart() {
@@ -10,7 +10,7 @@ function checkEnvPlugin() {
       const placeholders = ['placeholder', 'your-project', 'your-publishable-key']
       const missing = []
       for (const key of required) {
-        const val = process.env[key]
+        const val = env[key]
         if (!val || placeholders.some(p => val.includes(p))) {
           missing.push(key)
         }
@@ -26,9 +26,11 @@ function checkEnvPlugin() {
   }
 }
 
-export default defineConfig({
-  plugins: [
-    checkEnvPlugin(),
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  return {
+    plugins: [
+    checkEnvPlugin(env),
     react(),
     VitePWA({
       strategies: 'injectManifest',
@@ -123,4 +125,5 @@ export default defineConfig({
       },
     },
   },
+  }
 })
