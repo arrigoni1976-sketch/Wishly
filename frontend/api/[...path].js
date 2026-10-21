@@ -37,8 +37,14 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', ct)
     res.status(upstream.status)
     const text = await upstream.text()
+    if (upstream.status >= 400) {
+      let body = {}
+      try { body = JSON.parse(text) } catch { body = { raw: text } }
+      res.json({ ...body, _url: targetUrl, _path: pathStr })
+      return
+    }
     res.send(text)
   } catch (err) {
-    res.status(502).json({ message: 'Proxy error: ' + err.message })
+    res.status(502).json({ message: 'Proxy error: ' + err.message, cause: String(err.cause || ''), _url: targetUrl })
   }
 }
