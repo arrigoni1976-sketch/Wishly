@@ -2,34 +2,39 @@ export default async function handler(req, res) {
   const tests = []
 
   const base = 'https://wishly-production.up.railway.app'
-  const calls = [
-    { method: 'GET',  path: '/api/events/mine' },
-    { method: 'POST', path: '/api/events' },
-    { method: 'POST', path: '/api/events/' },
-  ]
-  for (const { method, path } of calls) {
-    const url = base + path
-    try {
-      const r = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': 'Bearer test',
-          'Origin': 'https://www.pikyapp.it',
-          'Content-Type': 'application/json',
-          'User-Agent': 'Mozilla/5.0',
-        },
-        body: method !== 'GET' ? JSON.stringify({ test: true }) : undefined,
-        signal: AbortSignal.timeout(8000),
-      })
-      const text = await r.text()
-      tests.push({ method, path, status: r.status, body: text.slice(0, 120) })
-    } catch (err) {
-      tests.push({
-        method, path,
-        error: err.message,
-        cause: String(err.cause?.message || err.cause?.code || err.cause || ''),
-      })
-    }
+  // Test POST with minimal payload (expect 400 missing fields, not 401 or 404)
+  try {
+    const r = await fetch(`${base}/api/events`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer test',
+        'Origin': 'https://www.pikyapp.it',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ childName: 'Test', partyDate: '2026-12-01', parentEmail: 'test@test.com' }),
+      signal: AbortSignal.timeout(8000),
+    })
+    const text = await r.text()
+    tests.push({ test: 'POST /api/events with body', status: r.status, ct: r.headers.get('content-type'), body: text.slice(0, 200) })
+  } catch (err) {
+    tests.push({ test: 'POST /api/events with body', error: err.message })
+  }
+
+  // Test POST without body (expect 401 from requireAuth, or 400 from validation)
+  try {
+    const r = await fetch(`${base}/api/events`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer test',
+        'Origin': 'https://www.pikyapp.it',
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(8000),
+    })
+    const text = await r.text()
+    tests.push({ test: 'POST /api/events no body', status: r.status, body: text.slice(0, 200) })
+  } catch (err) {
+    tests.push({ test: 'POST /api/events no body', error: err.message })
   }
 
   res.json({ tests, vercel: true })

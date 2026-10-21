@@ -50,7 +50,17 @@ export default async function handler(req, res) {
       res.json(body)
       return
     }
-    res.send(text)
+    // For JSON responses, parse and re-serialize to ensure correct format
+    const isJson = ct.includes('application/json')
+    if (isJson) {
+      try {
+        res.json(JSON.parse(text))
+      } catch {
+        res.send(text)
+      }
+    } else {
+      res.send(text)
+    }
   } catch (err) {
     res.status(502).json({ message: 'Proxy error: ' + err.message, cause: String(err.cause || ''), _url: targetUrl })
   }
