@@ -1,6 +1,19 @@
 export default async function handler(req, res) {
   const tests = []
 
+  // Check if api.pikyapp.it is now resolvable from Vercel
+  try {
+    const r = await fetch('https://api.pikyapp.it/api/events/parent/00000000-0000-0000-0000-000000000000', {
+      method: 'GET',
+      headers: { 'Origin': 'https://www.pikyapp.it' },
+      signal: AbortSignal.timeout(8000),
+    })
+    const text = await r.text()
+    tests.push({ test: 'GET api.pikyapp.it/fake-uuid', status: r.status, body: text.slice(0, 100) })
+  } catch (err) {
+    tests.push({ test: 'GET api.pikyapp.it/fake-uuid', error: err.message })
+  }
+
   const base = 'https://wishly-production.up.railway.app'
   // Test POST with minimal payload (expect 400 missing fields, not 401 or 404)
   try {
