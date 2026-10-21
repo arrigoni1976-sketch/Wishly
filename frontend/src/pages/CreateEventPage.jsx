@@ -642,7 +642,12 @@ export default function CreateEventPage() {
         const res = await createEvent(payload)
         sessionStorage.removeItem('piky_create_draft')
         localStorage.removeItem('piky_create_draft')
-        navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
+        const tok = res.data?.parentToken
+        if (!tok) {
+          setError(`[DEBUG] token assente — chiavi: ${Object.keys(res.data || {}).join(',')} | status ${res.status} | ${JSON.stringify(res.data).slice(0, 120)}`)
+          return
+        }
+        navigate(`/dashboard/${tok}?nuovo=1`)
       }
     } catch (e) {
       const data = e?.response?.data

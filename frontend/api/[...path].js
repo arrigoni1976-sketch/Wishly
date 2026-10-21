@@ -42,6 +42,7 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', ct)
     res.status(upstream.status)
     const text = await upstream.text()
+    console.log(`[proxy] ${req.method} ${pathStr} → ${upstream.status} ct=${ct} body=${text.slice(0, 200)}`)
     if (upstream.status >= 400) {
       let body = {}
       try { body = JSON.parse(text) } catch { body = { raw: text } }
