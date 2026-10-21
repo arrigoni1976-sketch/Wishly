@@ -127,16 +127,27 @@ async function handleGetEventByParentToken(token, res) {
     auth: { persistSession: false, autoRefreshToken: false },
   })
 
-  const { data: event, error } = await supabase
+  // Try full select first; fall back to simple select if joins fail (e.g. missing table)
+  let event, error
+  ;({ data: event, error } = await supabase
     .from('events')
     .select('*, gifts(*), rsvp(*), link_views(*), contributions(*)')
     .eq('parent_token', token)
-    .single()
+    .single())
+
+  if (error) {
+    console.warn('[proxy:getEvent] full select failed, trying simple:', error.code, error.message)
+    ;({ data: event, error } = await supabase
+      .from('events')
+      .select('*, gifts(*)')
+      .eq('parent_token', token)
+      .single())
+  }
 
   if (error || !event) {
     const detail = error ? `${error.code}: ${error.message}` : 'null result'
     console.error('[proxy:getEvent] not found or error:', detail, 'token:', token?.slice(0, 8))
-    return res.status(404).json({ message: `Evento non trovato [${detail}]` })
+    return res.status(404).json({ message: `Evento non trovato [${detail}] tok=${token?.slice(0, 8)}` })
   }
 
   if (event.gifts) event.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
