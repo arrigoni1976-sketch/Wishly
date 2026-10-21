@@ -7,9 +7,15 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(async (config) => {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) {
+      config.headers.Authorization = `Bearer ${session.access_token}`
+    }
+  } catch (err) {
+    // getSession() can throw on iOS WKWebView if localStorage is restricted;
+    // let the request proceed so the server returns a proper 401 instead of a silent JS crash.
+    console.warn('[api] getSession error:', err?.message)
   }
   return config
 })
