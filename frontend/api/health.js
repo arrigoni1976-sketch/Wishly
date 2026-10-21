@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       tests.push({ test: 'SELECT count(events)', error: err.message })
     }
 
-    // Test: get most recent 2 events with parent_token
+    // Test: get most recent 2 events with FULL parent_token (for manual testing)
     try {
       const { data, error } = await supabase
         .from('events')
@@ -39,12 +39,57 @@ export default async function handler(req, res) {
         error: error?.message,
         data: data?.map(e => ({
           child: e.child_name,
-          tok: e.parent_token?.slice(0, 8),
+          parent_token: e.parent_token,
           at: e.created_at,
+          get_url: `/api/events/parent/${e.parent_token}`,
         })),
       })
     } catch (err) {
       tests.push({ test: 'SELECT recent events', error: err.message })
+    }
+
+    // Test: round-trip — insert a throwaway event and immediately SELECT it back
+    try {
+      const testToken = crypto.randomUUID()
+      const { data: inserted, error: insErr } = await supabase
+        .from('events')
+        .insert({
+          child_name: '_health_check_',
+          party_date: '2099-01-01',
+          parent_email: 'health@test.invalid',
+          parent_token: testToken,
+          guest_token: crypto.randomUUID(),
+          collective_token: crypto.randomUUID(),
+          collective_enabled: false,
+          collective_amount: 0,
+        })
+        .select('id, parent_token')
+        .single()
+
+      if (insErr) {
+        tests.push({ test: 'round-trip insert→select', insertError: insErr.message })
+      } else {
+        const { data: selected, error: selErr } = await supabase
+          .from('events')
+          .select('id, parent_token')
+          .eq('parent_token', testToken)
+          .single()
+
+        // Clean up
+        if (inserted?.id) await supabase.from('events').delete().eq('id', inserted.id)
+
+        tests.push({
+          test: 'round-trip insert→select',
+          tokenSent: testToken,
+          dbStoredToken: inserted?.parent_token,
+          tokensMatch: testToken === inserted?.parent_token,
+          selectFound: !!selected,
+          selectToken: selected?.parent_token,
+          selectError: selErr?.message,
+        })
+      }
+    } catch (err) {
+      tests.push({ test: 'round-trip insert→select', error: err.message })
     }
 
     // Test: full join query for the most recent event's parent_token
