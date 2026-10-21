@@ -22,10 +22,13 @@ async function handleCreateEvent(req, res) {
     return res.status(500).json({ message: 'Supabase env vars missing' })
   }
 
-  // Verify JWT — use anon client just for auth.getUser()
+  // Verify JWT with anon client, then use service key for DB operations (bypasses RLS)
   const supabase = createClient(supabaseUrl, anonKey)
   const { data: { user }, error: authErr } = await supabase.auth.getUser(userJwt)
   if (authErr || !user) return res.status(401).json({ message: 'Sessione non valida' })
+
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  if (!serviceKey) return res.status(500).json({ message: 'SUPABASE_SERVICE_KEY non configurata' })
 
   const {
     childName, partyDate, partyTime, location, address, notes,
@@ -75,8 +78,8 @@ async function handleCreateEvent(req, res) {
   const insertResp = await fetch(`${supabaseUrl}/rest/v1/events`, {
     method: 'POST',
     headers: {
-      'apikey': anonKey,
-      'Authorization': `Bearer ${userJwt}`,
+      'apikey': serviceKey,
+      'Authorization': `Bearer ${serviceKey}`,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation',
     },
@@ -106,8 +109,8 @@ async function handleCreateEvent(req, res) {
     const giftsResp = await fetch(`${supabaseUrl}/rest/v1/gifts`, {
       method: 'POST',
       headers: {
-        'apikey': anonKey,
-        'Authorization': `Bearer ${userJwt}`,
+        'apikey': serviceKey,
+        'Authorization': `Bearer ${serviceKey}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal',
       },
