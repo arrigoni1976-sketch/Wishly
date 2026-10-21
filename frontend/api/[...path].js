@@ -106,12 +106,16 @@ async function handleCreateEvent(req, res) {
     if (giftsError) console.error('[proxy:createEvent] gifts insert error:', giftsError.message)
   }
 
-  console.log(`[proxy:createEvent] ok eventId=${event.id} parentToken=${parentToken.slice(0, 8)}…`)
+  // Use tokens from the DB record (not local vars) in case a DB trigger overwrites them
+  const storedParentToken = event.parent_token ?? parentToken
+  const storedGuestToken = event.guest_token ?? guestToken
+  const storedCollectiveToken = event.collective_token ?? collectiveToken
+  console.log(`[proxy:createEvent] ok eventId=${event.id} parentToken=${storedParentToken.slice(0, 8)}…`)
   return res.status(201).json({
     id: event.id,
-    parentToken,
-    guestToken,
-    collectiveToken: collectiveEnabled ? collectiveToken : null,
+    parentToken: storedParentToken,
+    guestToken: storedGuestToken,
+    collectiveToken: collectiveEnabled ? storedCollectiveToken : null,
   })
 }
 
