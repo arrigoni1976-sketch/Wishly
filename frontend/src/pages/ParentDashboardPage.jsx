@@ -339,7 +339,14 @@ export default function ParentDashboardPage() {
       const res = await getEventByParentToken(parentToken)
       setEvent(res.data)
     } catch (err) {
-      const apiMsg = err?.response?.data?.message
+      // CapacitorHttp returns 4xx bodies as raw strings, not parsed JSON objects.
+      const rawData = err?.response?.data
+      let apiMsg
+      if (typeof rawData === 'string') {
+        try { apiMsg = JSON.parse(rawData)?.message } catch { apiMsg = rawData.slice(0, 120) }
+      } else {
+        apiMsg = rawData?.message
+      }
       const status = err?.response?.status
       const jsMsg = err?.message
       const debugInfo = apiMsg || (status ? `HTTP ${status}` : jsMsg) || '?'
