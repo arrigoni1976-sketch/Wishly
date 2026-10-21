@@ -42,8 +42,11 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
+    console.log('[CORS] Request origin:', JSON.stringify(origin))
     // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true)
+    // Also allow "null" origin sent by some WKWebView/Capacitor builds
+    if (!origin || origin === 'null' || allowedOrigins.includes(origin)) return callback(null, true)
+    console.log('[CORS] Blocked origin:', JSON.stringify(origin))
     callback(new Error('Host not in allowlist'))
   },
 }))
