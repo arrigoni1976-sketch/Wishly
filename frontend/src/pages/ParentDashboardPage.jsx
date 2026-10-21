@@ -340,12 +340,10 @@ export default function ParentDashboardPage() {
       setEvent(res.data)
     } catch (err) {
       const apiMsg = err?.response?.data?.message
-        || (typeof err?.response?.data === 'string' ? err?.response?.data?.slice(0, 80) : null)
       const status = err?.response?.status
       const jsMsg = err?.message
-      const urlTok = parentToken?.slice(0, 8) || '?'
       const debugInfo = apiMsg || (status ? `HTTP ${status}` : jsMsg) || '?'
-      setError(`${t('dashboard.error.not_found')} [${debugInfo} | url-tok:${urlTok}]`)
+      setError(`${t('dashboard.error.not_found')} [${debugInfo}]`)
     } finally {
       setLoading(false)
     }
