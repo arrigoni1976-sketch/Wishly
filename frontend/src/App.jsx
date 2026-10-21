@@ -32,6 +32,22 @@ const updateSW = registerSW({
 // Esponi la funzione di update globalmente per il pulsante in Navbar
 window.__pikyUpdateSW = updateSW
 
+// Fix iOS WKWebView: resetta il viewport dopo che la tastiera si chiude
+// senza questo, il viewport rimane zoomato dopo aver toccato un input
+if (typeof window !== 'undefined') {
+  document.addEventListener('focusout', () => {
+    const viewport = document.querySelector('meta[name=viewport]')
+    if (viewport) {
+      const content = viewport.getAttribute('content')
+      // Trick: toggle maximum-scale per forzare il reset dello zoom
+      viewport.setAttribute('content', content.replace('maximum-scale=1.0', 'maximum-scale=1.1'))
+      requestAnimationFrame(() => {
+        viewport.setAttribute('content', content)
+      })
+    }
+  }, true)
+}
+
 // Riporta la pagina in cima a ogni cambio di rotta
 function ScrollToTop() {
   const { pathname } = useLocation()
