@@ -338,8 +338,12 @@ export default function ParentDashboardPage() {
     try {
       const res = await getEventByParentToken(parentToken)
       setEvent(res.data)
-    } catch {
-      setError(t('dashboard.error.not_found'))
+    } catch (err) {
+      const apiMsg = err?.response?.data?.message
+      const status = err?.response?.status
+      const jsMsg = err?.message
+      const debugInfo = apiMsg || (status ? `HTTP ${status}` : jsMsg) || '?'
+      setError(`${t('dashboard.error.not_found')} [${debugInfo}]`)
     } finally {
       setLoading(false)
     }

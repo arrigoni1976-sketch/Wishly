@@ -37,5 +37,18 @@ export default async function handler(req, res) {
     tests.push({ test: 'POST /api/events no body', error: err.message })
   }
 
+  // Test GET with a fake token (expect 404 "Evento non trovato", NOT 500 or network error)
+  try {
+    const r = await fetch(`${base}/api/events/parent/00000000-0000-0000-0000-000000000000`, {
+      method: 'GET',
+      headers: { 'Origin': 'https://www.pikyapp.it' },
+      signal: AbortSignal.timeout(8000),
+    })
+    const text = await r.text()
+    tests.push({ test: 'GET /api/events/parent/fake-uuid', status: r.status, body: text.slice(0, 200) })
+  } catch (err) {
+    tests.push({ test: 'GET /api/events/parent/fake-uuid', error: err.message })
+  }
+
   res.json({ tests, vercel: true })
 }
