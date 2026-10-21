@@ -1,15 +1,8 @@
-// Vercel serverless proxy — forwards /api/* to Railway without the Capacitor origin header,
-// so the old CORS config on Railway (which doesn't know about capacitor://localhost) still works.
+// Vercel serverless proxy — forwards /api/* to Railway without the Capacitor origin header.
 // EXCEPTION: POST /api/events and GET /api/events/parent/:token are handled directly via
-// Supabase to work around the Railway deployment that silently ignores DB errors.
-import { createClient } from '@supabase/supabase-js'
+// Supabase PostgREST to work around the Railway deployment that silently ignores DB errors.
 
-function getSupabase() {
-  const url = process.env.VITE_SUPABASE_URL
-  const key = process.env.VITE_SUPABASE_ANON_KEY
-  if (!url || !key) throw new Error('Supabase env vars missing')
-  return createClient(url, key)
-}
+import { createClient } from '@supabase/supabase-js'
 
 function parsePrice(val) {
   if (val === null || val === undefined || val === '') return null
@@ -17,16 +10,21 @@ function parsePrice(val) {
   return Number.isFinite(n) ? n : null
 }
 
-// ─── POST /api/events handled directly via Supabase ─────────────────────────
+// ─── POST /api/events handled directly via Supabase PostgREST ───────────────
 async function handleCreateEvent(req, res) {
   const authHeader = req.headers.authorization || ''
-  const token = authHeader.replace(/^Bearer\s+/i, '').trim()
-  if (!token) return res.status(401).json({ message: 'Sessione non valida' })
+  const userJwt = authHeader.replace(/^Bearer\s+/i, '').trim()
+  if (!userJwt) return res.status(401).json({ message: 'Sessione non valida' })
 
-  const supabase = getSupabase()
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !anonKey) {
+    return res.status(500).json({ message: 'Supabase env vars missing' })
+  }
 
-  // Authenticate via Supabase JWT
-  const { data: { user }, error: authErr } = await supabase.auth.getUser(token)
+  // Verify JWT — use anon client just for auth.getUser()
+  const supabase = createClient(supabaseUrl, anonKey)
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(userJwt)
   if (authErr || !user) return res.status(401).json({ message: 'Sessione non valida' })
 
   const {
@@ -45,51 +43,58 @@ async function handleCreateEvent(req, res) {
   const guestToken = crypto.randomUUID()
   const collectiveToken = crypto.randomUUID()
 
-  // Insert event using user JWT (Supabase RLS will see user.id = auth.uid())
-  const userSupabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_ANON_KEY,
-    { global: { headers: { Authorization: `Bearer ${token}` } } }
-  )
-
-  const { data: event, error: eventError } = await userSupabase
-    .from('events')
-    .insert({
-      child_name: childName,
-      gender: gender || null,
-      party_date: partyDate,
-      party_time: partyTime || null,
-      location: location || null,
-      address: address || null,
-      notes: notes || null,
-      parent_email: parentEmail,
-      closing_date: closingDate || null,
-      parent_token: parentToken,
-      guest_token: guestToken,
-      collective_token: collectiveToken,
-      collective_enabled: !!collectiveEnabled,
-      collective_goal: collectiveEnabled ? parseFloat(collectiveGoal) : null,
-      collective_description: collectiveDescription || null,
-      collective_amount: 0,
-      paypal_email: collectiveEnabled && paypalEmail ? paypalEmail : null,
-      collective_fixed_quota: collectiveEnabled && collectiveFixedQuota ? parseFloat(collectiveFixedQuota) : null,
-      referral_source: referralSource || null,
-      utm_source: utmSource || null,
-      utm_medium: utmMedium || null,
-      utm_campaign: utmCampaign || null,
-      owner_id: user.id,
-    })
-    .select()
-    .single()
-
-  if (eventError) {
-    console.error('[proxy:createEvent] insert error:', eventError)
-    return res.status(500).json({ message: `Errore creazione evento: ${eventError.message}` })
+  // Use raw PostgREST HTTP call so we control exactly which headers are sent.
+  // apikey = anon key (authenticates to Supabase API gateway)
+  // Authorization = user JWT (evaluated by RLS: auth.uid() = owner_id)
+  const eventPayload = {
+    child_name: childName,
+    gender: gender || null,
+    party_date: partyDate,
+    party_time: partyTime || null,
+    location: location || null,
+    address: address || null,
+    notes: notes || null,
+    parent_email: parentEmail,
+    closing_date: closingDate || null,
+    parent_token: parentToken,
+    guest_token: guestToken,
+    collective_token: collectiveToken,
+    collective_enabled: !!collectiveEnabled,
+    collective_goal: collectiveEnabled ? parseFloat(collectiveGoal) : null,
+    collective_description: collectiveDescription || null,
+    collective_amount: 0,
+    paypal_email: collectiveEnabled && paypalEmail ? paypalEmail : null,
+    collective_fixed_quota: collectiveEnabled && collectiveFixedQuota ? parseFloat(collectiveFixedQuota) : null,
+    referral_source: referralSource || null,
+    utm_source: utmSource || null,
+    utm_medium: utmMedium || null,
+    utm_campaign: utmCampaign || null,
+    owner_id: user.id,
   }
+
+  const insertResp = await fetch(`${supabaseUrl}/rest/v1/events`, {
+    method: 'POST',
+    headers: {
+      'apikey': anonKey,
+      'Authorization': `Bearer ${userJwt}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: JSON.stringify(eventPayload),
+  })
+
+  if (!insertResp.ok) {
+    const errText = await insertResp.text()
+    console.error('[proxy:createEvent] insert error', insertResp.status, errText.slice(0, 200))
+    return res.status(500).json({ message: `Errore creazione evento: ${errText.slice(0, 120)}` })
+  }
+
+  const rows = await insertResp.json()
+  const event = Array.isArray(rows) ? rows[0] : rows
 
   // Insert gifts if provided
   if (Array.isArray(gifts) && gifts.length > 0) {
-    const giftsToInsert = gifts.map((g, i) => ({
+    const giftsPayload = gifts.map((g, i) => ({
       event_id: event.id,
       name: g.name,
       description: g.description || null,
@@ -98,9 +103,19 @@ async function handleCreateEvent(req, res) {
       store_url: g.storeUrl || null,
       sort_order: i,
     }))
-    const { error: giftsError } = await userSupabase.from('gifts').insert(giftsToInsert)
-    if (giftsError) {
-      console.error('[proxy:createEvent] gifts insert error:', giftsError)
+    const giftsResp = await fetch(`${supabaseUrl}/rest/v1/gifts`, {
+      method: 'POST',
+      headers: {
+        'apikey': anonKey,
+        'Authorization': `Bearer ${userJwt}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(giftsPayload),
+    })
+    if (!giftsResp.ok) {
+      const t = await giftsResp.text()
+      console.error('[proxy:createEvent] gifts insert error', t.slice(0, 100))
       // Non bloccare la risposta — l'evento è stato creato
     }
   }
@@ -116,29 +131,39 @@ async function handleCreateEvent(req, res) {
 
 // ─── GET /api/events/parent/:token handled directly via Supabase ─────────────
 async function handleGetEventByParentToken(token, res) {
-  const supabase = getSupabase()
-  const { data: event, error } = await supabase
-    .from('events')
-    .select(`*, gifts(*), rsvp(*), link_views(*), contributions(*)`)
-    .eq('parent_token', token)
-    .single()
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !anonKey) {
+    return res.status(500).json({ message: 'Supabase env vars missing' })
+  }
 
-  if (error || !event) return res.status(404).json({ message: 'Evento non trovato' })
+  const url = `${supabaseUrl}/rest/v1/events?parent_token=eq.${encodeURIComponent(token)}&select=*,gifts(*),rsvp(*),link_views(*),contributions(*)`
+  const resp = await fetch(url, {
+    headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` },
+  })
 
+  if (!resp.ok) {
+    const t = await resp.text()
+    console.error('[proxy:getEvent] error', resp.status, t.slice(0, 100))
+    return res.status(404).json({ message: 'Evento non trovato' })
+  }
+
+  const rows = await resp.json()
+  if (!rows || rows.length === 0) return res.status(404).json({ message: 'Evento non trovato' })
+
+  const event = rows[0]
   if (event.gifts) event.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
 
   return res.status(200).json(event)
 }
 
 export default async function handler(req, res) {
-  // Parse path from req.url directly — req.query.path is unreliable in Vercel catch-all
   const parsedUrl = new URL(req.url, 'https://x.invalid')
   const pathStr = parsedUrl.pathname.replace(/^\/api\/?/, '')
-  const queryStr = parsedUrl.search  // '' or '?...'
+  const queryStr = parsedUrl.search
 
   console.log(`[proxy] ${req.method} ${req.url} pathStr=${pathStr}`)
 
-  // CORS headers so the Capacitor WKWebView accepts the response
   const origin = req.headers.origin || '*'
   res.setHeader('Access-Control-Allow-Origin', origin)
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
@@ -151,7 +176,7 @@ export default async function handler(req, res) {
     return
   }
 
-  // ── Direct Supabase handlers (bypass broken Railway deployment) ──────────────
+  // ── Direct Supabase handlers ─────────────────────────────────────────────────
   try {
     if (req.method === 'POST' && pathStr === 'events') {
       return await handleCreateEvent(req, res)
@@ -207,10 +232,8 @@ export default async function handler(req, res) {
     }
     try {
       res.json(JSON.parse(text))
-    } catch (parseErr) {
-      res.status(502).json({
-        message: `[502 path=${pathStr}] JSON non valido: ${text.slice(0, 80)}`,
-      })
+    } catch {
+      res.status(502).json({ message: `[502 path=${pathStr}] JSON non valido: ${text.slice(0, 80)}` })
     }
   } catch (err) {
     res.status(502).json({ message: 'Proxy error: ' + err.message, cause: String(err.cause || ''), _url: targetUrl })
