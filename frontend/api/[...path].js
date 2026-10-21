@@ -123,21 +123,21 @@ async function handleGetEventByParentToken(token, res) {
     return res.status(500).json({ message: 'Supabase env vars missing' })
   }
 
-  const url = `${supabaseUrl}/rest/v1/events?parent_token=eq.${encodeURIComponent(token)}&select=*,gifts(*),rsvp(*),link_views(*),contributions(*)`
-  const resp = await fetch(url, {
-    headers: { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` },
+  const supabase = createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
   })
 
-  if (!resp.ok) {
-    const t = await resp.text()
-    console.error('[proxy:getEvent] error', resp.status, t.slice(0, 100))
+  const { data: event, error } = await supabase
+    .from('events')
+    .select('*, gifts(*), rsvp(*), link_views(*), contributions(*)')
+    .eq('parent_token', token)
+    .single()
+
+  if (error || !event) {
+    console.error('[proxy:getEvent] not found or error:', error?.message)
     return res.status(404).json({ message: 'Evento non trovato' })
   }
 
-  const rows = await resp.json()
-  if (!rows || rows.length === 0) return res.status(404).json({ message: 'Evento non trovato' })
-
-  const event = rows[0]
   if (event.gifts) event.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
 
   return res.status(200).json(event)
