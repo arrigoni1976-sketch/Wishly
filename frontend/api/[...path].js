@@ -189,9 +189,9 @@ export default async function handler(req, res) {
     if (req.method === 'POST' && pathStr === 'events') {
       return await handleCreateEvent(req, res)
     }
-    const parentMatch = pathStr.match(/^events\/parent\/([^/?]+)$/)
-    if (req.method === 'GET' && parentMatch) {
-      return await handleGetEventByParentToken(parentMatch[1], res)
+    if (req.method === 'GET' && pathStr.startsWith('events/parent/')) {
+      const token = pathStr.slice('events/parent/'.length).split('/')[0].split('?')[0]
+      return await handleGetEventByParentToken(token, res)
     }
   } catch (err) {
     console.error('[proxy:direct]', err)
@@ -199,6 +199,10 @@ export default async function handler(req, res) {
   }
 
   // ── All other paths: proxy to Railway ────────────────────────────────────────
+  // DEBUG: return 418 if request reaches Railway fallback (should not happen for events/parent/)
+  if (pathStr.startsWith('events/')) {
+    return res.status(418).json({ message: `[418 debug] pathStr="${pathStr}" reached Railway fallback unexpectedly` })
+  }
   const targetUrl = `https://wishly-production.up.railway.app/api/${pathStr}${queryStr}`
   console.log(`[proxy] → Railway ${targetUrl}`)
 
