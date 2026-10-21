@@ -78,7 +78,7 @@ async function handleCreateEvent(req, res) {
   const insertResp = await fetch(`${supabaseUrl}/rest/v1/events`, {
     method: 'POST',
     headers: {
-      'apikey': serviceKey,
+      'apikey': anonKey,
       'Authorization': `Bearer ${serviceKey}`,
       'Content-Type': 'application/json',
       'Prefer': 'return=representation',
@@ -109,7 +109,7 @@ async function handleCreateEvent(req, res) {
     const giftsResp = await fetch(`${supabaseUrl}/rest/v1/gifts`, {
       method: 'POST',
       headers: {
-        'apikey': serviceKey,
+        'apikey': anonKey,
         'Authorization': `Bearer ${serviceKey}`,
         'Content-Type': 'application/json',
         'Prefer': 'return=minimal',
