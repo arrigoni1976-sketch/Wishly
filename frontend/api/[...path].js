@@ -30,6 +30,11 @@ async function handleCreateEvent(req, res) {
   const serviceKey = process.env.SUPABASE_SERVICE_KEY
   if (!serviceKey) return res.status(500).json({ message: 'SUPABASE_SERVICE_KEY non configurata' })
 
+  // Admin client with service key bypasses RLS; user identity already verified above
+  const adminSupabase = createClient(supabaseUrl, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+
   const {
     childName, partyDate, partyTime, location, address, notes,
     parentEmail, closingDate, gender,
@@ -75,25 +80,16 @@ async function handleCreateEvent(req, res) {
     owner_id: user.id,
   }
 
-  const insertResp = await fetch(`${supabaseUrl}/rest/v1/events`, {
-    method: 'POST',
-    headers: {
-      'apikey': anonKey,
-      'Authorization': `Bearer ${serviceKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-    },
-    body: JSON.stringify(eventPayload),
-  })
+  const { data: event, error: eventError } = await adminSupabase
+    .from('events')
+    .insert(eventPayload)
+    .select()
+    .single()
 
-  if (!insertResp.ok) {
-    const errText = await insertResp.text()
-    console.error('[proxy:createEvent] insert error', insertResp.status, errText.slice(0, 200))
-    return res.status(500).json({ message: `Errore creazione evento: ${errText.slice(0, 120)}` })
+  if (eventError) {
+    console.error('[proxy:createEvent] insert error:', eventError)
+    return res.status(500).json({ message: `Errore creazione evento: ${eventError.message}` })
   }
-
-  const rows = await insertResp.json()
-  const event = Array.isArray(rows) ? rows[0] : rows
 
   // Insert gifts if provided
   if (Array.isArray(gifts) && gifts.length > 0) {
@@ -106,21 +102,8 @@ async function handleCreateEvent(req, res) {
       store_url: g.storeUrl || null,
       sort_order: i,
     }))
-    const giftsResp = await fetch(`${supabaseUrl}/rest/v1/gifts`, {
-      method: 'POST',
-      headers: {
-        'apikey': anonKey,
-        'Authorization': `Bearer ${serviceKey}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify(giftsPayload),
-    })
-    if (!giftsResp.ok) {
-      const t = await giftsResp.text()
-      console.error('[proxy:createEvent] gifts insert error', t.slice(0, 100))
-      // Non bloccare la risposta — l'evento è stato creato
-    }
+    const { error: giftsError } = await adminSupabase.from('gifts').insert(giftsPayload)
+    if (giftsError) console.error('[proxy:createEvent] gifts insert error:', giftsError.message)
   }
 
   console.log(`[proxy:createEvent] ok eventId=${event.id} parentToken=${parentToken.slice(0, 8)}…`)
