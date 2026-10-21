@@ -134,8 +134,9 @@ async function handleGetEventByParentToken(token, res) {
     .single()
 
   if (error || !event) {
-    console.error('[proxy:getEvent] not found or error:', error?.message)
-    return res.status(404).json({ message: 'Evento non trovato' })
+    const detail = error ? `${error.code}: ${error.message}` : 'null result'
+    console.error('[proxy:getEvent] not found or error:', detail, 'token:', token?.slice(0, 8))
+    return res.status(404).json({ message: `Evento non trovato [${detail}]` })
   }
 
   if (event.gifts) event.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
