@@ -350,7 +350,7 @@ export default function ParentDashboardPage() {
       const status = err?.response?.status
       const jsMsg = err?.message
       const debugInfo = apiMsg || (status ? `HTTP ${status}` : jsMsg) || '?'
-      setError(`${t('dashboard.error.not_found')} [${debugInfo}]`)
+      setError(`${t('dashboard.error.not_found')} [${debugInfo}] tok:${parentToken?.slice(0, 8)}`)
     } finally {
       setLoading(false)
     }
