@@ -50,16 +50,20 @@ export default async function handler(req, res) {
       res.json(body)
       return
     }
-    // For JSON responses, parse and re-serialize to ensure correct format
+    // If upstream redirected to a non-JSON page, surface it as a debuggable error
     const isJson = ct.includes('application/json')
-    if (isJson) {
-      try {
-        res.json(JSON.parse(text))
-      } catch {
-        res.send(text)
-      }
-    } else {
-      res.send(text)
+    if (!isJson) {
+      res.status(502).json({
+        message: `[502 path=${pathStr}] Risposta non-JSON dal server: ct=${ct} body=${text.slice(0, 80)}`,
+      })
+      return
+    }
+    try {
+      res.json(JSON.parse(text))
+    } catch (parseErr) {
+      res.status(502).json({
+        message: `[502 path=${pathStr}] JSON non valido: ${text.slice(0, 80)}`,
+      })
     }
   } catch (err) {
     res.status(502).json({ message: 'Proxy error: ' + err.message, cause: String(err.cause || ''), _url: targetUrl })
