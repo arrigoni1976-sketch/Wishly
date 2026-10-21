@@ -1,67 +1,79 @@
+import { createClient } from '@supabase/supabase-js'
+
 export default async function handler(req, res) {
   const tests = []
 
-  // Check if api.pikyapp.it is now resolvable from Vercel
-  try {
-    const r = await fetch('https://api.pikyapp.it/api/events/parent/00000000-0000-0000-0000-000000000000', {
-      method: 'GET',
-      headers: { 'Origin': 'https://www.pikyapp.it' },
-      signal: AbortSignal.timeout(8000),
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+
+  tests.push({
+    test: 'env vars',
+    supabaseUrl: supabaseUrl ? supabaseUrl.slice(0, 30) + '…' : 'MISSING',
+    serviceKey: serviceKey ? serviceKey.slice(0, 12) + '…' : 'MISSING',
+  })
+
+  if (supabaseUrl && serviceKey) {
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
     })
-    const text = await r.text()
-    tests.push({ test: 'GET api.pikyapp.it/fake-uuid', status: r.status, body: text.slice(0, 100) })
-  } catch (err) {
-    tests.push({ test: 'GET api.pikyapp.it/fake-uuid', error: err.message })
+
+    // Test: count all events
+    try {
+      const { count, error } = await supabase
+        .from('events')
+        .select('*', { count: 'exact', head: true })
+      tests.push({ test: 'SELECT count(events)', count, error: error?.message })
+    } catch (err) {
+      tests.push({ test: 'SELECT count(events)', error: err.message })
+    }
+
+    // Test: get most recent 2 events with parent_token
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('id, child_name, parent_token, created_at')
+        .order('created_at', { ascending: false })
+        .limit(2)
+      tests.push({
+        test: 'SELECT recent events',
+        error: error?.message,
+        data: data?.map(e => ({
+          child: e.child_name,
+          tok: e.parent_token?.slice(0, 8),
+          at: e.created_at,
+        })),
+      })
+    } catch (err) {
+      tests.push({ test: 'SELECT recent events', error: err.message })
+    }
+
+    // Test: full join query for the most recent event's parent_token
+    try {
+      const { data: latest } = await supabase
+        .from('events')
+        .select('parent_token')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (latest?.parent_token) {
+        const { data: full, error } = await supabase
+          .from('events')
+          .select('*, gifts(*), rsvp(*), link_views(*), contributions(*)')
+          .eq('parent_token', latest.parent_token)
+          .single()
+        tests.push({
+          test: 'SELECT full join for latest event',
+          token: latest.parent_token.slice(0, 8),
+          found: !!full,
+          error: error?.message,
+          giftCount: full?.gifts?.length,
+        })
+      }
+    } catch (err) {
+      tests.push({ test: 'SELECT full join for latest event', error: err.message })
+    }
   }
 
-  const base = 'https://wishly-production.up.railway.app'
-  // Test POST with minimal payload (expect 400 missing fields, not 401 or 404)
-  try {
-    const r = await fetch(`${base}/api/events`, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer test',
-        'Origin': 'https://www.pikyapp.it',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ childName: 'Test', partyDate: '2026-12-01', parentEmail: 'test@test.com' }),
-      signal: AbortSignal.timeout(8000),
-    })
-    const text = await r.text()
-    tests.push({ test: 'POST /api/events with body', status: r.status, ct: r.headers.get('content-type'), body: text.slice(0, 200) })
-  } catch (err) {
-    tests.push({ test: 'POST /api/events with body', error: err.message })
-  }
-
-  // Test POST without body (expect 401 from requireAuth, or 400 from validation)
-  try {
-    const r = await fetch(`${base}/api/events`, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer test',
-        'Origin': 'https://www.pikyapp.it',
-        'Content-Type': 'application/json',
-      },
-      signal: AbortSignal.timeout(8000),
-    })
-    const text = await r.text()
-    tests.push({ test: 'POST /api/events no body', status: r.status, body: text.slice(0, 200) })
-  } catch (err) {
-    tests.push({ test: 'POST /api/events no body', error: err.message })
-  }
-
-  // Test GET with a fake token (expect 404 "Evento non trovato", NOT 500 or network error)
-  try {
-    const r = await fetch(`${base}/api/events/parent/00000000-0000-0000-0000-000000000000`, {
-      method: 'GET',
-      headers: { 'Origin': 'https://www.pikyapp.it' },
-      signal: AbortSignal.timeout(8000),
-    })
-    const text = await r.text()
-    tests.push({ test: 'GET /api/events/parent/fake-uuid', status: r.status, body: text.slice(0, 200) })
-  } catch (err) {
-    tests.push({ test: 'GET /api/events/parent/fake-uuid', error: err.message })
-  }
-
-  res.json({ tests, vercel: true })
+  res.json({ tests, vercel: true, ts: new Date().toISOString() })
 }
