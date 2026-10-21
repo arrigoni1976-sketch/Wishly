@@ -118,12 +118,12 @@ async function handleCreateEvent(req, res) {
 // ─── GET /api/events/parent/:token handled directly via Supabase ─────────────
 async function handleGetEventByParentToken(token, res) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY
-  if (!supabaseUrl || !anonKey) {
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  if (!supabaseUrl || !serviceKey) {
     return res.status(500).json({ message: 'Supabase env vars missing' })
   }
 
-  const supabase = createClient(supabaseUrl, anonKey, {
+  const supabase = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   })
 
