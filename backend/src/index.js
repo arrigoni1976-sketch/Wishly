@@ -35,6 +35,8 @@ const allowedOrigins = [
   'https://pikyapp.it',
   'http://localhost:5173',
   'http://localhost:3000',
+  'capacitor://localhost',
+  'https://localhost',
   process.env.FRONTEND_URL,
 ].filter(Boolean)
 

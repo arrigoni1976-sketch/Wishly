@@ -656,7 +656,7 @@ export default function CreateEventPage() {
       <AuthModal
         isOpen={showAuthModal}
         initialMode="register"
-        contextMessage={t('create.wizard_data_hint')}
+        contextMessage={t('create.nav.wizard_data_hint')}
         onClose={() => { setShowAuthModal(false); setPendingSubmit(false) }}
         onSuccess={() => setShowAuthModal(false)}
       />
