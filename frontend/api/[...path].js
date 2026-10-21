@@ -45,7 +45,9 @@ export default async function handler(req, res) {
     if (upstream.status >= 400) {
       let body = {}
       try { body = JSON.parse(text) } catch { body = { raw: text } }
-      res.json({ ...body, _url: targetUrl, _path: pathStr })
+      // Override message to include debug info — visible even in old iOS error handler
+      body.message = `[${upstream.status} path=${pathStr}] ${body.message || text.slice(0, 60)}`
+      res.json(body)
       return
     }
     res.send(text)
