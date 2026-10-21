@@ -1,10 +1,10 @@
 // Vercel serverless proxy — forwards /api/* to Railway without the Capacitor origin header,
 // so the old CORS config on Railway (which doesn't know about capacitor://localhost) still works.
 export default async function handler(req, res) {
-  const segments = req.query.path || []
-  const pathStr = Array.isArray(segments) ? segments.join('/') : String(segments)
-  const qIdx = req.url.indexOf('?')
-  const queryStr = qIdx !== -1 ? req.url.slice(qIdx) : ''
+  // Parse path from req.url directly — req.query.path is unreliable in Vercel catch-all
+  const parsedUrl = new URL(req.url, 'https://x.invalid')
+  const pathStr = parsedUrl.pathname.replace(/^\/api\/?/, '')
+  const queryStr = parsedUrl.search  // '' or '?...'
   const targetUrl = `https://wishly-production.up.railway.app/api/${pathStr}${queryStr}`
   console.log(`[proxy] ${req.method} ${req.url} → ${targetUrl}`)
 
