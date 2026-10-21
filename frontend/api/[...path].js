@@ -2,9 +2,11 @@
 // so the old CORS config on Railway (which doesn't know about capacitor://localhost) still works.
 export default async function handler(req, res) {
   const segments = req.query.path || []
-  const pathStr = Array.isArray(segments) ? segments.join('/') : segments
-  const queryStr = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''
-  const targetUrl = `https://api.pikyapp.it/api/${pathStr}${queryStr}`
+  const pathStr = Array.isArray(segments) ? segments.join('/') : String(segments)
+  const qIdx = req.url.indexOf('?')
+  const queryStr = qIdx !== -1 ? req.url.slice(qIdx) : ''
+  const targetUrl = `https://wishly-production.up.railway.app/api/${pathStr}${queryStr}`
+  console.log(`[proxy] ${req.method} ${req.url} → ${targetUrl}`)
 
   // CORS headers so the Capacitor WKWebView accepts the response
   const origin = req.headers.origin || '*'
