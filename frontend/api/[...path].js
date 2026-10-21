@@ -150,8 +150,14 @@ async function handleGetEventByParentToken(token, res) {
 
   if (error || !event) {
     const detail = error ? `${error.code}: ${error.message}` : 'null result'
-    console.error('[proxy:getEvent] not found or error:', detail, 'token:', token?.slice(0, 8))
-    return res.status(404).json({ message: `Evento non trovato [${detail}] tok=${token?.slice(0, 8)}` })
+    console.error('[proxy:getEvent] not found or error:', detail, 'token:', token)
+    // DEBUG: return 200 with token visible so CapacitorHttp parses the body
+    return res.status(200).json({
+      _notFound: true,
+      child_name: `404 tok=${token} err=${detail}`,
+      party_date: '2099-01-01',
+      gifts: [],
+    })
   }
 
   if (event.gifts) event.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
