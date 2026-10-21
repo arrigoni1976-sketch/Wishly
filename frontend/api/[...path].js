@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   const segments = req.query.path || []
   const pathStr = Array.isArray(segments) ? segments.join('/') : segments
   const queryStr = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''
-  const targetUrl = `https://wishly-production.up.railway.app/api/${pathStr}${queryStr}`
+  const targetUrl = `https://api.pikyapp.it/api/${pathStr}${queryStr}`
 
   // CORS headers so the Capacitor WKWebView accepts the response
   const origin = req.headers.origin || '*'
@@ -19,7 +19,10 @@ export default async function handler(req, res) {
     return
   }
 
-  const forwardHeaders = {}
+  const forwardHeaders = {
+    'Origin': 'https://www.pikyapp.it',
+    'Referer': 'https://www.pikyapp.it/',
+  }
   if (req.headers['content-type']) forwardHeaders['Content-Type'] = req.headers['content-type']
   if (req.headers.authorization)   forwardHeaders['Authorization'] = req.headers.authorization
   if (req.headers['user-agent'])   forwardHeaders['User-Agent']    = req.headers['user-agent']
