@@ -645,7 +645,18 @@ export default function CreateEventPage() {
         navigate(`/dashboard/${res.data.parentToken}?nuovo=1`)
       }
     } catch (e) {
-      setError(e?.response?.data?.message || t('create.error.generic'))
+      const serverMsg = e?.response?.data?.message
+      const status = e?.response?.status
+      const jsMsg = e?.message
+      if (serverMsg) {
+        setError(serverMsg)
+      } else if (status) {
+        setError(`HTTP ${status}: ${jsMsg || ''}`)
+      } else if (jsMsg) {
+        setError(`${jsMsg}`)
+      } else {
+        setError(t('create.error.generic'))
+      }
     } finally {
       setLoading(false)
     }
