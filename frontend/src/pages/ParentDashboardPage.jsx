@@ -303,35 +303,36 @@ export default function ParentDashboardPage() {
 
   const shareGuestLink = async () => {
     const url = `${baseUrl}/lista/${event?.guest_token}`
-    const text = `${t('dashboard.share.share_text', { name: event.child_name })}\n${url}`
+    const shareText = t('dashboard.share.share_text', { name: event.child_name })
     if (navigator.share) {
       try {
         await navigator.share({
           title: t('dashboard.header.title', { name: event.child_name }),
-          text,
+          text: shareText,
+          url,
         })
         return
       } catch (e) {
         if (e.name === 'AbortError') return
       }
     }
-    await navigator.clipboard.writeText(text)
+    await navigator.clipboard.writeText(`${shareText}\n${url}`)
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
   }
 
   const shareUpdate = async () => {
     const url = `${baseUrl}/lista/${event?.guest_token}`
-    const text = t('dashboard.share.update_text', { name: event.child_name }) + `\n${url}`
+    const shareText = t('dashboard.share.update_text', { name: event.child_name })
     if (navigator.share) {
       try {
-        await navigator.share({ text })
+        await navigator.share({ text: shareText, url })
         return
       } catch (e) {
         if (e.name === 'AbortError') return
       }
     }
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, isNative() ? '_system' : '_blank')
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + url)}`, isNative() ? '_system' : '_blank')
   }
 
   const fetchEvent = async () => {
@@ -644,15 +645,16 @@ export default function ParentDashboardPage() {
               <Share2 className="w-4 h-4" />
               {copied ? t('dashboard.share.copied') : t('dashboard.share.btn')}
             </button>
-            <a
-              href={`${baseUrl}/lista/${event?.guest_token}?preview=1`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => {
+                const previewUrl = `${baseUrl}/lista/${event?.guest_token}?preview=1`
+                window.open(previewUrl, isNative() ? '_system' : '_blank')
+              }}
               className="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center gap-1.5 transition-colors whitespace-nowrap"
               title={t('dashboard.share.preview_title')}
             >
               {t('dashboard.share.preview')}
-            </a>
+            </button>
           </div>
           <div className="mt-3 pt-3 border-t border-avorio-dark">
             <p className="text-sm text-gray-600 mb-2">{t('dashboard.share.update_hint')}</p>
