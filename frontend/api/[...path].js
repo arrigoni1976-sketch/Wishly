@@ -1,6 +1,5 @@
-// Vercel serverless proxy — forwards /api/* to Railway without the Capacitor origin header.
-// EXCEPTION: POST /api/events and GET /api/events/parent/:token are handled directly via
-// Supabase PostgREST to work around the Railway deployment that silently ignores DB errors.
+// Vercel serverless proxy — all core endpoints handled directly via Supabase.
+// Payments and push notifications still forwarded to Railway as fallback.
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -10,31 +9,30 @@ function parsePrice(val) {
   return Number.isFinite(n) ? n : null
 }
 
-// ─── POST /api/events handled directly via Supabase PostgREST ───────────────
-async function handleCreateEvent(req, res) {
+function getSupabase() {
+  const url = process.env.VITE_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  if (!url || !serviceKey) throw new Error('Supabase env vars missing')
+  return createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
+}
+
+async function verifyJwt(req) {
   const authHeader = req.headers.authorization || ''
   const userJwt = authHeader.replace(/^Bearer\s+/i, '').trim()
-  if (!userJwt) return res.status(401).json({ message: 'Sessione non valida' })
-
-  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  if (!userJwt) return null
+  const url = process.env.VITE_SUPABASE_URL
   const anonKey = process.env.VITE_SUPABASE_ANON_KEY
-  if (!supabaseUrl || !anonKey) {
-    return res.status(500).json({ message: 'Supabase env vars missing' })
-  }
+  if (!url || !anonKey) return null
+  const { data: { user } } = await createClient(url, anonKey).auth.getUser(userJwt)
+  return user || null
+}
 
-  // Verify JWT with anon client, then use service key for DB operations (bypasses RLS)
-  const supabase = createClient(supabaseUrl, anonKey)
-  const { data: { user }, error: authErr } = await supabase.auth.getUser(userJwt)
-  if (authErr || !user) return res.status(401).json({ message: 'Sessione non valida' })
+// ─── POST /api/events ────────────────────────────────────────────────────────
+async function handleCreateEvent(req, res) {
+  const user = await verifyJwt(req)
+  if (!user) return res.status(401).json({ message: 'Sessione non valida' })
 
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY
-  if (!serviceKey) return res.status(500).json({ message: 'SUPABASE_SERVICE_KEY non configurata' })
-
-  // Admin client with service key bypasses RLS; user identity already verified above
-  const adminSupabase = createClient(supabaseUrl, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
-
+  const db = getSupabase()
   const {
     childName, partyDate, partyTime, location, address, notes,
     parentEmail, closingDate, gender,
@@ -51,162 +49,324 @@ async function handleCreateEvent(req, res) {
   const guestToken = crypto.randomUUID()
   const collectiveToken = crypto.randomUUID()
 
-  // Use raw PostgREST HTTP call so we control exactly which headers are sent.
-  // apikey = anon key (authenticates to Supabase API gateway)
-  // Authorization = user JWT (evaluated by RLS: auth.uid() = owner_id)
-  const eventPayload = {
-    child_name: childName,
-    gender: gender || null,
-    party_date: partyDate,
-    party_time: partyTime || null,
-    location: location || null,
-    address: address || null,
-    notes: notes || null,
-    parent_email: parentEmail,
-    closing_date: closingDate || null,
-    parent_token: parentToken,
-    guest_token: guestToken,
-    collective_token: collectiveToken,
+  const { data: event, error: eventError } = await db.from('events').insert({
+    child_name: childName, gender: gender || null, party_date: partyDate,
+    party_time: partyTime || null, location: location || null, address: address || null,
+    notes: notes || null, parent_email: parentEmail, closing_date: closingDate || null,
+    parent_token: parentToken, guest_token: guestToken, collective_token: collectiveToken,
     collective_enabled: !!collectiveEnabled,
     collective_goal: collectiveEnabled ? parseFloat(collectiveGoal) : null,
-    collective_description: collectiveDescription || null,
-    collective_amount: 0,
+    collective_description: collectiveDescription || null, collective_amount: 0,
     paypal_email: collectiveEnabled && paypalEmail ? paypalEmail : null,
     collective_fixed_quota: collectiveEnabled && collectiveFixedQuota ? parseFloat(collectiveFixedQuota) : null,
-    referral_source: referralSource || null,
-    utm_source: utmSource || null,
-    utm_medium: utmMedium || null,
-    utm_campaign: utmCampaign || null,
-    owner_id: user.id,
-  }
-
-  const { data: event, error: eventError } = await adminSupabase
-    .from('events')
-    .insert(eventPayload)
-    .select()
-    .single()
+    referral_source: referralSource || null, utm_source: utmSource || null,
+    utm_medium: utmMedium || null, utm_campaign: utmCampaign || null, owner_id: user.id,
+  }).select().single()
 
   if (eventError) {
-    console.error('[proxy:createEvent] insert error:', eventError)
-    return res.status(500).json({ message: `Errore creazione evento: ${eventError.message}` })
+    console.error('[createEvent]', eventError)
+    return res.status(500).json({ message: eventError.message })
   }
 
-  // Insert gifts if provided
   if (Array.isArray(gifts) && gifts.length > 0) {
     const giftsPayload = gifts.map((g, i) => ({
-      event_id: event.id,
-      name: g.name,
-      description: g.description || null,
-      price: parsePrice(g.price),
-      amazon_url: g.amazonUrl || null,
-      store_url: g.storeUrl || null,
-      sort_order: i,
+      event_id: event.id, name: g.name, description: g.description || null,
+      price: parsePrice(g.price), amazon_url: g.amazonUrl || null,
+      store_url: g.storeUrl || null, sort_order: i,
     }))
-    const { error: giftsError } = await adminSupabase.from('gifts').insert(giftsPayload)
-    if (giftsError) console.error('[proxy:createEvent] gifts insert error:', giftsError.message)
+    await db.from('gifts').insert(giftsPayload)
   }
 
-  // Use tokens from the DB record (not local vars) in case a DB trigger overwrites them
   const storedParentToken = event.parent_token ?? parentToken
   const storedGuestToken = event.guest_token ?? guestToken
   const storedCollectiveToken = event.collective_token ?? collectiveToken
-  console.log(`[proxy:createEvent] ok eventId=${event.id} parentToken=${storedParentToken.slice(0, 8)}…`)
   return res.status(201).json({
-    id: event.id,
-    parentToken: storedParentToken,
-    guestToken: storedGuestToken,
+    id: event.id, parentToken: storedParentToken, guestToken: storedGuestToken,
     collectiveToken: collectiveEnabled ? storedCollectiveToken : null,
   })
 }
 
-// ─── GET /api/events/mine handled directly via Supabase ──────────────────────
+// ─── PUT /api/events/:id ─────────────────────────────────────────────────────
+async function handleUpdateEvent(id, req, res) {
+  const db = getSupabase()
+  const { parentToken, ...fields } = req.body || {}
+
+  const { data: ev } = await db.from('events').select('id').eq('id', id).eq('parent_token', parentToken).single()
+  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+
+  const allowed = ['child_name','gender','party_date','party_time','location','address','notes',
+    'closing_date','collective_enabled','collective_goal','collective_description',
+    'collective_fixed_quota','paypal_email']
+  const update = {}
+  for (const k of allowed) {
+    if (fields[k] !== undefined) update[k] = fields[k]
+    // also accept camelCase
+    const camel = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+    if (fields[camel] !== undefined) update[k] = fields[camel]
+  }
+
+  const { data, error } = await db.from('events').update(update).eq('id', id).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json(data)
+}
+
+// ─── GET /api/events/mine ────────────────────────────────────────────────────
 async function handleGetMyEvents(req, res) {
-  const authHeader = req.headers.authorization || ''
-  const userJwt = authHeader.replace(/^Bearer\s+/i, '').trim()
-  if (!userJwt) return res.status(401).json({ message: 'Sessione non valida' })
-
-  const supabaseUrl = process.env.VITE_SUPABASE_URL
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY
-  if (!supabaseUrl || !anonKey || !serviceKey) {
-    return res.status(500).json({ message: 'Supabase env vars missing' })
+  const user = await verifyJwt(req)
+  if (!user) return res.status(401).json({ message: 'Sessione non valida' })
+  const db = getSupabase()
+  const { data: events, error } = await db.from('events').select('*, gifts(*)')
+    .eq('owner_id', user.id).order('created_at', { ascending: false })
+  if (error) return res.status(500).json({ message: error.message })
+  if (events) for (const ev of events) {
+    if (ev.gifts) ev.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
   }
-
-  const supabase = createClient(supabaseUrl, anonKey)
-  const { data: { user }, error: authErr } = await supabase.auth.getUser(userJwt)
-  if (authErr || !user) return res.status(401).json({ message: 'Sessione non valida' })
-
-  const adminSupabase = createClient(supabaseUrl, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
-
-  const { data: events, error } = await adminSupabase
-    .from('events')
-    .select('*, gifts(*)')
-    .eq('owner_id', user.id)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('[proxy:getMyEvents] error:', error.message)
-    return res.status(500).json({ message: error.message })
-  }
-
-  if (events) {
-    for (const ev of events) {
-      if (ev.gifts) ev.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-    }
-  }
-
-  console.log(`[proxy:getMyEvents] ok userId=${user.id} count=${events?.length}`)
   return res.status(200).json(events || [])
 }
 
-// ─── GET /api/events/parent/:token handled directly via Supabase ─────────────
+// ─── GET /api/events/parent/:token ───────────────────────────────────────────
 async function handleGetEventByParentToken(token, res) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY
-  if (!supabaseUrl || !serviceKey) {
-    return res.status(500).json({ message: 'Supabase env vars missing' })
-  }
-
-  const supabase = createClient(supabaseUrl, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
-
-  // Try full select first; fall back to simple select if joins fail (e.g. missing table)
+  const db = getSupabase()
   let event, error
-  ;({ data: event, error } = await supabase
-    .from('events')
+  ;({ data: event, error } = await db.from('events')
     .select('*, gifts(*), rsvp(*), link_views(*), contributions(*)')
-    .eq('parent_token', token)
-    .single())
-
+    .eq('parent_token', token).single())
   if (error) {
-    console.warn('[proxy:getEvent] full select failed, trying simple:', error.code, error.message)
-    ;({ data: event, error } = await supabase
-      .from('events')
-      .select('*, gifts(*)')
-      .eq('parent_token', token)
-      .single())
+    ;({ data: event, error } = await db.from('events').select('*, gifts(*)')
+      .eq('parent_token', token).single())
   }
-
-  if (error || !event) {
-    const detail = error ? `${error.code}: ${error.message}` : 'null result'
-    console.error('[proxy:getEvent] not found or error:', detail, 'token:', token)
-    return res.status(404).json({ message: `Evento non trovato [${detail}] tok=${token?.slice(0, 8)}` })
-  }
-
+  if (error || !event) return res.status(404).json({ message: 'Evento non trovato' })
   if (event.gifts) event.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-
   return res.status(200).json(event)
 }
 
+// ─── GET /api/events/email-quota ─────────────────────────────────────────────
+async function handleEmailQuota(req, res) {
+  const { searchParams } = new URL(req.url, 'https://x.invalid')
+  const email = searchParams.get('email')
+  if (!email) return res.status(400).json({ message: 'email mancante' })
+  const db = getSupabase()
+  const { count, error } = await db.from('events').select('*', { count: 'exact', head: true })
+    .eq('parent_email', email)
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json({ count: count ?? 0 })
+}
+
+// ─── POST /api/events/guest/:token/view ──────────────────────────────────────
+async function handleTrackLinkView(token, req, res) {
+  const db = getSupabase()
+  const { guestName } = req.body || {}
+  const { data: ev } = await db.from('events').select('id').eq('guest_token', token).single()
+  if (!ev) return res.status(404).json({ message: 'Evento non trovato' })
+  await db.from('link_views').insert({ event_id: ev.id, guest_name: guestName || null })
+    .catch(() => {})
+  return res.status(200).json({ ok: true })
+}
+
+// ─── POST /api/events/:eventId/gifts ─────────────────────────────────────────
+async function handleAddGift(eventId, req, res) {
+  const db = getSupabase()
+  const { name, description, price, amazonUrl, storeUrl, parentToken } = req.body || {}
+  if (!name) return res.status(400).json({ message: 'name obbligatorio' })
+  const { data: ev } = await db.from('events').select('id').eq('id', eventId).eq('parent_token', parentToken).single()
+  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  const { count } = await db.from('gifts').select('*', { count: 'exact', head: true }).eq('event_id', eventId)
+  const { data, error } = await db.from('gifts').insert({
+    event_id: eventId, name, description: description || null,
+    price: parsePrice(price), amazon_url: amazonUrl || null,
+    store_url: storeUrl || null, sort_order: count ?? 0,
+  }).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(201).json(data)
+}
+
+// ─── PUT /api/gifts/:giftId ───────────────────────────────────────────────────
+async function handleUpdateGift(giftId, req, res) {
+  const db = getSupabase()
+  const { name, description, price, amazonUrl, storeUrl, parentToken } = req.body || {}
+  const { data: gift } = await db.from('gifts').select('event_id').eq('id', giftId).single()
+  if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
+  const { data: ev } = await db.from('events').select('id').eq('id', gift.event_id).eq('parent_token', parentToken).single()
+  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  const { data, error } = await db.from('gifts').update({
+    name, description: description || null, price: parsePrice(price),
+    amazon_url: amazonUrl || null, store_url: storeUrl || null,
+  }).eq('id', giftId).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json(data)
+}
+
+// ─── DELETE /api/gifts/:giftId ────────────────────────────────────────────────
+async function handleDeleteGift(giftId, req, res) {
+  const db = getSupabase()
+  const { parentToken } = req.body || {}
+  const { data: gift } = await db.from('gifts').select('event_id').eq('id', giftId).single()
+  if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
+  const { data: ev } = await db.from('events').select('id').eq('id', gift.event_id).eq('parent_token', parentToken).single()
+  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  const { error } = await db.from('gifts').delete().eq('id', giftId)
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json({ ok: true })
+}
+
+// ─── POST /api/gifts/:giftId/reserve ─────────────────────────────────────────
+async function handleReserveGift(giftId, req, res) {
+  const db = getSupabase()
+  const { guestName, partnerName, purchasedOffline } = req.body || {}
+  if (!guestName) return res.status(400).json({ message: 'guestName obbligatorio' })
+  const { data, error } = await db.from('gifts').update({
+    reserved_by: guestName,
+    partner_name: partnerName || null,
+    purchased_offline: !!purchasedOffline,
+    reserved_at: new Date().toISOString(),
+  }).eq('id', giftId).is('reserved_by', null).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  if (!data) return res.status(409).json({ message: 'Regalo già prenotato' })
+  return res.status(200).json(data)
+}
+
+// ─── DELETE /api/gifts/:giftId/reserve ───────────────────────────────────────
+async function handleCancelReservation(giftId, req, res) {
+  const db = getSupabase()
+  const { guestName } = req.body || {}
+  const { data, error } = await db.from('gifts').update({
+    reserved_by: null, partner_name: null, purchased_offline: null, reserved_at: null,
+  }).eq('id', giftId).eq('reserved_by', guestName).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json(data || { ok: true })
+}
+
+// ─── PUT /api/events/:eventId/gifts/order ────────────────────────────────────
+async function handleReorderGifts(eventId, req, res) {
+  const db = getSupabase()
+  const { order, parentToken } = req.body || {}
+  if (!Array.isArray(order)) return res.status(400).json({ message: 'order deve essere un array' })
+  const { data: ev } = await db.from('events').select('id').eq('id', eventId).eq('parent_token', parentToken).single()
+  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  await Promise.all(order.map((giftId, idx) =>
+    db.from('gifts').update({ sort_order: idx }).eq('id', giftId).eq('event_id', eventId)
+  ))
+  return res.status(200).json({ ok: true })
+}
+
+// ─── POST /api/events/:eventId/rsvp ──────────────────────────────────────────
+async function handleSubmitRsvp(eventId, req, res) {
+  const db = getSupabase()
+  const { guestName, parentName, status, childrenCount, adultsCount, idempotencyKey } = req.body || {}
+  if (!guestName) return res.status(400).json({ message: 'guestName obbligatorio' })
+
+  if (idempotencyKey) {
+    const { data: existing } = await db.from('rsvp').select('*').eq('idempotency_key', idempotencyKey).single()
+    if (existing) return res.status(200).json(existing)
+  }
+
+  const { data, error } = await db.from('rsvp').insert({
+    event_id: eventId, guest_name: guestName, parent_name: parentName || null,
+    status: status || 'attending', children_count: childrenCount ?? 0,
+    adults_count: adultsCount ?? 1,
+    idempotency_key: idempotencyKey || null,
+  }).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(201).json(data)
+}
+
+// ─── PUT /api/rsvp/:rsvpId ───────────────────────────────────────────────────
+async function handleUpdateRsvp(rsvpId, req, res) {
+  const db = getSupabase()
+  const { status, childrenCount, adultsCount, guestName, parentName } = req.body || {}
+  const update = {}
+  if (status !== undefined) update.status = status
+  if (childrenCount !== undefined) update.children_count = childrenCount
+  if (adultsCount !== undefined) update.adults_count = adultsCount
+  if (guestName !== undefined) update.guest_name = guestName
+  if (parentName !== undefined) update.parent_name = parentName
+  const { data, error } = await db.from('rsvp').update(update).eq('id', rsvpId).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json(data)
+}
+
+// ─── PUT /api/events/:eventId/contributions/:cid ─────────────────────────────
+async function handleUpdateContribution(eventId, cid, req, res) {
+  const db = getSupabase()
+  const { contributorName, amount } = req.body || {}
+  const update = {}
+  if (contributorName !== undefined) update.contributor_name = contributorName
+  if (amount !== undefined) update.amount = parseFloat(amount)
+  const { data, error } = await db.from('contributions').update(update)
+    .eq('id', cid).eq('event_id', eventId).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json(data)
+}
+
+// ─── PATCH /api/events/:eventId/contributions/:cid/confirm ───────────────────
+async function handleConfirmContribution(eventId, cid, req, res) {
+  const db = getSupabase()
+  const { parentToken } = req.body || {}
+  const { data: ev } = await db.from('events').select('id').eq('id', eventId).eq('parent_token', parentToken).single()
+  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  const { data, error } = await db.from('contributions').update({ status: 'confirmed' })
+    .eq('id', cid).eq('event_id', eventId).select().single()
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json(data)
+}
+
+// ─── DELETE /api/account ─────────────────────────────────────────────────────
+async function handleDeleteAccount(req, res) {
+  const user = await verifyJwt(req)
+  if (!user) return res.status(401).json({ message: 'Sessione non valida' })
+  const db = getSupabase()
+  const { error } = await db.auth.admin.deleteUser(user.id)
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json({ ok: true })
+}
+
+// ─── User keys ────────────────────────────────────────────────────────────────
+async function handleUserKeys(pathStr, req, res) {
+  const db = getSupabase()
+  // POST /api/user-keys/register
+  if (req.method === 'POST' && pathStr === 'user-keys/register') {
+    const { key, email } = req.body || {}
+    if (!key) return res.status(400).json({ message: 'key obbligatorio' })
+    const { data, error } = await db.from('user_keys').upsert({ key, email: email || null }, { onConflict: 'key' }).select().single()
+    if (error) return res.status(500).json({ message: error.message })
+    return res.status(200).json(data)
+  }
+  // GET /api/user-keys/:key
+  const keyGetMatch = pathStr.match(/^user-keys\/([^/]+)$/)
+  if (req.method === 'GET' && keyGetMatch) {
+    const key = decodeURIComponent(keyGetMatch[1])
+    const { data, error } = await db.from('user_key_links').select('*').eq('user_key', key)
+    if (error) return res.status(500).json({ message: error.message })
+    return res.status(200).json(data || [])
+  }
+  // POST /api/user-keys/:key/link
+  const keyLinkMatch = pathStr.match(/^user-keys\/([^/]+)\/link$/)
+  if (req.method === 'POST' && keyLinkMatch) {
+    const key = decodeURIComponent(keyLinkMatch[1])
+    const { linkType, token, childName, partyDate, guestName } = req.body || {}
+    const { data, error } = await db.from('user_key_links').insert({
+      user_key: key, link_type: linkType, token, child_name: childName || null,
+      party_date: partyDate || null, guest_name: guestName || null,
+    }).select().single()
+    if (error) return res.status(500).json({ message: error.message })
+    return res.status(201).json(data)
+  }
+  // DELETE /api/user-keys/:key/link/:token
+  const keyUnlinkMatch = pathStr.match(/^user-keys\/([^/]+)\/link\/([^/]+)$/)
+  if (req.method === 'DELETE' && keyUnlinkMatch) {
+    const key = decodeURIComponent(keyUnlinkMatch[1])
+    const token = decodeURIComponent(keyUnlinkMatch[2])
+    const { error } = await db.from('user_key_links').delete().eq('user_key', key).eq('token', token)
+    if (error) return res.status(500).json({ message: error.message })
+    return res.status(200).json({ ok: true })
+  }
+  return null
+}
+
+// ─── Main handler ─────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   const parsedUrl = new URL(req.url, 'https://x.invalid')
   const pathStr = parsedUrl.pathname.replace(/^\/api\/?/, '')
-  const queryStr = parsedUrl.search
-
-  console.log(`[proxy] ${req.method} ${req.url} pathStr=${pathStr}`)
 
   const origin = req.headers.origin || '*'
   res.setHeader('Access-Control-Allow-Origin', origin)
@@ -214,30 +374,71 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Access-Control-Allow-Credentials', 'true')
   res.setHeader('Vary', 'Origin')
+  if (req.method === 'OPTIONS') return res.status(204).end()
 
-  if (req.method === 'OPTIONS') {
-    res.status(204).end()
-    return
-  }
-
-  // ── Direct Supabase handlers ─────────────────────────────────────────────────
   try {
-    if (req.method === 'POST' && pathStr === 'events') {
-      return await handleCreateEvent(req, res)
+    // Events
+    if (req.method === 'POST' && pathStr === 'events') return await handleCreateEvent(req, res)
+    if (req.method === 'GET'  && pathStr === 'events/mine') return await handleGetMyEvents(req, res)
+    if (req.method === 'GET'  && pathStr === 'events/email-quota') return await handleEmailQuota(req, res)
+    if (req.method === 'DELETE' && pathStr === 'account') return await handleDeleteAccount(req, res)
+
+    const parentTokenMatch = pathStr.match(/^events\/parent\/([^/?]+)/)
+    if (req.method === 'GET' && parentTokenMatch) return await handleGetEventByParentToken(parentTokenMatch[1], res)
+
+    const updateEventMatch = pathStr.match(/^events\/([^/?]+)$/)
+    if (req.method === 'PUT' && updateEventMatch && updateEventMatch[1] !== 'mine') {
+      return await handleUpdateEvent(updateEventMatch[1], req, res)
     }
-    if (req.method === 'GET' && pathStr === 'events/mine') {
-      return await handleGetMyEvents(req, res)
+
+    const guestViewMatch = pathStr.match(/^events\/guest\/([^/?]+)\/view$/)
+    if (req.method === 'POST' && guestViewMatch) return await handleTrackLinkView(guestViewMatch[1], req, res)
+
+    // Gifts
+    const giftsMatch = pathStr.match(/^events\/([^/?]+)\/gifts$/)
+    if (req.method === 'POST' && giftsMatch) return await handleAddGift(giftsMatch[1], req, res)
+
+    const giftOrderMatch = pathStr.match(/^events\/([^/?]+)\/gifts\/order$/)
+    if (req.method === 'PUT' && giftOrderMatch) return await handleReorderGifts(giftOrderMatch[1], req, res)
+
+    const giftReserveMatch = pathStr.match(/^gifts\/([^/?]+)\/reserve$/)
+    if (req.method === 'POST'   && giftReserveMatch) return await handleReserveGift(giftReserveMatch[1], req, res)
+    if (req.method === 'DELETE' && giftReserveMatch) return await handleCancelReservation(giftReserveMatch[1], req, res)
+
+    const giftMatch = pathStr.match(/^gifts\/([^/?]+)$/)
+    if (req.method === 'PUT'    && giftMatch) return await handleUpdateGift(giftMatch[1], req, res)
+    if (req.method === 'DELETE' && giftMatch) return await handleDeleteGift(giftMatch[1], req, res)
+
+    // RSVP
+    const rsvpSubmitMatch = pathStr.match(/^events\/([^/?]+)\/rsvp$/)
+    if (req.method === 'POST' && rsvpSubmitMatch) return await handleSubmitRsvp(rsvpSubmitMatch[1], req, res)
+
+    const rsvpUpdateMatch = pathStr.match(/^rsvp\/([^/?]+)$/)
+    if (req.method === 'PUT' && rsvpUpdateMatch) return await handleUpdateRsvp(rsvpUpdateMatch[1], req, res)
+
+    // Contributions
+    const contributionConfirmMatch = pathStr.match(/^events\/([^/?]+)\/contributions\/([^/?]+)\/confirm$/)
+    if (req.method === 'PATCH' && contributionConfirmMatch) {
+      return await handleConfirmContribution(contributionConfirmMatch[1], contributionConfirmMatch[2], req, res)
     }
-    const parentMatch = pathStr.match(/^events\/parent\/([^/?]+)/)
-    if (req.method === 'GET' && parentMatch) {
-      return await handleGetEventByParentToken(parentMatch[1], res)
+    const contributionUpdateMatch = pathStr.match(/^events\/([^/?]+)\/contributions\/([^/?]+)$/)
+    if (req.method === 'PUT' && contributionUpdateMatch) {
+      return await handleUpdateContribution(contributionUpdateMatch[1], contributionUpdateMatch[2], req, res)
     }
+
+    // User keys
+    if (pathStr.startsWith('user-keys')) {
+      const handled = await handleUserKeys(pathStr, req, res)
+      if (handled !== null) return
+    }
+
   } catch (err) {
     console.error('[proxy:direct]', err)
     return res.status(500).json({ message: 'Errore interno: ' + err.message })
   }
 
-  // ── All other paths: proxy to Railway ────────────────────────────────────────
+  // ── Fallback: payments and push notifications still go to Railway ─────────
+  const queryStr = parsedUrl.search
   const targetUrl = `https://wishly-production.up.railway.app/api/${pathStr}${queryStr}`
   console.log(`[proxy] → Railway ${targetUrl}`)
 
@@ -262,27 +463,19 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', ct)
     res.status(upstream.status)
     const text = await upstream.text()
-    console.log(`[proxy] ${req.method} ${pathStr} → ${upstream.status} ct=${ct} body=${text.slice(0, 200)}`)
     if (upstream.status >= 400) {
       let body = {}
       try { body = JSON.parse(text) } catch { body = { raw: text } }
       body.message = `[${upstream.status} path=${pathStr}] ${body.message || text.slice(0, 60)}`
-      res.json(body)
-      return
+      return res.json(body)
     }
-    const isJson = ct.includes('application/json')
-    if (!isJson) {
-      res.status(502).json({
-        message: `[502 path=${pathStr}] Risposta non-JSON dal server: ct=${ct} body=${text.slice(0, 80)}`,
-      })
-      return
+    if (!ct.includes('application/json')) {
+      return res.status(502).json({ message: `[502] Risposta non-JSON: ${text.slice(0, 80)}` })
     }
-    try {
-      res.json(JSON.parse(text))
-    } catch {
-      res.status(502).json({ message: `[502 path=${pathStr}] JSON non valido: ${text.slice(0, 80)}` })
+    try { res.json(JSON.parse(text)) } catch {
+      res.status(502).json({ message: `[502] JSON non valido: ${text.slice(0, 80)}` })
     }
   } catch (err) {
-    res.status(502).json({ message: 'Proxy error: ' + err.message, cause: String(err.cause || ''), _url: targetUrl })
+    res.status(502).json({ message: 'Proxy error: ' + err.message })
   }
 }
