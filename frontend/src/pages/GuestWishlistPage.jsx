@@ -182,8 +182,9 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
       onRsvpSaved(res.data)
       setStep('done')
       setSaved(true)
-    } catch {
-      setSubmitError(t('guest.rsvp.form.error'))
+    } catch (err) {
+      const detail = err?.response?.data?.message || err?.message || ''
+      setSubmitError(detail ? `Errore: ${detail}` : t('guest.rsvp.form.error'))
     } finally {
       setLoading(false)
     }
