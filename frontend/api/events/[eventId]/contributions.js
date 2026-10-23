@@ -39,19 +39,21 @@ export default async function handler(req, res) {
   }
 
   // POST: create contribution
-  const { contributorName, amount, paymentMethod } = req.body || {}
+  const { contributorName, amount, paymentMethod, idempotencyKey } = req.body || {}
 
-  if (!contributorName || !amount) {
-    return res.status(400).json({ message: 'contributorName e amount sono obbligatori' })
+  if (!contributorName || !amount || !paymentMethod) {
+    return res.status(400).json({ message: 'contributorName, amount e paymentMethod sono obbligatori' })
   }
 
-  // Build payload with only confirmed columns; add optional ones if they exist
   const payload = {
     event_id: eventId,
     contributor_name: contributorName,
     amount: parseFloat(amount),
+    payment_method: paymentMethod,
+    status: 'pending',
+    edit_token: crypto.randomUUID(),
   }
-  if (paymentMethod) payload.payment_method = paymentMethod
+  if (idempotencyKey) payload.idempotency_key = idempotencyKey
 
   const { data: contribution, error } = await supabase
     .from('contributions')
