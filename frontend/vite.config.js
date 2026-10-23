@@ -19,7 +19,7 @@ function checkEnvPlugin() {
           if (m) envVars[m[1]] = m[2].trim()
         }
       } catch {}
-      const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'VITE_API_URL']
+      const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']
       const placeholders = ['placeholder', 'your-project', 'your-publishable-key']
       const missing = []
       for (const key of required) {
