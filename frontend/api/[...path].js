@@ -2,6 +2,7 @@
 // Payments and push notifications still forwarded to Railway as fallback.
 
 import { createClient } from '@supabase/supabase-js'
+import { randomUUID } from 'crypto'
 
 function parsePrice(val) {
   if (val === null || val === undefined || val === '') return null
@@ -45,9 +46,9 @@ async function handleCreateEvent(req, res) {
     return res.status(400).json({ message: 'childName, partyDate e parentEmail sono obbligatori' })
   }
 
-  const parentToken = crypto.randomUUID()
-  const guestToken = crypto.randomUUID()
-  const collectiveToken = crypto.randomUUID()
+  const parentToken = randomUUID()
+  const guestToken = randomUUID()
+  const collectiveToken = randomUUID()
 
   const { data: event, error: eventError } = await db.from('events').insert({
     child_name: childName, gender: gender || null, party_date: partyDate,
@@ -89,20 +90,22 @@ async function handleCreateEvent(req, res) {
 // ─── PUT /api/events/:id ─────────────────────────────────────────────────────
 async function handleUpdateEvent(id, req, res) {
   const db = getSupabase()
-  const { parentToken, ...fields } = req.body || {}
+  const { parentToken } = req.body || {}
+  if (!parentToken) return res.status(400).json({ message: 'parentToken obbligatorio' })
 
   const { data: ev } = await db.from('events').select('id').eq('id', id).eq('parent_token', parentToken).single()
-  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  if (!ev) return res.status(403).json({ message: 'Non autorizzato' })
 
-  const allowed = ['child_name','gender','party_date','party_time','location','address','notes',
+  const allowed = [
+    'child_name','gender','party_date','party_time','location','address','notes',
     'closing_date','collective_enabled','collective_goal','collective_description',
-    'collective_fixed_quota','paypal_email']
+    'collective_fixed_quota','paypal_email',
+  ]
   const update = {}
   for (const k of allowed) {
-    if (fields[k] !== undefined) update[k] = fields[k]
-    // also accept camelCase
     const camel = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
-    if (fields[camel] !== undefined) update[k] = fields[camel]
+    if ((req.body)[k] !== undefined) update[k] = (req.body)[k]
+    else if ((req.body)[camel] !== undefined) update[k] = (req.body)[camel]
   }
 
   const { data, error } = await db.from('events').update(update).eq('id', id).select().single()
@@ -147,9 +150,9 @@ async function handleEmailQuota(req, res) {
   if (!email) return res.status(400).json({ message: 'email mancante' })
   const db = getSupabase()
   const { count, error } = await db.from('events').select('*', { count: 'exact', head: true })
-    .eq('parent_email', email)
+    .ilike('parent_email', email)
   if (error) return res.status(500).json({ message: error.message })
-  return res.status(200).json({ count: count ?? 0 })
+  return res.status(200).json({ count: count ?? 0, eventCount: count ?? 0, freeEventUsed: (count ?? 0) >= 1 })
 }
 
 // ─── POST /api/events/guest/:token/view ──────────────────────────────────────
@@ -169,12 +172,13 @@ async function handleAddGift(eventId, req, res) {
   const { name, description, price, amazonUrl, storeUrl, parentToken } = req.body || {}
   if (!name) return res.status(400).json({ message: 'name obbligatorio' })
   const { data: ev } = await db.from('events').select('id').eq('id', eventId).eq('parent_token', parentToken).single()
-  if (!ev) return res.status(403).json({ message: 'Token non valido' })
-  const { count } = await db.from('gifts').select('*', { count: 'exact', head: true }).eq('event_id', eventId)
+  if (!ev) return res.status(403).json({ message: 'Non autorizzato' })
+  const { data: lastGift } = await db.from('gifts').select('sort_order')
+    .eq('event_id', eventId).order('sort_order', { ascending: false }).limit(1).maybeSingle()
   const { data, error } = await db.from('gifts').insert({
     event_id: eventId, name, description: description || null,
     price: parsePrice(price), amazon_url: amazonUrl || null,
-    store_url: storeUrl || null, sort_order: count ?? 0,
+    store_url: storeUrl || null, sort_order: lastGift ? lastGift.sort_order + 1 : 0,
   }).select().single()
   if (error) return res.status(500).json({ message: error.message })
   return res.status(201).json(data)
@@ -184,10 +188,11 @@ async function handleAddGift(eventId, req, res) {
 async function handleUpdateGift(giftId, req, res) {
   const db = getSupabase()
   const { name, description, price, amazonUrl, storeUrl, parentToken } = req.body || {}
+  if (!name) return res.status(400).json({ message: 'Nome obbligatorio' })
   const { data: gift } = await db.from('gifts').select('event_id').eq('id', giftId).single()
   if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
   const { data: ev } = await db.from('events').select('id').eq('id', gift.event_id).eq('parent_token', parentToken).single()
-  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  if (!ev) return res.status(403).json({ message: 'Non autorizzato' })
   const { data, error } = await db.from('gifts').update({
     name, description: description || null, price: parsePrice(price),
     amazon_url: amazonUrl || null, store_url: storeUrl || null,
@@ -203,7 +208,7 @@ async function handleDeleteGift(giftId, req, res) {
   const { data: gift } = await db.from('gifts').select('event_id').eq('id', giftId).single()
   if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
   const { data: ev } = await db.from('events').select('id').eq('id', gift.event_id).eq('parent_token', parentToken).single()
-  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  if (!ev) return res.status(403).json({ message: 'Non autorizzato' })
   const { error } = await db.from('gifts').delete().eq('id', giftId)
   if (error) return res.status(500).json({ message: error.message })
   return res.status(200).json({ ok: true })
@@ -212,16 +217,24 @@ async function handleDeleteGift(giftId, req, res) {
 // ─── POST /api/gifts/:giftId/reserve ─────────────────────────────────────────
 async function handleReserveGift(giftId, req, res) {
   const db = getSupabase()
-  const { guestName, partnerName, purchasedOffline } = req.body || {}
+  const { guestName: rawName, partnerName, purchasedOffline } = req.body || {}
+  const guestName = (rawName || '').trim()
   if (!guestName) return res.status(400).json({ message: 'guestName obbligatorio' })
+
+  // Check if already reserved
+  const { data: gift } = await db.from('gifts').select('id, name, reserved_by, event_id').eq('id', giftId).single()
+  if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
+  if (gift.reserved_by) return res.status(409).json({ message: 'Regalo già prenotato' })
+
   const { data, error } = await db.from('gifts').update({
     reserved_by: guestName,
-    partner_name: partnerName || null,
+    reserved_partner: partnerName || null,
     purchased_offline: !!purchasedOffline,
     reserved_at: new Date().toISOString(),
-  }).eq('id', giftId).is('reserved_by', null).select().single()
+  }).eq('id', giftId).is('reserved_by', null).select().maybeSingle()
+
   if (error) return res.status(500).json({ message: error.message })
-  if (!data) return res.status(409).json({ message: 'Regalo già prenotato' })
+  if (!data) return res.status(409).json({ message: 'Regalo già prenotato da qualcun altro' })
   return res.status(200).json(data)
 }
 
@@ -229,11 +242,19 @@ async function handleReserveGift(giftId, req, res) {
 async function handleCancelReservation(giftId, req, res) {
   const db = getSupabase()
   const { guestName } = req.body || {}
-  const { data, error } = await db.from('gifts').update({
-    reserved_by: null, partner_name: null, purchased_offline: null, reserved_at: null,
-  }).eq('id', giftId).eq('reserved_by', guestName).select().single()
+  if (!guestName) return res.status(400).json({ message: 'guestName obbligatorio' })
+
+  const { data: gift } = await db.from('gifts').select('id, reserved_by').eq('id', giftId).single()
+  if (!gift) return res.status(404).json({ message: 'Regalo non trovato' })
+  if (gift.reserved_by?.toLowerCase() !== guestName?.toLowerCase()) {
+    return res.status(403).json({ message: 'Non puoi cancellare la prenotazione di un altro' })
+  }
+
+  const { error } = await db.from('gifts').update({
+    reserved_by: null, reserved_partner: null, purchased_offline: false, reserved_at: null,
+  }).eq('id', giftId)
   if (error) return res.status(500).json({ message: error.message })
-  return res.status(200).json(data || { ok: true })
+  return res.status(200).json({ ok: true })
 }
 
 // ─── PUT /api/events/:eventId/gifts/order ────────────────────────────────────
@@ -242,7 +263,7 @@ async function handleReorderGifts(eventId, req, res) {
   const { order, parentToken } = req.body || {}
   if (!Array.isArray(order)) return res.status(400).json({ message: 'order deve essere un array' })
   const { data: ev } = await db.from('events').select('id').eq('id', eventId).eq('parent_token', parentToken).single()
-  if (!ev) return res.status(403).json({ message: 'Token non valido' })
+  if (!ev) return res.status(403).json({ message: 'Non autorizzato' })
   await Promise.all(order.map((giftId, idx) =>
     db.from('gifts').update({ sort_order: idx }).eq('id', giftId).eq('event_id', eventId)
   ))
@@ -252,34 +273,87 @@ async function handleReorderGifts(eventId, req, res) {
 // ─── POST /api/events/:eventId/rsvp ──────────────────────────────────────────
 async function handleSubmitRsvp(eventId, req, res) {
   const db = getSupabase()
-  const { guestName, parentName, status, childrenCount, adultsCount, idempotencyKey } = req.body || {}
-  if (!guestName) return res.status(400).json({ message: 'guestName obbligatorio' })
+  const { status, childrenCount, adultsCount, idempotencyKey } = req.body || {}
+  const guestName = (req.body?.guestName || '').trim()
+  const parentName = (req.body?.parentName || '').trim() || null
 
-  if (idempotencyKey) {
-    const { data: existing } = await db.from('rsvp').select('*').eq('idempotency_key', idempotencyKey).single()
-    if (existing) return res.status(200).json(existing)
+  if (!guestName || !status) return res.status(400).json({ message: 'guestName e status obbligatori' })
+  if (!['yes', 'maybe', 'no'].includes(status)) return res.status(400).json({ message: 'Status non valido' })
+
+  // Check for existing RSVP (case-insensitive) — update instead of insert
+  const { data: existing } = await db.from('rsvp').select('*')
+    .eq('event_id', eventId).ilike('guest_name', guestName).maybeSingle()
+
+  if (existing) {
+    // If same idempotency key, return cached result
+    if (idempotencyKey && existing.idempotency_key === idempotencyKey) {
+      return res.status(200).json(existing)
+    }
+    const { data, error } = await db.from('rsvp').update({
+      status,
+      guest_name: guestName || existing.guest_name,
+      parent_name: parentName || existing.parent_name,
+      children_count: childrenCount ?? 0,
+      adults_count: adultsCount ?? 1,
+      updated_at: new Date().toISOString(),
+      idempotency_key: idempotencyKey || null,
+    }).eq('id', existing.id).select().single()
+    if (error) return res.status(500).json({ message: error.message })
+    return res.status(200).json(data)
   }
 
   const { data, error } = await db.from('rsvp').insert({
-    event_id: eventId, guest_name: guestName, parent_name: parentName || null,
-    status: status || 'attending', children_count: childrenCount ?? 0,
-    adults_count: adultsCount ?? 1,
+    event_id: eventId, guest_name: guestName, parent_name: parentName,
+    status, children_count: childrenCount ?? 0, adults_count: adultsCount ?? 1,
     idempotency_key: idempotencyKey || null,
   }).select().single()
-  if (error) return res.status(500).json({ message: error.message })
+
+  if (error) {
+    // Race condition: another request created the row concurrently
+    if (error.code === '23505') {
+      if (idempotencyKey) {
+        const { data: dup } = await db.from('rsvp').select('*')
+          .eq('event_id', eventId).eq('idempotency_key', idempotencyKey).maybeSingle()
+        if (dup) return res.status(200).json(dup)
+      }
+      const { data: race, error: raceErr } = await db.from('rsvp').update({
+        status, children_count: childrenCount ?? 0, adults_count: adultsCount ?? 1,
+        updated_at: new Date().toISOString(), idempotency_key: idempotencyKey || null,
+      }).eq('event_id', eventId).ilike('guest_name', guestName).select().single()
+      if (raceErr) return res.status(500).json({ message: raceErr.message })
+      return res.status(200).json(race)
+    }
+    return res.status(500).json({ message: error.message })
+  }
   return res.status(201).json(data)
 }
 
 // ─── PUT /api/rsvp/:rsvpId ───────────────────────────────────────────────────
 async function handleUpdateRsvp(rsvpId, req, res) {
   const db = getSupabase()
-  const { status, childrenCount, adultsCount, guestName, parentName } = req.body || {}
-  const update = {}
-  if (status !== undefined) update.status = status
-  if (childrenCount !== undefined) update.children_count = childrenCount
-  if (adultsCount !== undefined) update.adults_count = adultsCount
-  if (guestName !== undefined) update.guest_name = guestName
-  if (parentName !== undefined) update.parent_name = parentName
+  const { status, childrenCount, adultsCount, guestName, parentName, guestToken } = req.body || {}
+
+  if (!status || !['yes', 'maybe', 'no'].includes(status)) {
+    return res.status(400).json({ message: 'Status non valido' })
+  }
+  if (!guestToken) return res.status(400).json({ message: 'guestToken obbligatorio' })
+
+  // Verify the RSVP belongs to the event reachable via guestToken
+  const { data: rsvp } = await db.from('rsvp').select('id, event_id').eq('id', rsvpId).single()
+  if (!rsvp) return res.status(404).json({ message: 'RSVP non trovato' })
+
+  const { data: ev } = await db.from('events').select('id').eq('id', rsvp.event_id).eq('guest_token', guestToken).single()
+  if (!ev) return res.status(403).json({ message: 'Non autorizzato' })
+
+  const update = {
+    status,
+    children_count: childrenCount ?? 0,
+    adults_count: adultsCount ?? 1,
+    updated_at: new Date().toISOString(),
+  }
+  if (guestName?.trim()) update.guest_name = guestName.trim()
+  if (parentName?.trim()) update.parent_name = parentName.trim()
+
   const { data, error } = await db.from('rsvp').update(update).eq('id', rsvpId).select().single()
   if (error) return res.status(500).json({ message: error.message })
   return res.status(200).json(data)
@@ -288,13 +362,55 @@ async function handleUpdateRsvp(rsvpId, req, res) {
 // ─── PUT /api/events/:eventId/contributions/:cid ─────────────────────────────
 async function handleUpdateContribution(eventId, cid, req, res) {
   const db = getSupabase()
-  const { contributorName, amount } = req.body || {}
-  const update = {}
-  if (contributorName !== undefined) update.contributor_name = contributorName
-  if (amount !== undefined) update.amount = parseFloat(amount)
-  const { data, error } = await db.from('contributions').update(update)
-    .eq('id', cid).eq('event_id', eventId).select().single()
-  if (error) return res.status(500).json({ message: error.message })
+  const { contributorName, collectiveToken, editToken } = req.body || {}
+  const newAmount = parseFloat(req.body?.amount)
+
+  if (!contributorName || !Number.isFinite(newAmount)) {
+    return res.status(400).json({ message: 'Dati mancanti' })
+  }
+  if (newAmount < 10) return res.status(400).json({ message: 'Importo minimo €10' })
+
+  // Verify collectiveToken matches event
+  const { data: event } = await db.from('events').select('id, collective_goal, collective_amount')
+    .eq('id', eventId).eq('collective_token', collectiveToken).single()
+  if (!event) return res.status(403).json({ message: 'Token non valido' })
+
+  // Get existing contribution and verify edit_token
+  const { data: existing } = await db.from('contributions').select('id, amount, status, edit_token')
+    .eq('id', cid).eq('event_id', eventId).single()
+  if (!existing) return res.status(404).json({ message: 'Contributo non trovato' })
+
+  if (!existing.edit_token || existing.edit_token !== editToken) {
+    return res.status(403).json({ message: 'Non autorizzato a modificare questo contributo' })
+  }
+  if (existing.status !== 'completed') {
+    return res.status(400).json({ message: 'Solo i contributi completati sono modificabili' })
+  }
+
+  const oldAmount = parseFloat(existing.amount)
+  const delta = newAmount - oldAmount
+
+  // Update collective_amount atomically for the delta
+  if (delta !== 0) {
+    const { data: newTotal, error: incError } = await db.rpc('increment_collective_amount', {
+      p_event_id: eventId, p_amount: delta,
+    })
+    if (incError) return res.status(500).json({ message: incError.message })
+    if (newTotal === null && delta > 0) {
+      return res.status(400).json({ message: 'Importo massimo superato' })
+    }
+  }
+
+  const { data, error } = await db.from('contributions')
+    .update({ contributor_name: contributorName.trim(), amount: newAmount })
+    .eq('id', cid).select().single()
+
+  if (error) {
+    if (delta !== 0) {
+      await db.rpc('increment_collective_amount', { p_event_id: eventId, p_amount: -delta }).catch(() => {})
+    }
+    return res.status(500).json({ message: error.message })
+  }
   return res.status(200).json(data)
 }
 
@@ -303,11 +419,28 @@ async function handleConfirmContribution(eventId, cid, req, res) {
   const db = getSupabase()
   const { parentToken } = req.body || {}
   const { data: ev } = await db.from('events').select('id').eq('id', eventId).eq('parent_token', parentToken).single()
-  if (!ev) return res.status(403).json({ message: 'Token non valido' })
-  const { data, error } = await db.from('contributions').update({ status: 'confirmed' })
-    .eq('id', cid).eq('event_id', eventId).select().single()
-  if (error) return res.status(500).json({ message: error.message })
-  return res.status(200).json(data)
+  if (!ev) return res.status(403).json({ message: 'Non autorizzato' })
+
+  const { data: contribution } = await db.from('contributions').select('id, amount, status')
+    .eq('id', cid).eq('event_id', eventId).single()
+  if (!contribution) return res.status(404).json({ message: 'Contributo non trovato' })
+  if (contribution.status === 'completed') return res.status(200).json({ ok: true })
+
+  // Reserve capacity atomically before marking as completed
+  const { data: newTotal, error: incError } = await db.rpc('increment_collective_amount', {
+    p_event_id: eventId, p_amount: parseFloat(contribution.amount),
+  })
+  if (incError) return res.status(500).json({ message: incError.message })
+  if (newTotal === null) {
+    return res.status(409).json({ message: 'Obiettivo già raggiunto' })
+  }
+
+  const { error } = await db.from('contributions').update({ status: 'completed' }).eq('id', cid)
+  if (error) {
+    await db.rpc('increment_collective_amount', { p_event_id: eventId, p_amount: -parseFloat(contribution.amount) }).catch(() => {})
+    return res.status(500).json({ message: error.message })
+  }
+  return res.status(200).json({ ok: true })
 }
 
 // ─── DELETE /api/account ─────────────────────────────────────────────────────
@@ -323,43 +456,63 @@ async function handleDeleteAccount(req, res) {
 // ─── User keys ────────────────────────────────────────────────────────────────
 async function handleUserKeys(pathStr, req, res) {
   const db = getSupabase()
+
   // POST /api/user-keys/register
   if (req.method === 'POST' && pathStr === 'user-keys/register') {
-    const { key, email } = req.body || {}
-    if (!key) return res.status(400).json({ message: 'key obbligatorio' })
-    const { data, error } = await db.from('user_keys').upsert({ key, email: email || null }, { onConflict: 'key' }).select().single()
+    const { key } = req.body || {}
+    if (!key || key.trim().length < 3) {
+      return res.status(400).json({ message: 'Chiave non valida (minimo 3 caratteri)' })
+    }
+    const normalized = key.trim().toLowerCase()
+
+    // Check uniqueness first
+    const { data: existing } = await db.from('user_keys').select('key_value')
+      .eq('key_value', normalized).maybeSingle()
+    if (existing) return res.status(409).json({ message: 'Codice già in uso, riprova' })
+
+    const { error } = await db.from('user_keys').insert({ key_value: normalized })
     if (error) return res.status(500).json({ message: error.message })
-    return res.status(200).json(data)
+    return res.status(201).json({ key: normalized })
   }
+
   // GET /api/user-keys/:key
   const keyGetMatch = pathStr.match(/^user-keys\/([^/]+)$/)
   if (req.method === 'GET' && keyGetMatch) {
-    const key = decodeURIComponent(keyGetMatch[1])
-    const { data, error } = await db.from('user_key_links').select('*').eq('user_key', key)
+    const normalized = decodeURIComponent(keyGetMatch[1]).trim().toLowerCase()
+    const { data: keyRecord } = await db.from('user_keys').select('key_value')
+      .eq('key_value', normalized).maybeSingle()
+    if (!keyRecord) return res.status(404).json({ message: 'Codice non trovato' })
+    const { data: links, error } = await db.from('user_key_links').select('*')
+      .eq('user_key', normalized).order('created_at', { ascending: false })
     if (error) return res.status(500).json({ message: error.message })
-    return res.status(200).json(data || [])
+    return res.status(200).json({ links: links || [] })
   }
+
   // POST /api/user-keys/:key/link
   const keyLinkMatch = pathStr.match(/^user-keys\/([^/]+)\/link$/)
   if (req.method === 'POST' && keyLinkMatch) {
-    const key = decodeURIComponent(keyLinkMatch[1])
+    const normalized = decodeURIComponent(keyLinkMatch[1]).trim().toLowerCase()
     const { linkType, token, childName, partyDate, guestName } = req.body || {}
-    const { data, error } = await db.from('user_key_links').insert({
-      user_key: key, link_type: linkType, token, child_name: childName || null,
-      party_date: partyDate || null, guest_name: guestName || null,
-    }).select().single()
+    if (!linkType || !token) return res.status(400).json({ message: 'linkType e token sono obbligatori' })
+    const { error } = await db.from('user_key_links').upsert({
+      user_key: normalized, link_type: linkType, token,
+      child_name: childName || null, party_date: partyDate || null, guest_name: guestName || null,
+    }, { onConflict: 'user_key,token' })
     if (error) return res.status(500).json({ message: error.message })
-    return res.status(201).json(data)
+    return res.status(201).json({ ok: true })
   }
+
   // DELETE /api/user-keys/:key/link/:token
   const keyUnlinkMatch = pathStr.match(/^user-keys\/([^/]+)\/link\/([^/]+)$/)
   if (req.method === 'DELETE' && keyUnlinkMatch) {
-    const key = decodeURIComponent(keyUnlinkMatch[1])
+    const normalized = decodeURIComponent(keyUnlinkMatch[1]).trim().toLowerCase()
     const token = decodeURIComponent(keyUnlinkMatch[2])
-    const { error } = await db.from('user_key_links').delete().eq('user_key', key).eq('token', token)
+    const { error } = await db.from('user_key_links').delete()
+      .eq('user_key', normalized).eq('token', token)
     if (error) return res.status(500).json({ message: error.message })
     return res.status(200).json({ ok: true })
   }
+
   return null
 }
 

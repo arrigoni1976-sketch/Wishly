@@ -1,4 +1,4 @@
-// Dedicated Vercel function for POST /api/events/:eventId/contributions
+// Dedicated Vercel function for POST/GET /api/events/:eventId/contributions
 // Bypasses Railway; writes contribution directly to Supabase.
 
 import { createClient } from '@supabase/supabase-js'
@@ -40,54 +40,90 @@ export default async function handler(req, res) {
   }
 
   // POST: create contribution
-  const { contributorName, amount, paymentMethod, idempotencyKey } = req.body || {}
+  const { contributorName, paymentMethod, collectiveToken, idempotencyKey } = req.body || {}
+  const amount = parseFloat(req.body?.amount)
 
-  if (!contributorName || !amount || !paymentMethod) {
-    return res.status(400).json({ message: 'contributorName, amount e paymentMethod sono obbligatori' })
+  if (!contributorName || !paymentMethod) {
+    return res.status(400).json({ message: 'Dati mancanti' })
+  }
+  if (!Number.isFinite(amount) || amount < 10) {
+    return res.status(400).json({ message: 'Importo minimo €10' })
   }
 
-  const payload = {
-    event_id: eventId,
-    contributor_name: contributorName,
-    amount: parseFloat(amount),
-    payment_method: paymentMethod,
-    status: 'pending',
-    edit_token: randomUUID(),
+  // Verify collectiveToken matches the event
+  const { data: event } = await supabase
+    .from('events')
+    .select('id, collective_goal, collective_amount')
+    .eq('id', eventId)
+    .eq('collective_token', collectiveToken)
+    .single()
+
+  if (!event) return res.status(403).json({ message: 'Token non valido' })
+
+  // Idempotency check — return existing if already processed
+  if (idempotencyKey) {
+    const { data: dup } = await supabase
+      .from('contributions')
+      .select('*')
+      .eq('event_id', eventId)
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle()
+    if (dup) {
+      console.log(`[contributions] idempotent hit eventId=${eventId}`)
+      return res.status(200).json(dup)
+    }
   }
-  if (idempotencyKey) payload.idempotency_key = idempotencyKey
+
+  // contanti and satispay are immediate — increment collective_amount atomically first
+  const isImmediate = paymentMethod !== 'paypal'
+
+  if (isImmediate) {
+    const { data: newTotal, error: incError } = await supabase.rpc('increment_collective_amount', {
+      p_event_id: eventId,
+      p_amount: amount,
+    })
+    if (incError) {
+      console.error('[contributions] rpc error:', incError.message)
+      return res.status(500).json({ message: incError.message })
+    }
+    if (newTotal === null) {
+      return res.status(409).json({ message: 'Obiettivo raggiunto, riprova con un importo più basso' })
+    }
+  }
 
   const { data: contribution, error } = await supabase
     .from('contributions')
-    .insert(payload)
+    .insert({
+      event_id: eventId,
+      contributor_name: contributorName,
+      amount,
+      payment_method: paymentMethod,
+      status: isImmediate ? 'completed' : 'pending',
+      idempotency_key: idempotencyKey || null,
+      edit_token: randomUUID(),
+    })
     .select()
     .single()
 
   if (error) {
-    // Unique constraint on idempotency_key: contribution already exists, return it
+    // If insert failed and we already incremented, reverse it
+    if (isImmediate) {
+      await supabase.rpc('increment_collective_amount', { p_event_id: eventId, p_amount: -amount }).catch(() => {})
+    }
+    // Idempotency race: another request created the same row
     if (error.code === '23505' && idempotencyKey) {
       const { data: existing } = await supabase
         .from('contributions')
         .select('*')
         .eq('event_id', eventId)
         .eq('idempotency_key', idempotencyKey)
-        .single()
-      if (existing) {
-        console.log(`[contributions] idempotent hit eventId=${eventId}`)
-        return res.status(201).json(existing)
-      }
+        .maybeSingle()
+      if (existing) return res.status(200).json(existing)
     }
     console.error('[contributions] insert error:', error.code, error.message)
     return res.status(500).json({ message: error.message, code: error.code })
   }
 
-  // Update collective_amount on the event
-  await supabase.rpc('increment_collective_amount', {
-    p_event_id: eventId,
-    p_amount: parseFloat(amount),
-  }).catch(() => {
-    // rpc may not exist; ignore, a DB trigger may handle it
-  })
-
-  console.log(`[contributions] ok eventId=${eventId} amount=${amount} method=${paymentMethod}`)
+  console.log(`[contributions] ok eventId=${eventId} amount=${amount} method=${paymentMethod} status=${contribution.status}`)
   return res.status(201).json(contribution)
 }
