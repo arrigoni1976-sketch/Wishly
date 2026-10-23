@@ -18,6 +18,7 @@ import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, ge
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
 import { isNative, getAppBaseUrl } from '../lib/platform'
+import { App } from '@capacitor/app'
 import { format } from 'date-fns'
 import { it, enUS } from 'date-fns/locale'
 
@@ -303,36 +304,35 @@ export default function ParentDashboardPage() {
 
   const shareGuestLink = async () => {
     const url = `${baseUrl}/lista/${event?.guest_token}`
-    const shareText = t('dashboard.share.share_text', { name: event.child_name })
+    const text = `${t('dashboard.share.share_text', { name: event.child_name })}\n${url}`
     if (navigator.share) {
       try {
         await navigator.share({
           title: t('dashboard.header.title', { name: event.child_name }),
-          text: shareText,
-          url,
+          text,
         })
         return
       } catch (e) {
         if (e.name === 'AbortError') return
       }
     }
-    await navigator.clipboard.writeText(`${shareText}\n${url}`)
+    await navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2500)
   }
 
   const shareUpdate = async () => {
     const url = `${baseUrl}/lista/${event?.guest_token}`
-    const shareText = t('dashboard.share.update_text', { name: event.child_name })
+    const text = t('dashboard.share.update_text', { name: event.child_name }) + `\n${url}`
     if (navigator.share) {
       try {
-        await navigator.share({ text: shareText, url })
+        await navigator.share({ text })
         return
       } catch (e) {
         if (e.name === 'AbortError') return
       }
     }
-    window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + url)}`, isNative() ? '_system' : '_blank')
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, isNative() ? '_system' : '_blank')
   }
 
   const fetchEvent = async () => {
@@ -646,9 +646,13 @@ export default function ParentDashboardPage() {
               {copied ? t('dashboard.share.copied') : t('dashboard.share.btn')}
             </button>
             <button
-              onClick={() => {
+              onClick={async () => {
                 const previewUrl = `${baseUrl}/lista/${event?.guest_token}?preview=1`
-                window.open(previewUrl, isNative() ? '_system' : '_blank')
+                if (isNative()) {
+                  await App.openUrl({ url: previewUrl })
+                } else {
+                  window.open(previewUrl, '_blank')
+                }
               }}
               className="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center gap-1.5 transition-colors whitespace-nowrap"
               title={t('dashboard.share.preview_title')}
