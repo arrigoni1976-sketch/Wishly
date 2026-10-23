@@ -39,9 +39,7 @@ export default async function handler(req, res) {
   }
 
   // POST: create contribution
-  const {
-    contributorName, amount, paymentMethod, stripeSessionId,
-  } = req.body || {}
+  const { contributorName, amount, paymentMethod } = req.body || {}
 
   if (!contributorName || !amount) {
     return res.status(400).json({ message: 'contributorName e amount sono obbligatori' })
@@ -52,7 +50,6 @@ export default async function handler(req, res) {
     contributor_name: contributorName,
     amount: parseFloat(amount),
     payment_method: paymentMethod || 'cash',
-    stripe_session_id: stripeSessionId || null,
     status: 'pending',
   }
 
