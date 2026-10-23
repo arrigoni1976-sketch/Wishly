@@ -2,6 +2,7 @@
 // Bypasses Railway; writes contribution directly to Supabase.
 
 import { createClient } from '@supabase/supabase-js'
+import { randomUUID } from 'crypto'
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || '*'
@@ -51,7 +52,7 @@ export default async function handler(req, res) {
     amount: parseFloat(amount),
     payment_method: paymentMethod,
     status: 'pending',
-    edit_token: crypto.randomUUID(),
+    edit_token: randomUUID(),
   }
   if (idempotencyKey) payload.idempotency_key = idempotencyKey
 
@@ -62,8 +63,21 @@ export default async function handler(req, res) {
     .single()
 
   if (error) {
-    console.error('[contributions] insert error:', error.code, error.message, error.details)
-    return res.status(500).json({ message: error.message, code: error.code, details: error.details })
+    // Unique constraint on idempotency_key: contribution already exists, return it
+    if (error.code === '23505' && idempotencyKey) {
+      const { data: existing } = await supabase
+        .from('contributions')
+        .select('*')
+        .eq('event_id', eventId)
+        .eq('idempotency_key', idempotencyKey)
+        .single()
+      if (existing) {
+        console.log(`[contributions] idempotent hit eventId=${eventId}`)
+        return res.status(201).json(existing)
+      }
+    }
+    console.error('[contributions] insert error:', error.code, error.message)
+    return res.status(500).json({ message: error.message, code: error.code })
   }
 
   // Update collective_amount on the event
