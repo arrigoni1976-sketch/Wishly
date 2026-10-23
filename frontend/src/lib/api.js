@@ -29,7 +29,7 @@ export const deleteAccount = () => api.delete('/account')
 export const getEventByParentToken = (token) => api.get(`/events/parent/${token}`)
 export const getEventByGuestToken = (token) => api.get(`/events/guest/${token}`)
 export const getEventByCollectiveToken = (token) => api.get(`/events/collective/${token}`)
-export const updateEvent = (id, data) => api.put(`/event/${id}`, data)
+export const updateEvent = (id, data) => api.post('/events/update', { ...data, eventId: id })
 export const trackLinkView = (token, data) => api.post(`/events/guest/${token}/view`, data)
 export const checkEmailQuota = (email) => api.get(`/events/email-quota?email=${encodeURIComponent(email)}`)
 
