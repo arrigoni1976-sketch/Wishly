@@ -119,6 +119,48 @@ async function handleCreateEvent(req, res) {
   })
 }
 
+// ─── GET /api/events/mine handled directly via Supabase ──────────────────────
+async function handleGetMyEvents(req, res) {
+  const authHeader = req.headers.authorization || ''
+  const userJwt = authHeader.replace(/^Bearer\s+/i, '').trim()
+  if (!userJwt) return res.status(401).json({ message: 'Sessione non valida' })
+
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  if (!supabaseUrl || !anonKey || !serviceKey) {
+    return res.status(500).json({ message: 'Supabase env vars missing' })
+  }
+
+  const supabase = createClient(supabaseUrl, anonKey)
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(userJwt)
+  if (authErr || !user) return res.status(401).json({ message: 'Sessione non valida' })
+
+  const adminSupabase = createClient(supabaseUrl, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  })
+
+  const { data: events, error } = await adminSupabase
+    .from('events')
+    .select('*, gifts(*)')
+    .eq('owner_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('[proxy:getMyEvents] error:', error.message)
+    return res.status(500).json({ message: error.message })
+  }
+
+  if (events) {
+    for (const ev of events) {
+      if (ev.gifts) ev.gifts.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    }
+  }
+
+  console.log(`[proxy:getMyEvents] ok userId=${user.id} count=${events?.length}`)
+  return res.status(200).json(events || [])
+}
+
 // ─── GET /api/events/parent/:token handled directly via Supabase ─────────────
 async function handleGetEventByParentToken(token, res) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL
@@ -182,6 +224,9 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'POST' && pathStr === 'events') {
       return await handleCreateEvent(req, res)
+    }
+    if (req.method === 'GET' && pathStr === 'events/mine') {
+      return await handleGetMyEvents(req, res)
     }
     const parentMatch = pathStr.match(/^events\/parent\/([^/?]+)/)
     if (req.method === 'GET' && parentMatch) {
