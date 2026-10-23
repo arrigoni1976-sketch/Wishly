@@ -20,7 +20,6 @@ import {
   reserveGift,
   cancelReservation,
   submitRsvp,
-  updateRsvp,
   addUserKeyLink,
   getUserKeyLinks,
   getPushVapidKey,
@@ -157,28 +156,19 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
     setLoading(true)
     setSubmitError('')
     try {
-      let res
-      if (existingRsvp?.id) {
-        res = await updateRsvp(existingRsvp.id, {
-          status,
-          childrenCount: 1 + extraChildren.length,
-          adultsCount: 1 + extraAdults.length,
-          guestName: guestName.trim(),
-          parentName: parentName.trim(),
-        }, guestToken)
-      } else {
-        // Stessa chiave riusata sui retry (es. dopo un errore di rete) per evitare
-        // invii/notifiche duplicate
-        if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID()
-        res = await submitRsvp(eventId, {
-          guestName: guestName.trim(),
-          parentName: parentName.trim(),
-          status,
-          childrenCount: 1 + extraChildren.length,
-          adultsCount: 1 + extraAdults.length,
-          idempotencyKey: idempotencyKeyRef.current,
-        })
-      }
+      // Usa sempre submitRsvp (POST upsert by-name): gestisce sia nuovi RSVP che
+      // aggiornamenti, ed è resiliente a ID stale in localStorage.
+      // La chiave idempotency viene generata una volta per sessione di submit
+      // (reset al click su "modifica") per prevenire invii duplicati su retry.
+      if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID()
+      const res = await submitRsvp(eventId, {
+        guestName: guestName.trim(),
+        parentName: parentName.trim(),
+        status,
+        childrenCount: 1 + extraChildren.length,
+        adultsCount: 1 + extraAdults.length,
+        idempotencyKey: idempotencyKeyRef.current,
+      })
       onRsvpSaved(res.data)
       setStep('done')
       setSaved(true)
@@ -269,7 +259,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
           </div>
           {!listClosed && (
             <button
-              onClick={() => setStep('form')}
+              onClick={() => { idempotencyKeyRef.current = null; setStep('form') }}
               className="text-gray-400 hover:text-gray-600 transition-colors p-1"
             >
               <Pencil className="w-4 h-4" />

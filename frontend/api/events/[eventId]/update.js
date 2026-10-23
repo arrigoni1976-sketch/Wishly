@@ -1,4 +1,3 @@
-// PUT /api/events/:eventId — update event details (inside [eventId]/ boundary)
 import { createClient } from '@supabase/supabase-js'
 
 function getSupabase() {
@@ -11,21 +10,19 @@ function getSupabase() {
 export default async function handler(req, res) {
   const origin = req.headers.origin || '*'
   res.setHeader('Access-Control-Allow-Origin', origin)
-  res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS')
+  res.setHeader('Access-Control-Allow-Methods', 'PUT, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Access-Control-Allow-Credentials', 'true')
   res.setHeader('Vary', 'Origin')
-
   if (req.method === 'OPTIONS') return res.status(204).end()
   if (req.method !== 'PUT') return res.status(405).json({ message: 'Method not allowed' })
 
   const { eventId } = req.query
   if (!eventId) return res.status(400).json({ message: 'eventId mancante' })
 
+  const db = getSupabase()
   const { parentToken } = req.body || {}
   if (!parentToken) return res.status(400).json({ message: 'parentToken obbligatorio' })
-
-  const db = getSupabase()
 
   const { data: ev } = await db.from('events').select('id')
     .eq('id', eventId).eq('parent_token', parentToken).single()
