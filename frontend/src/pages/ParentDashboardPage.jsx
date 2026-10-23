@@ -18,7 +18,6 @@ import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, ge
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
 import { isNative, getAppBaseUrl } from '../lib/platform'
-import { App } from '@capacitor/app'
 import { format } from 'date-fns'
 import { it, enUS } from 'date-fns/locale'
 
@@ -649,6 +648,7 @@ export default function ParentDashboardPage() {
               onClick={async () => {
                 const previewUrl = `${baseUrl}/lista/${event?.guest_token}?preview=1`
                 if (isNative()) {
+                  const { App } = await import('@capacitor/app')
                   await App.openUrl({ url: previewUrl })
                 } else {
                   window.open(previewUrl, '_blank')
