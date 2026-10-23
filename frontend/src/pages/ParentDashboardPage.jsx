@@ -295,7 +295,8 @@ export default function ParentDashboardPage() {
       setEventModal(false)
     } catch (e) {
       console.error(e)
-      setEventSaveError(t('dashboard.event_modal.error'))
+      const detail = e?.response?.data?.message || e?.message || ''
+      setEventSaveError(detail ? `Errore: ${detail}` : t('dashboard.event_modal.error'))
     } finally {
       setEventSaving(false)
     }
