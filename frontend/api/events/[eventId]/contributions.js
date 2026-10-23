@@ -45,13 +45,13 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'contributorName e amount sono obbligatori' })
   }
 
+  // Build payload with only confirmed columns; add optional ones if they exist
   const payload = {
     event_id: eventId,
     contributor_name: contributorName,
     amount: parseFloat(amount),
-    payment_method: paymentMethod || 'cash',
-    status: 'pending',
   }
+  if (paymentMethod) payload.payment_method = paymentMethod
 
   const { data: contribution, error } = await supabase
     .from('contributions')
@@ -60,8 +60,8 @@ export default async function handler(req, res) {
     .single()
 
   if (error) {
-    console.error('[contributions] insert error:', error.message)
-    return res.status(500).json({ message: error.message })
+    console.error('[contributions] insert error:', error.code, error.message, error.details)
+    return res.status(500).json({ message: error.message, code: error.code, details: error.details })
   }
 
   // Update collective_amount on the event
