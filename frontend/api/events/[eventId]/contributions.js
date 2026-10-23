@@ -40,8 +40,7 @@ export default async function handler(req, res) {
 
   // POST: create contribution
   const {
-    contributorName, amount, paymentMethod,
-    paypalEmail, stripeSessionId,
+    contributorName, amount, paymentMethod, stripeSessionId,
   } = req.body || {}
 
   if (!contributorName || !amount) {
@@ -53,7 +52,6 @@ export default async function handler(req, res) {
     contributor_name: contributorName,
     amount: parseFloat(amount),
     payment_method: paymentMethod || 'cash',
-    paypal_email: paypalEmail || null,
     stripe_session_id: stripeSessionId || null,
     status: 'pending',
   }
