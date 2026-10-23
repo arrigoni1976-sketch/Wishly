@@ -544,6 +544,13 @@ export default async function handler(req, res) {
       return await handleUpdateEvent(updateEventMatch[1], req, res)
     }
 
+    // PUT /api/event/:id — alias usato dal frontend per aggirare il directory boundary
+    // di Vercel: api/events/[eventId]/ impedisce al catch-all di ricevere PUT /api/events/:id
+    const updateEventAliasMatch = pathStr.match(/^event\/([^/?]+)$/)
+    if (req.method === 'PUT' && updateEventAliasMatch) {
+      return await handleUpdateEvent(updateEventAliasMatch[1], req, res)
+    }
+
     const guestViewMatch = pathStr.match(/^events\/guest\/([^/?]+)\/view$/)
     if (req.method === 'POST' && guestViewMatch) return await handleTrackLinkView(guestViewMatch[1], req, res)
 
