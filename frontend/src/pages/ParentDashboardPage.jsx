@@ -14,7 +14,7 @@ import CakeIcon from '../components/CakeIcon'
 import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
-import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
+import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, getPushVapidKey, subscribePush, broadcastPush, getErrorMessage } from '../lib/api'
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
 import { isNative, getAppBaseUrl } from '../lib/platform'
@@ -435,7 +435,8 @@ export default function ParentDashboardPage() {
           await deleteGift(giftId, parentToken)
           await fetchEvent()
         } catch (e) {
-          console.error(e)
+          console.error('[deleteGift]', e)
+          alert(getErrorMessage(e))
         }
       },
     })
