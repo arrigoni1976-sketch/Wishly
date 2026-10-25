@@ -36,8 +36,8 @@ export const checkEmailQuota = (email) => api.get(`/events/email-quota?email=${e
 // ─── Gifts ─────────────────────────────────────────────────────────────────
 
 export const addGift = (eventId, data, parentToken) => api.post(`/events/${eventId}/gifts`, { ...data, parentToken })
-export const updateGift = (giftId, data, parentToken) => api.put(`/gift/${giftId}`, { ...data, parentToken })
-export const deleteGift = (giftId, parentToken) => api.delete(`/gift/${giftId}`, { data: { parentToken } })
+export const updateGift = (giftId, data, parentToken) => api.put(`/gifts/${giftId}`, { ...data, parentToken })
+export const deleteGift = (giftId, parentToken) => api.delete(`/gifts/${giftId}`, { data: { parentToken } })
 export const reserveGift = (giftId, data) => api.post(`/gifts/${giftId}/reserve`, data)
 export const cancelReservation = (giftId, data) => api.delete(`/gifts/${giftId}/reserve`, { data })
 export const reorderGifts = (eventId, order, parentToken) => api.put(`/events/${eventId}/gifts/order`, { order, parentToken })
