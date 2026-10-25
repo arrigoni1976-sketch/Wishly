@@ -67,7 +67,7 @@ export default function CollectiveGiftPage() {
         const userKey = localStorage.getItem('piky_user_key')
         if (userKey) {
           try {
-            const synced = await syncFromServer(userKey)
+            await syncFromServer(userKey)
             storedName = localStorage.getItem('piky_guest_name')
           } catch { /* sync failed silently */ }
         }

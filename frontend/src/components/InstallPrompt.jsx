@@ -51,8 +51,6 @@ export default function InstallPrompt() {
         setShowIos(true)
       } else if (deferredPrompt) {
         setShowAndroid(true)
-      } else if (isIos()) {
-        setShowIos(true)
       }
     }
     window.addEventListener('piky:trigger-install', triggerHandler)

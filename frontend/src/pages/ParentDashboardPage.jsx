@@ -236,6 +236,7 @@ export default function ParentDashboardPage() {
           await fetchEvent()
         } catch (e) {
           console.error(e)
+          alert(t('dashboard.collective.disable_error') || 'Errore durante la disattivazione. Riprova.')
         }
       },
     })
@@ -316,9 +317,13 @@ export default function ParentDashboardPage() {
         if (e.name === 'AbortError') return
       }
     }
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2500)
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      alert(text)
+    }
   }
 
   const shareUpdate = async () => {
@@ -436,6 +441,7 @@ export default function ParentDashboardPage() {
           await fetchEvent()
         } catch (e) {
           console.error(e)
+          alert(t('dashboard.gifts.delete_error') || 'Errore durante l\'eliminazione. Riprova.')
         }
       },
     })
