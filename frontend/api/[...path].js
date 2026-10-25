@@ -597,6 +597,11 @@ export default async function handler(req, res) {
     if (req.method === 'PUT'    && giftMatch) return await handleUpdateGift(giftMatch[1], req, res)
     if (req.method === 'DELETE' && giftMatch) return await handleDeleteGift(giftMatch[1], req, res)
 
+    // Alias /api/gift/:id (singular) — bypasses Vercel directory boundary on api/gifts/[giftId]/
+    const giftAliasMatch = pathStr.match(/^gift\/([^/?]+)$/)
+    if (req.method === 'PUT'    && giftAliasMatch) return await handleUpdateGift(giftAliasMatch[1], req, res)
+    if (req.method === 'DELETE' && giftAliasMatch) return await handleDeleteGift(giftAliasMatch[1], req, res)
+
     // RSVP
     const rsvpSubmitMatch = pathStr.match(/^events\/([^/?]+)\/rsvp$/)
     if (req.method === 'POST' && rsvpSubmitMatch) return await handleSubmitRsvp(rsvpSubmitMatch[1], req, res)
