@@ -516,6 +516,31 @@ async function handleUserKeys(pathStr, req, res) {
   return null
 }
 
+// ─── GET /api/health ──────────────────────────────────────────────────────────
+async function handleHealth(res) {
+  const tests = []
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  tests.push({
+    test: 'env vars',
+    supabaseUrl: supabaseUrl ? supabaseUrl.slice(0, 30) + '…' : 'MISSING',
+    serviceKey: serviceKey ? serviceKey.slice(0, 12) + '…' : 'MISSING',
+  })
+  if (supabaseUrl && serviceKey) {
+    const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } })
+    try {
+      const { count, error } = await supabase.from('events').select('*', { count: 'exact', head: true })
+      tests.push({ test: 'SELECT count(events)', count, error: error?.message })
+    } catch (err) { tests.push({ test: 'SELECT count(events)', error: err.message }) }
+    try {
+      const { data, error } = await supabase.from('events').select('id, child_name, parent_token, created_at')
+        .order('created_at', { ascending: false }).limit(2)
+      tests.push({ test: 'SELECT recent events', error: error?.message, data: data?.map(e => ({ child: e.child_name, parent_token: e.parent_token, at: e.created_at, get_url: `/api/events/parent/${e.parent_token}` })) })
+    } catch (err) { tests.push({ test: 'SELECT recent events', error: err.message }) }
+  }
+  return res.json({ tests, vercel: true, ts: new Date().toISOString() })
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   const parsedUrl = new URL(req.url, 'https://x.invalid')
@@ -530,6 +555,9 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end()
 
   try {
+    // Health check
+    if (pathStr === 'health') return await handleHealth(res)
+
     // Events
     if (req.method === 'POST' && pathStr === 'events') return await handleCreateEvent(req, res)
     if (req.method === 'GET'  && pathStr === 'events/mine') return await handleGetMyEvents(req, res)
