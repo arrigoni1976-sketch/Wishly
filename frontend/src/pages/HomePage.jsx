@@ -122,7 +122,10 @@ export default function HomePage() {
     return Date.now() - new Date(partyDate).getTime() > HIDE_AFTER_DAYS * 24 * 60 * 60 * 1000
   }
 
-  const visibleInvites = myInvites.filter((inv) => !isExpired(inv.partyDate))
+  const myEventIds = new Set(myEvents.map((ev) => ev.id))
+  const visibleInvites = myInvites.filter(
+    (inv) => !isExpired(inv.partyDate) && !(inv.eventId && myEventIds.has(inv.eventId))
+  )
 
   return (
     <Layout>

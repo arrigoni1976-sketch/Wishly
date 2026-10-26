@@ -514,6 +514,7 @@ export default function GuestWishlistPage() {
             childName: data.child_name,
             partyDate: data.party_date,
             guestToken,
+            eventId: data.id,
             visitedAt: new Date().toISOString(),
           })
           localStorage.setItem('piky_invites', JSON.stringify(saved.slice(0, 20)))
