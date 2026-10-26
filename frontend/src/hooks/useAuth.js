@@ -38,11 +38,14 @@ export function useAuth() {
           data: { email, password },
         })
         if (resp.status === 200 && resp.data?.access_token) {
-          const { access_token, refresh_token } = resp.data
+          const { access_token } = resp.data
+          const iosUser = resp.data.user ?? null
           setAuthToken(access_token)
-          // Register session with Supabase client (no network call, JWT decoded locally)
-          await supabase.auth.setSession({ access_token, refresh_token })
-          return { data: { user: resp.data.user, session: resp.data }, error: null }
+          // Update React user state directly — skip setSession() which internally
+          // calls getUser() via patched fetch, can fail, and would undo everything.
+          setUser(iosUser)
+          setLoading(false)
+          return { data: { user: iosUser, session: resp.data }, error: null }
         }
         const msg = resp.data?.error_description || resp.data?.msg || 'Email o password non corretti'
         return { data: { user: null, session: null }, error: { message: msg } }
