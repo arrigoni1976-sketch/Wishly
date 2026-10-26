@@ -3,21 +3,34 @@ import { Capacitor, CapacitorHttp } from '@capacitor/core'
 import { supabase, supabaseUrl, supabaseAnonKey } from '../lib/supabase'
 import { setAuthToken } from '../lib/authState'
 
+// Module-level user store: ensures ALL useAuth() instances update together.
+// Individual useState would only update the calling component's instance.
+let _user = null
+const _userListeners = new Set()
+function broadcastUser(u) {
+  _user = u
+  _userListeners.forEach(fn => fn(u))
+}
+
 export function useAuth() {
-  const [user, setUser] = useState(null)
+  const [user, _setUser] = useState(_user)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    _userListeners.add(_setUser)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setAuthToken(session?.access_token ?? null)
-      setUser(session?.user ?? null)
+      broadcastUser(session?.user ?? null)
       setLoading(false)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthToken(session?.access_token ?? null)
-      setUser(session?.user ?? null)
+      broadcastUser(session?.user ?? null)
     })
-    return () => subscription.unsubscribe()
+    return () => {
+      _userListeners.delete(_setUser)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signIn = async (email, password) => {
@@ -41,10 +54,8 @@ export function useAuth() {
           const { access_token } = resp.data
           const iosUser = resp.data.user ?? null
           setAuthToken(access_token)
-          // Update React user state directly — skip setSession() which internally
-          // calls getUser() via patched fetch, can fail, and would undo everything.
-          setUser(iosUser)
-          setLoading(false)
+          // Broadcast to ALL useAuth instances (not just the calling component's state).
+          broadcastUser(iosUser)
           return { data: { user: iosUser, session: resp.data }, error: null }
         }
         const msg = resp.data?.error_description || resp.data?.msg || 'Email o password non corretti'
