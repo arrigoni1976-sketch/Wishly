@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { supabase } from './supabase'
+import { getAuthToken } from './authState'
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL || ''}/api`,
@@ -8,14 +9,19 @@ const api = axios.create({
 
 api.interceptors.request.use(async (config) => {
   try {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session?.access_token) {
-      config.headers.Authorization = `Bearer ${session.access_token}`
+    // Use token from in-memory store (set by onAuthStateChange) to avoid calling
+    // getSession(), which on iOS+CapacitorHttp can trigger a broken refresh and wipe the session.
+    let token = getAuthToken()
+    if (!token) {
+      // Fallback: direct getSession() for the very first request before onAuthStateChange fires
+      const { data: { session } } = await supabase.auth.getSession()
+      token = session?.access_token ?? null
+    }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
     }
   } catch (err) {
-    // getSession() can throw on iOS WKWebView if localStorage is restricted;
-    // let the request proceed so the server returns a proper 401 instead of a silent JS crash.
-    console.warn('[api] getSession error:', err?.message)
+    console.warn('[api] auth error:', err?.message)
   }
   return config
 })

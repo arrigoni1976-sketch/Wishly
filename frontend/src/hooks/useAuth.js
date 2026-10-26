@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { setAuthToken } from '../lib/authState'
 
 export function useAuth() {
   const [user, setUser] = useState(null)
@@ -7,10 +8,12 @@ export function useAuth() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthToken(session?.access_token ?? null)
       setUser(session?.user ?? null)
       setLoading(false)
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthToken(session?.access_token ?? null)
       setUser(session?.user ?? null)
     })
     return () => subscription.unsubscribe()
