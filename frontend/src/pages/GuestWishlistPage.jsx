@@ -506,8 +506,8 @@ export default function GuestWishlistPage() {
       const data = res.data
       setEvent(data)
 
-      // Salva l'invito nel localStorage per ritrovarlo dalla homepage
-      try {
+      // Salva l'invito nel localStorage per ritrovarlo dalla homepage (non in anteprima)
+      if (!isPreview) try {
         const saved = JSON.parse(localStorage.getItem('piky_invites') || '[]')
         const alreadySaved = saved.find((e) => e.guestToken === guestToken)
         if (!alreadySaved) {
