@@ -646,14 +646,9 @@ export default function ParentDashboardPage() {
               {copied ? t('dashboard.share.copied') : t('dashboard.share.btn')}
             </button>
             <button
-              onClick={async () => {
+              onClick={() => {
                 const previewUrl = `${baseUrl}/lista/${event?.guest_token}?preview=1`
-                if (isNative()) {
-                  const { App } = await import('@capacitor/app')
-                  await App.openUrl({ url: previewUrl })
-                } else {
-                  window.open(previewUrl, '_blank')
-                }
+                window.open(previewUrl, isNative() ? '_system' : '_blank')
               }}
               className="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center gap-1.5 transition-colors whitespace-nowrap"
               title={t('dashboard.share.preview_title')}
