@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useSearchParams } from 'react-router-dom'
+import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom'
 import {
   Gift, Users, Plus, Calendar, Clock, MapPin,
   Mail, ChevronDown, ChevronUp, Pencil, Trash2, X, Check, PartyPopper,
@@ -169,6 +169,7 @@ function GiftModal({ isOpen, onClose, onSave, initialData }) {
 export default function ParentDashboardPage() {
   const { parentToken } = useParams()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isNew = searchParams.get('nuovo') === '1'
   const [showNewBanner, setShowNewBanner] = useState(isNew)
@@ -647,8 +648,11 @@ export default function ParentDashboardPage() {
             </button>
             <button
               onClick={() => {
-                const previewUrl = `${baseUrl}/lista/${event?.guest_token}?preview=1`
-                window.open(previewUrl, isNative() ? '_system' : '_blank')
+                if (isNative()) {
+                  navigate(`/lista/${event?.guest_token}?preview=1`)
+                } else {
+                  window.open(`${baseUrl}/lista/${event?.guest_token}?preview=1`, '_blank')
+                }
               }}
               className="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm text-gray-500 hover:bg-gray-50 flex items-center gap-1.5 transition-colors whitespace-nowrap"
               title={t('dashboard.share.preview_title')}
