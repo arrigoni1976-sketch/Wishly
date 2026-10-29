@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Calendar, CalendarPlus, Clock, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil, Lock } from 'lucide-react'
 import Layout from '../components/Layout'
@@ -469,6 +469,7 @@ function RsvpSection({ eventId, guestToken, existingRsvp, onRsvpSaved, serverRsv
 export default function GuestWishlistPage() {
   const { guestToken } = useParams()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isPreview = searchParams.get('preview') === '1'
   const [event, setEvent] = useState(null)
@@ -489,9 +490,8 @@ export default function GuestWishlistPage() {
   const [keyError, setKeyError] = useState('')
   const [keyLinked, setKeyLinked] = useState(false)
   const [notifStatus, setNotifStatus] = useState(() => {
-    // Notification esiste su iOS 16.4+, ma i Service Worker (necessari per Web Push)
-    // non sono supportati in WKWebView — controlliamo entrambi
-    if (typeof Notification === 'undefined' || !('serviceWorker' in navigator)) return 'unsupported'
+    // Nascondi solo su native Capacitor (WKWebView non supporta Web Push)
+    if (isNative() || typeof Notification === 'undefined') return 'unsupported'
     if (Notification.permission === 'granted') return 'granted'
     if (Notification.permission === 'denied') return 'denied'
     return 'default'
@@ -505,8 +505,8 @@ export default function GuestWishlistPage() {
       const data = res.data
       setEvent(data)
 
-      // Salva l'invito nel localStorage per ritrovarlo dalla homepage
-      try {
+      // Salva l'invito nel localStorage per ritrovarlo dalla homepage (non in anteprima)
+      if (!isPreview) try {
         const saved = JSON.parse(localStorage.getItem('piky_invites') || '[]')
         const alreadySaved = saved.find((e) => e.guestToken === guestToken)
         if (!alreadySaved) {
@@ -740,7 +740,7 @@ export default function GuestWishlistPage() {
         <div className="sticky top-0 z-40 bg-salvia text-white text-sm flex items-center justify-between px-4 py-2.5 shadow-md">
           <span>{t('guest.preview.banner')}</span>
           <button
-            onClick={() => window.close()}
+            onClick={() => isNative() ? navigate(-1) : window.close()}
             className="font-medium underline hover:no-underline ml-4 whitespace-nowrap"
           >
             {t('guest.preview.close')}

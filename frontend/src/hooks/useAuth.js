@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Capacitor, CapacitorHttp } from '@capacitor/core'
+import { Preferences } from '@capacitor/preferences'
 import { supabase, supabaseUrl, supabaseAnonKey } from '../lib/supabase'
 import { setAuthToken } from '../lib/authState'
 
@@ -37,7 +38,8 @@ export function useAuth() {
     // On iOS+CapacitorHttp, the patched window.fetch can corrupt Supabase's auth
     // response parsing so that result.data.session is null even on HTTP 200.
     // Use CapacitorHttp.request() (native HTTP, not patched fetch) as the primary
-    // path, then register the session with Supabase so React state stays in sync.
+    // path, then persist the session to Preferences (iOS UserDefaults) so that
+    // getSession() finds it on the next call and across app restarts.
     if (Capacitor.isNativePlatform()) {
       try {
         const resp = await CapacitorHttp.request({
@@ -51,10 +53,11 @@ export function useAuth() {
           data: { email, password },
         })
         if (resp.status === 200 && resp.data?.access_token) {
-          const { access_token } = resp.data
           const iosUser = resp.data.user ?? null
-          setAuthToken(access_token)
-          // Broadcast to ALL useAuth instances (not just the calling component's state).
+          // Write session to Preferences so getSession() can read it (survives app restarts).
+          const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
+          await Preferences.set({ key: `sb-${projectRef}-auth-token`, value: JSON.stringify(resp.data) })
+          setAuthToken(resp.data.access_token)
           broadcastUser(iosUser)
           return { data: { user: iosUser, session: resp.data }, error: null }
         }
