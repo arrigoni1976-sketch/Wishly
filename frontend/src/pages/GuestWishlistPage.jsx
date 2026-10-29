@@ -490,9 +490,8 @@ export default function GuestWishlistPage() {
   const [keyError, setKeyError] = useState('')
   const [keyLinked, setKeyLinked] = useState(false)
   const [notifStatus, setNotifStatus] = useState(() => {
-    // Notification esiste su iOS 16.4+, ma i Service Worker (necessari per Web Push)
-    // non sono supportati in WKWebView — controlliamo entrambi
-    if (typeof Notification === 'undefined' || !('serviceWorker' in navigator)) return 'unsupported'
+    // Nascondi solo su native Capacitor (WKWebView non supporta Web Push)
+    if (isNative() || typeof Notification === 'undefined') return 'unsupported'
     if (Notification.permission === 'granted') return 'granted'
     if (Notification.permission === 'denied') return 'denied'
     return 'default'

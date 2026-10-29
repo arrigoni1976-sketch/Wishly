@@ -181,8 +181,8 @@ export default function ParentDashboardPage() {
   const [showRsvp, setShowRsvp] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [notifStatus, setNotifStatus] = useState(() => {
-    // Also check for serviceWorker — Web Push requires SW, not available on iOS WKWebView
-    if (typeof Notification === 'undefined' || !('serviceWorker' in navigator)) return 'unsupported'
+    // Nascondi solo su native Capacitor (WKWebView non supporta Web Push)
+    if (isNative() || typeof Notification === 'undefined') return 'unsupported'
     if (Notification.permission === 'granted') return 'granted'
     if (Notification.permission === 'denied') return 'denied'
     return 'default'
