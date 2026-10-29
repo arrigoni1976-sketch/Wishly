@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["3LN3K4RFRG.it.pikyapp.piky"],
+        "components": [
+          { "/": "/lista/*" },
+          { "/": "/collettivo/*" },
+          { "/": "/r/*" }
+        ]
+      }
+    ]
+  }
+}
