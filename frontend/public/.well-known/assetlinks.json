@@ -3,8 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "it.pikyapp.piky",
-    "sha256_cert_fingerprints": [
-      "42:E5:58:3E:F7:CE:75:29:72:FC:52:7B:A1:48:B8:DA:F5:AB:D2:80:2F:45:B4:7B:D7:19:02:86:AF:FA:BA:C9"
-    ]
+    "sha256_cert_fingerprints": ["42:E5:58:3E:F7:CE:75:29:72:FC:52:7B:A1:48:B8:DA:F5:AB:D2:80:2F:45:B4:7B:D7:19:02:86:AF:FA:BA:C9"]
   }
 }]
