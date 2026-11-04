@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1084762843335",
+    "project_id": "piky-41084",
+    "storage_bucket": "piky-41084.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1084762843335:android:ad20303d5bf0c4da6936e2",
+        "android_client_info": {
+          "package_name": "it.pikyapp.piky"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABoc0tcI0CIidZ1jwnWld-Zne_WR0Rw84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
