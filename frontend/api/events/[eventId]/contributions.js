@@ -128,7 +128,7 @@ export default async function handler(req, res) {
 
   if (isImmediate) {
     try {
-      const { sendPushToEvent } = await import('../../lib/fcm.js')
+      const { sendPushToEvent } = await import('../../_lib/fcm.js')
       await sendPushToEvent(eventId, {
         title: '💰 Nuova contribuzione',
         body: `${contributorName} ha contribuito €${amount} al regalo collettivo`,

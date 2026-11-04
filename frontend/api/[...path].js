@@ -237,7 +237,7 @@ async function handleReserveGift(giftId, req, res) {
   if (!data) return res.status(409).json({ message: 'Regalo già prenotato da qualcun altro' })
 
   try {
-    const { sendPushToEvent } = await import('./lib/fcm.js')
+    const { sendPushToEvent } = await import('./_lib/fcm.js')
     await sendPushToEvent(gift.event_id, {
       title: '🎁 Regalo prenotato',
       body: `${guestName} ha prenotato "${gift.name}"`,
@@ -339,7 +339,7 @@ async function handleSubmitRsvp(eventId, req, res) {
   try {
     const emoji = status === 'yes' ? '✅' : status === 'no' ? '❌' : '🤔'
     const label = status === 'yes' ? 'ha confermato' : status === 'no' ? 'ha declinato' : 'è forse disponibile'
-    const { sendPushToEvent } = await import('./lib/fcm.js')
+    const { sendPushToEvent } = await import('./_lib/fcm.js')
     await sendPushToEvent(eventId, {
       title: `${emoji} RSVP ricevuto`,
       body: `${guestName} ${label}`,
