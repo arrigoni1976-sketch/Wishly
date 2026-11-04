@@ -235,6 +235,16 @@ async function handleReserveGift(giftId, req, res) {
 
   if (error) return res.status(500).json({ message: error.message })
   if (!data) return res.status(409).json({ message: 'Regalo già prenotato da qualcun altro' })
+
+  try {
+    const { sendPushToEvent } = await import('./lib/fcm.js')
+    await sendPushToEvent(gift.event_id, {
+      title: '🎁 Regalo prenotato',
+      body: `${guestName} ha prenotato "${gift.name}"`,
+      data: { type: 'gift_reserved', giftId: String(giftId) },
+    })
+  } catch {}
+
   return res.status(200).json(data)
 }
 
@@ -325,6 +335,18 @@ async function handleSubmitRsvp(eventId, req, res) {
     }
     return res.status(500).json({ message: error.message })
   }
+
+  try {
+    const emoji = status === 'yes' ? '✅' : status === 'no' ? '❌' : '🤔'
+    const label = status === 'yes' ? 'ha confermato' : status === 'no' ? 'ha declinato' : 'è forse disponibile'
+    const { sendPushToEvent } = await import('./lib/fcm.js')
+    await sendPushToEvent(eventId, {
+      title: `${emoji} RSVP ricevuto`,
+      body: `${guestName} ${label}`,
+      data: { type: 'rsvp', status },
+    })
+  } catch {}
+
   return res.status(201).json(data)
 }
 

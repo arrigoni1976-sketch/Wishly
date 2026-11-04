@@ -125,5 +125,17 @@ export default async function handler(req, res) {
   }
 
   console.log(`[contributions] ok eventId=${eventId} amount=${amount} method=${paymentMethod} status=${contribution.status}`)
+
+  if (isImmediate) {
+    try {
+      const { sendPushToEvent } = await import('../../lib/fcm.js')
+      await sendPushToEvent(eventId, {
+        title: '💰 Nuova contribuzione',
+        body: `${contributorName} ha contribuito €${amount} al regalo collettivo`,
+        data: { type: 'contribution', amount: String(amount) },
+      })
+    } catch {}
+  }
+
   return res.status(201).json(contribution)
 }
