@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Calendar, CalendarPlus, Clock, MapPin, Users, Gift, HelpCircle, Frown, AlertCircle, FileText, Share2, Pencil, Lock } from 'lucide-react'
 import Layout from '../components/Layout'
@@ -899,12 +899,12 @@ export default function GuestWishlistPage() {
                     </p>
                   </div>
                   {myCollectiveTotal > 0 && (
-                    <Link
-                      to={`/collettivo/${event.collective_token}`}
+                    <a
+                      href={`${baseUrl}/collettivo/${event.collective_token}`}
                       className="text-salvia hover:text-salvia-dark transition-colors p-1 flex-shrink-0"
                     >
                       <Pencil className="w-4 h-4" />
-                    </Link>
+                    </a>
                   )}
                 </div>
                 {myCollectiveTotal > 0 ? (
@@ -932,19 +932,19 @@ export default function GuestWishlistPage() {
                   </>
                 )}
                 {myCollectiveTotal === 0 ? (
-                  <Link
-                    to={`/collettivo/${event.collective_token}`}
+                  <a
+                    href={`${baseUrl}/collettivo/${event.collective_token}`}
                     className="btn-primary text-sm py-2 px-4 inline-block"
                   >
                     {t('guest.collective.contribute_btn')}
-                  </Link>
+                  </a>
                 ) : (
-                  <Link
-                    to={`/collettivo/${event.collective_token}`}
+                  <a
+                    href={`${baseUrl}/collettivo/${event.collective_token}`}
                     className="text-xs text-gray-400 hover:text-salvia transition-colors"
                   >
                     {t('guest.collective.add_more')}
-                  </Link>
+                  </a>
                 )}
               </div>
             </div>
