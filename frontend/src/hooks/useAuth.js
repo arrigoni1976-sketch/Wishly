@@ -4,32 +4,45 @@ import { Preferences } from '@capacitor/preferences'
 import { supabase, supabaseUrl, supabaseAnonKey } from '../lib/supabase'
 import { setAuthToken } from '../lib/authState'
 
-// Module-level user store: ensures ALL useAuth() instances update together.
+// Module-level user/loading store: ensures ALL useAuth() instances update together.
 // Individual useState would only update the calling component's instance.
 let _user = null
+let _loading = true
 const _userListeners = new Set()
+const _loadingListeners = new Set()
 function broadcastUser(u) {
   _user = u
   _userListeners.forEach(fn => fn(u))
 }
+function broadcastLoading(l) {
+  _loading = l
+  _loadingListeners.forEach(fn => fn(l))
+}
 
 export function useAuth() {
   const [user, _setUser] = useState(_user)
-  const [loading, setLoading] = useState(true)
+  const [loading, _setLoading] = useState(_loading)
 
   useEffect(() => {
     _userListeners.add(_setUser)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthToken(session?.access_token ?? null)
-      broadcastUser(session?.user ?? null)
-      setLoading(false)
-    })
+    _loadingListeners.add(_setLoading)
+    // On iOS, getSession() with an expired token triggers a CapacitorHttp broken refresh
+    // that may throw or wipe the session. The .catch() ensures loading is always cleared
+    // so that after a manual signIn() the homepage can fetch events.
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setAuthToken(session?.access_token ?? null)
+        broadcastUser(session?.user ?? null)
+        broadcastLoading(false)
+      })
+      .catch(() => broadcastLoading(false))
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthToken(session?.access_token ?? null)
       broadcastUser(session?.user ?? null)
     })
     return () => {
       _userListeners.delete(_setUser)
+      _loadingListeners.delete(_setLoading)
       subscription.unsubscribe()
     }
   }, [])
@@ -58,6 +71,7 @@ export function useAuth() {
           const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
           await Preferences.set({ key: `sb-${projectRef}-auth-token`, value: JSON.stringify(resp.data) })
           setAuthToken(resp.data.access_token)
+          broadcastLoading(false)
           broadcastUser(iosUser)
           return { data: { user: iosUser, session: resp.data }, error: null }
         }
