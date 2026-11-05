@@ -1,6 +1,7 @@
 import webpush from 'web-push'
 import { supabase } from '../lib/supabase.js'
 import { formatEur } from '../lib/utils.js'
+import { getMessaging } from '../lib/firebase.js'
 
 const VAPID_EMAIL = process.env.VAPID_EMAIL || 'mailto:noreply@pikyapp.it'
 
@@ -208,6 +209,67 @@ export async function sendClosingPushes() {
   console.log(`[push] Closing push inviate per ${events.length} eventi`)
 }
 
+export async function saveNativeToken(parentToken, fcmToken, platform) {
+  try {
+    // Recupera event_id dalla tabella events tramite parent_token
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('parent_token', parentToken)
+      .maybeSingle()
+    if (!event) return
+
+    await supabase
+      .from('device_tokens')
+      .upsert({ event_id: event.id, token: fcmToken, platform, updated_at: new Date().toISOString() }, { onConflict: 'token' })
+  } catch (err) {
+    console.error('[push] saveNativeToken error:', err.message)
+  }
+}
+
+async function sendFcmToParent(parentToken, { title, body, url }) {
+  const messaging = getMessaging()
+  if (!messaging) return
+
+  const { data: event } = await supabase
+    .from('events')
+    .select('id')
+    .eq('parent_token', parentToken)
+    .maybeSingle()
+  if (!event) return
+
+  const { data: tokens } = await supabase
+    .from('device_tokens')
+    .select('token, platform')
+    .eq('event_id', event.id)
+
+  if (!tokens?.length) return
+
+  const expired = []
+  for (const { token, platform } of tokens) {
+    try {
+      await messaging.send({
+        token,
+        notification: { title, body },
+        data: { url: url || '/' },
+        ...(platform === 'ios' ? { apns: { payload: { aps: { sound: 'default' } } } } : {}),
+      })
+      console.log(`[push] ✅ FCM inviata a ${parentToken.slice(0, 8)}… (${platform})`)
+    } catch (err) {
+      if (err.code === 'messaging/registration-token-not-registered' || err.code === 'messaging/invalid-registration-token') {
+        expired.push(token)
+      } else {
+        console.error(`[push] FCM error:`, err.message)
+      }
+    }
+  }
+
+  if (expired.length) {
+    await supabase.from('device_tokens').delete().in('token', expired)
+    console.log(`[push] ${expired.length} token FCM scaduti rimossi`)
+  }
+}
+
 export async function sendPushToParent(parentToken, { title, body, url }) {
   if (!publicKey) {
     console.warn('[push] VAPID non inizializzato — push ignorata')
@@ -224,7 +286,7 @@ export async function sendPushToParent(parentToken, { title, body, url }) {
     if (!data) { console.log(`[push] Nessuna subscription per ${parentToken.slice(0, 8)}…`); return }
 
     await webpush.sendNotification(data.subscription, JSON.stringify({ title, body, url }))
-    console.log(`[push] ✅ Push inviata a ${parentToken.slice(0, 8)}…`)
+    console.log(`[push] ✅ Push web inviata a ${parentToken.slice(0, 8)}…`)
   } catch (err) {
     if (err.statusCode === 410 || err.statusCode === 404) {
       console.log(`[push] Subscription scaduta per ${parentToken.slice(0, 8)}… — rimossa`)
@@ -233,4 +295,7 @@ export async function sendPushToParent(parentToken, { title, body, url }) {
       console.error(`[push] sendNotification error (${err.statusCode}):`, err.message)
     }
   }
+
+  // Invia anche via FCM ai dispositivi nativi (iOS/Android)
+  await sendFcmToParent(parentToken, { title, body, url })
 }

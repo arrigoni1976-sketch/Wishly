@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getVapidPublicKey, saveSubscription, saveGuestSubscription, sendPushToParent, sendPushToGuests } from '../services/push.js'
+import { getVapidPublicKey, saveSubscription, saveGuestSubscription, sendPushToParent, sendPushToGuests, saveNativeToken } from '../services/push.js'
 import { supabase } from '../lib/supabase.js'
 import { createResourceLimiter, emailSendLimiter } from '../lib/rateLimit.js'
 
@@ -86,6 +86,29 @@ router.post('/broadcast/:parentToken', createResourceLimiter, async (req, res, n
     })
 
     res.json({ ok: true, ...result })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// POST /api/push/register-native — salva token FCM da app iOS/Android
+router.post('/register-native', createResourceLimiter, async (req, res, next) => {
+  try {
+    const { token, platform, parentToken } = req.body
+    if (!token || !platform || !parentToken) {
+      return res.status(400).json({ message: 'token, platform e parentToken obbligatori' })
+    }
+
+    const { data: event } = await supabase
+      .from('events')
+      .select('id')
+      .eq('parent_token', parentToken)
+      .maybeSingle()
+
+    if (!event) return res.status(403).json({ message: 'Token non valido' })
+
+    await saveNativeToken(parentToken, token, platform)
+    res.json({ ok: true })
   } catch (err) {
     next(err)
   }

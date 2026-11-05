@@ -15,6 +15,7 @@ import BalloonIcon from '../components/BalloonIcon'
 import CelebrationIcon from '../components/CelebrationIcon'
 import HeartRibbonIcon from '../components/HeartRibbonIcon'
 import { getEventByParentToken, addGift, updateGift, deleteGift, updateEvent, getPushVapidKey, subscribePush, broadcastPush } from '../lib/api'
+import { useNativePush } from '../hooks/usePushNotifications'
 import { useTranslation } from 'react-i18next'
 import { formatEur } from '../lib/format'
 import { isNative, getAppBaseUrl } from '../lib/platform'
@@ -204,6 +205,8 @@ export default function ParentDashboardPage() {
   const [broadcastMsg, setBroadcastMsg] = useState('')
   const [broadcastSending, setBroadcastSending] = useState(false)
   const [broadcastResult, setBroadcastResult] = useState(null) // { sent, failed } | null
+
+  useNativePush(parentToken)
 
   const dateLocale = i18n.language === 'en' ? enUS : it
 

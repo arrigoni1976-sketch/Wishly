@@ -12,6 +12,7 @@ import adminRouter from './routes/admin.js'
 import pushRouter from './routes/push.js'
 import accountRouter from './routes/account.js'
 import { initVapid, sendClosingPushes, sendPartyFollowupPushes } from './services/push.js'
+import { initFirebase } from './lib/firebase.js'
 import { sendReminders, sendClosingSummaries, sendWeeklyAdminReport } from './services/email.js'
 import { deleteExpiredEvents } from './services/retention.js'
 import { getAdminStats } from './services/adminStats.js'
@@ -156,6 +157,7 @@ cron.schedule('0 8 * * 1', async () => {
 }, { timezone: 'Europe/Rome' })
 
 // ─── Start ───────────────────────────────────────────────────────────────────
+initFirebase()
 initVapid().then(() => {
   app.listen(PORT, () => {
     console.log(`✅ Piky backend running on http://localhost:${PORT}`)

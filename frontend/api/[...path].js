@@ -235,6 +235,16 @@ async function handleReserveGift(giftId, req, res) {
 
   if (error) return res.status(500).json({ message: error.message })
   if (!data) return res.status(409).json({ message: 'Regalo già prenotato da qualcun altro' })
+
+  try {
+    const { sendPushToEvent } = await import('./_lib/fcm.js')
+    await sendPushToEvent(gift.event_id, {
+      title: '🎁 Regalo prenotato',
+      body: `${guestName} ha prenotato "${gift.name}"`,
+      data: { type: 'gift_reserved', giftId: String(giftId) },
+    })
+  } catch {}
+
   return res.status(200).json(data)
 }
 
@@ -325,6 +335,18 @@ async function handleSubmitRsvp(eventId, req, res) {
     }
     return res.status(500).json({ message: error.message })
   }
+
+  try {
+    const emoji = status === 'yes' ? '✅' : status === 'no' ? '❌' : '🤔'
+    const label = status === 'yes' ? 'ha confermato' : status === 'no' ? 'ha declinato' : 'è forse disponibile'
+    const { sendPushToEvent } = await import('./_lib/fcm.js')
+    await sendPushToEvent(eventId, {
+      title: `${emoji} RSVP ricevuto`,
+      body: `${guestName} ${label}`,
+      data: { type: 'rsvp', status },
+    })
+  } catch {}
+
   return res.status(201).json(data)
 }
 
@@ -517,6 +539,22 @@ async function handleUserKeys(pathStr, req, res) {
 }
 
 // ─── GET /api/health ──────────────────────────────────────────────────────────
+async function handleRegisterNativePush(req, res) {
+  const { token, platform, parentToken } = req.body || {}
+  if (!token || !platform || !parentToken) {
+    return res.status(400).json({ message: 'token, platform e parentToken obbligatori' })
+  }
+  const db = getSupabase()
+  const { data: event } = await db.from('events').select('id').eq('parent_token', parentToken).maybeSingle()
+  if (!event) return res.status(403).json({ message: 'Non autorizzato' })
+  const { error } = await db.from('device_tokens').upsert(
+    { event_id: event.id, token, platform, updated_at: new Date().toISOString() },
+    { onConflict: 'token' }
+  )
+  if (error) return res.status(500).json({ message: error.message })
+  return res.status(200).json({ ok: true })
+}
+
 async function handleHealth(res) {
   const tests = []
   const supabaseUrl = process.env.VITE_SUPABASE_URL
@@ -623,6 +661,11 @@ export default async function handler(req, res) {
     if (pathStr.startsWith('user-keys')) {
       const handled = await handleUserKeys(pathStr, req, res)
       if (handled !== null) return
+    }
+
+    // Native push token registration
+    if (req.method === 'POST' && pathStr === 'push/register-native') {
+      return await handleRegisterNativePush(req, res)
     }
 
   } catch (err) {

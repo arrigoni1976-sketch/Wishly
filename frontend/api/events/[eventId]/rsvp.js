@@ -98,5 +98,17 @@ export default async function handler(req, res) {
   }
 
   console.log(`[rsvp] ok eventId=${eventId} guest=${guestName} status=${status}`)
+
+  try {
+    const emoji = status === 'yes' ? '✅' : status === 'no' ? '❌' : '🤔'
+    const label = status === 'yes' ? 'ha confermato' : status === 'no' ? 'ha declinato' : 'è forse disponibile'
+    const { sendPushToEvent } = await import('../../_lib/fcm.js')
+    await sendPushToEvent(eventId, {
+      title: `${emoji} RSVP ricevuto`,
+      body: `${guestName} ${label}`,
+      data: { type: 'rsvp', status },
+    })
+  } catch {}
+
   return res.status(201).json(data)
 }
