@@ -71,6 +71,13 @@ export function useAuth() {
           const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
           await Preferences.set({ key: `sb-${projectRef}-auth-token`, value: JSON.stringify(resp.data) })
           setAuthToken(resp.data.access_token)
+          // Tell Supabase about the new session so any pending background refresh
+          // is cancelled and onAuthStateChange(SIGNED_OUT) doesn't fire afterwards.
+          // setSession() with a fresh token does not make network calls.
+          await supabase.auth.setSession({
+            access_token: resp.data.access_token,
+            refresh_token: resp.data.refresh_token,
+          }).catch(() => {})
           broadcastLoading(false)
           broadcastUser(iosUser)
           return { data: { user: iosUser, session: resp.data }, error: null }
