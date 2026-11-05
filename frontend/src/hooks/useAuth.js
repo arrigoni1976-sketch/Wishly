@@ -32,7 +32,8 @@ export function useAuth() {
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
         setAuthToken(session?.access_token ?? null)
-        broadcastUser(session?.user ?? null)
+        // Don't overwrite a user already set by a concurrent signIn() call
+        if (_user === null) broadcastUser(session?.user ?? null)
         broadcastLoading(false)
       })
       .catch(() => broadcastLoading(false))
