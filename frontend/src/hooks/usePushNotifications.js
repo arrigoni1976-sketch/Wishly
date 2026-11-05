@@ -18,7 +18,8 @@ export function useNativePush(parentToken) {
 
       regHandle = PushNotifications.addListener('registration', async ({ value: token }) => {
         try {
-          await fetch('/api/push/register-native', {
+          const baseUrl = import.meta.env.VITE_API_URL || ''
+          await fetch(`${baseUrl}/api/push/register-native`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token, platform: Capacitor.getPlatform(), parentToken }),
