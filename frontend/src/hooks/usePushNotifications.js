@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { PushNotifications } from '@capacitor/push-notifications'
+import { registerNativePush } from '../lib/api'
 
 // Registers for native push notifications and saves the FCM/APNs token to the backend.
 // Only active on native iOS/Android — no-op on web.
@@ -18,12 +19,7 @@ export function useNativePush(parentToken) {
 
       regHandle = PushNotifications.addListener('registration', async ({ value: token }) => {
         try {
-          const baseUrl = import.meta.env.VITE_API_URL || ''
-          await fetch(`${baseUrl}/api/push/register-native`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, platform: Capacitor.getPlatform(), parentToken }),
-          })
+          await registerNativePush({ token, platform: Capacitor.getPlatform(), parentToken })
         } catch (e) {
           console.error('[push] token save failed', e)
         }
