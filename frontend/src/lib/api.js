@@ -26,22 +26,6 @@ api.interceptors.request.use(async (config) => {
   return config
 })
 
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const original = error.config
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true
-      const { data: { session } } = await supabase.auth.refreshSession().catch(() => ({ data: {} }))
-      if (session?.access_token) {
-        original.headers.Authorization = `Bearer ${session.access_token}`
-        return api(original)
-      }
-    }
-    return Promise.reject(error)
-  }
-)
-
 // ─── Events ────────────────────────────────────────────────────────────────
 
 export const createEvent = (data) => api.post('/events', data)
